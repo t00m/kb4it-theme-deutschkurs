@@ -62,7 +62,7 @@ EXTRA = {"termin.md": TERMIN, "butterbrot.md": BUTTERBROT, "anrufen.md": ANRUFEN
 
 @pytest.fixture(scope="module")
 def site(tmp_path_factory):
-    return build_site(tmp_path_factory.mktemp("lists"), EXTRA)
+    return build_site(tmp_path_factory.mktemp("lists"), EXTRA, starter=False)
 
 
 def main(page):
@@ -149,6 +149,6 @@ def test_search_record(site):
 
 
 def test_reserved_name_refused(tmp_path):
-    site = build_site(tmp_path, {"vocabulary.md": TERMIN})
+    site = build_site(tmp_path, {"vocabulary.md": TERMIN, "kind.md": KIND}, starter=False)
     assert "vocabulary" in "\n".join(warnings(site.log))
     assert 'class="dk-row"' in site.page("vocabulary.html")

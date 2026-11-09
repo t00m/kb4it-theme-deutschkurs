@@ -33,10 +33,14 @@ def warnings(log: str) -> list[str]:
     return [line for line in log.splitlines() if LEVEL.match(line)]
 
 
-def prepare_site(tmp: Path, extra: Mapping[str, str] = {}, settings: Mapping[str, Any] = {}) -> Path:
+def prepare_site(tmp: Path, extra: Mapping[str, str] = {}, settings: Mapping[str, Any] = {},
+                 starter: bool = True) -> Path:
     """Copy the starter course into tmp, point it at this theme and return the repo.json path."""
     site = tmp / "site"
     shutil.copytree(STARTER, site)
+    if not starter:
+        for path in (site / "source").glob("*.md"):
+            path.unlink()
     (site / "target").mkdir(exist_ok=True)
     for name, text in extra.items():
         (site / "source" / name).write_text(text, encoding="utf-8")
@@ -48,9 +52,10 @@ def prepare_site(tmp: Path, extra: Mapping[str, str] = {}, settings: Mapping[str
     return config
 
 
-def build_site(tmp: Path, extra: Mapping[str, str] = {}, settings: Mapping[str, Any] = {}) -> BuiltSite:
-    """Build the starter course plus extra source files with the given theme settings."""
-    config = prepare_site(tmp, extra, settings)
+def build_site(tmp: Path, extra: Mapping[str, str] = {}, settings: Mapping[str, Any] = {},
+               starter: bool = True) -> BuiltSite:
+    """Build the starter course (or only the extra files) with the given theme settings."""
+    config = prepare_site(tmp, extra, settings, starter)
     site = config.parent.parent
     run = subprocess.run([KB4IT, "build", str(config)], capture_output=True, text=True)
     assert run.returncode == 0, run.stdout[-3000:] + run.stderr[-3000:]

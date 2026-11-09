@@ -61,6 +61,10 @@ Type: Verb
 ---
 
 # helfen
+
+## Typical mistakes
+
+- Kannst du mich helfen? :: Kannst du mir helfen?
 """
 
 DATIV = """---
@@ -87,12 +91,12 @@ EXTRA = {"termin.md": TERMIN, "butterbrot.md": BUTTERBROT, "anrufen.md": ANRUFEN
 
 @pytest.fixture(scope="module")
 def site(tmp_path_factory):
-    return build_site(tmp_path_factory.mktemp("pages"), EXTRA)
+    return build_site(tmp_path_factory.mktemp("pages"), EXTRA, starter=False)
 
 
 @pytest.fixture(scope="module")
 def b1_site(tmp_path_factory):
-    return build_site(tmp_path_factory.mktemp("pages_b1"), EXTRA, {"learner_level": "B1"})
+    return build_site(tmp_path_factory.mktemp("pages_b1"), EXTRA, {"learner_level": "B1"}, starter=False)
 
 
 def main(page: str) -> str:
@@ -162,3 +166,11 @@ def test_scripts_local(site):
         page = site.page(name)
         assert 'src="resources/themes/deutschkurs/framework/deutschkurs/core.js"' in page, name
         assert 'src="resources/themes/deutschkurs/framework/deutschkurs/speech.js"' in page, name
+
+
+def test_typical_mistakes_are_german_and_only_the_right_form_is_spoken(site):
+    html = main(site.page("helfen.html"))
+    assert '<span class="dk-wrong" lang="de">Kannst du mich helfen?</span>' in html
+    assert '<span class="dk-right" lang="de">Kannst du mir helfen?</span>' in html
+    assert 'data-say="Kannst du mir helfen?"' in html
+    assert 'data-say="Kannst du mich helfen?"' not in html

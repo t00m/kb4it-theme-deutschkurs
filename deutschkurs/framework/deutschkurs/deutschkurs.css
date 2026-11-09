@@ -45,3 +45,6 @@ a.dk-badge { color: inherit; text-decoration: none; }
 .dk-tiles { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .75rem; }
 .dk-tile { display: flex; flex-direction: column; padding: .75rem; border: 1px solid #d0d7de; border-radius: 6px; text-decoration: none; color: inherit; }
 .dk-tile .dk-count { font-size: 1.5rem; color: var(--dk-accent); }
+.dk-mistake .dk-wrong { text-decoration: line-through; color: var(--dk-muted); }
+.dk-mistake .dk-right { display: block; }
+.dk-mistake .dk-right::before { content: "\2192\00a0"; color: var(--dk-accent); }

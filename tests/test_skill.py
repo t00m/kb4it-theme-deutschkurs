@@ -18,7 +18,7 @@ FENCED = re.compile(r"```markdown\n(.*?)```", re.S)
 
 def props_of(markdown):
     """Frontmatter as KB4IT reads it: values split on commas."""
-    front = yaml.safe_load(markdown.split("---")[1])
+    front = yaml.load(markdown.split("---")[1], Loader=yaml.BaseLoader)
     return {k: tuple(v.strip() for v in str(val).split(",")) for k, val in front.items() if val is not None}
 
 
@@ -118,7 +118,7 @@ def test_published(built_site):
 def test_site_appendix_has_no_body_text(tmp_path):
     from conftest import build_site
     from test_pages import TERMIN
-    site = build_site(tmp_path, {"termin.md": TERMIN})
+    site = build_site(tmp_path, {"termin.md": TERMIN}, starter=False)
     site_md = (site.target / "skills" / "deutschkurs" / "reference" / "site.md").read_text(encoding="utf-8")
     assert "Termin" in site_md
     assert "morgen" not in site_md and "cita" not in site_md

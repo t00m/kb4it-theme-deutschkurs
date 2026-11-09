@@ -29,7 +29,27 @@ def listen_button(text: str, label: str) -> str:
 
 
 def pairs_html(fragment: str, native: str, listen_label: str) -> str:
-    """Turn list items 'German :: translation' into a German span, a Listen button and a translation."""
+    """Turn 'German :: translation' items into spans and Listen buttons; 'wrong :: right' under Typical mistakes."""
+    chunks = SECTION_START.split(fragment)
+    return "".join(_mistakes_html(c, listen_label) if 'id="typical-mistakes"' in c
+                   else _pairs_html(c, native, listen_label) for c in chunks)
+
+
+def _mistakes_html(fragment: str, listen_label: str) -> str:
+    """List items 'wrong :: right': both German, only the right form gets a Listen button."""
+
+    def item(match: re.Match) -> str:
+        content = match.group(1)
+        if "::" not in content:
+            return match.group(0)
+        wrong, _, right = (part.strip() for part in content.partition("::"))
+        return (f'<li class="dk-mistake"><span class="dk-wrong" lang="de">{wrong}</span> '
+                f'<span class="dk-right" lang="de">{right}</span> {listen_button(plain(right), listen_label)}</li>')
+
+    return LIST_ITEM.sub(item, fragment)
+
+
+def _pairs_html(fragment: str, native: str, listen_label: str) -> str:
     lang = html.escape(native, quote=True)
 
     def item(match: re.Match) -> str:
