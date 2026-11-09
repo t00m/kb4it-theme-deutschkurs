@@ -74,10 +74,12 @@ test("init with a German voice leaves the buttons on", () => {
   assert.ok(!doc.classes.has("dk-no-voice"));
 });
 
-test("init with speech off marks the body", () => {
+
+test("init with speech off hides buttons without the no-voice note", () => {
   const synth = { getVoices: () => VOICES, addEventListener() {} };
   const ctx = load({ speechSynthesis: synth });
   const doc = fakeDocument("false");
   ctx.Deutschkurs.speech.init(doc);
-  assert.ok(doc.classes.has("dk-no-voice"));
+  assert.ok(doc.classes.has("dk-speech-off"));
+  assert.ok(!doc.classes.has("dk-no-voice"));
 });

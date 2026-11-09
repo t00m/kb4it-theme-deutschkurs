@@ -21,8 +21,14 @@
     var synth = root.speechSynthesis;
     var voice = null;
 
+    // Speech switched off in the settings: hide the buttons, no note about voices.
+    if (data.speech === "false") {
+      body.classList.add("dk-speech-off");
+      return;
+    }
+
     function apply() {
-      voice = data.speech === "false" || !synth ? null : pickVoice(synth.getVoices(), data.speechLang || "de-DE", data.voice || null);
+      voice = synth ? pickVoice(synth.getVoices(), data.speechLang || "de-DE", data.voice || null) : null;
       if (voice) body.classList.remove("dk-no-voice");
       else body.classList.add("dk-no-voice");
     }
