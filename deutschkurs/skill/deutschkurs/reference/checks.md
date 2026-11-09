@@ -37,7 +37,7 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`. Some e
 |---|---|---|
 | `LABEL_UNKNOWN key=<key>` | A `labels` override names a label that does not exist | Remove or correct that key in the `labels` setting |
 | `COLOR_INVALID key=<key>` | `accent` or a `gender_colors` value is not a CSS colour; the default is used | Use a hex colour such as `#c0392b`, a colour name, or `rgb()` |
-| `PAGE_NAME_TAKEN doc=<file>` | The file name starts with `Level_`, `Topic_` or `Register_`, like a facet page | Rename the file |
+| `PAGE_NAME_TAKEN doc=<file>` | The file name is the name of a facet page, in any case: `Level`, `Topic`, `Register`, `ConversationKind` or `Genre`, alone or followed by `_` | Rename the file, for example `genre.md` to `das-genre.md` |
 
 ## KB4IT messages
 

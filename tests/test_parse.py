@@ -156,3 +156,22 @@ def test_unmarked_line_inside_a_quote_stays_in_the_translation():
     from deutschkurs.logic.parse import paragraphs
     text = "# T\n\nGuten Tag.\n\n> Good\nday.\n"
     assert [(u.german, u.translation) for u in paragraphs(text)] == [("Guten Tag.", "Good day.")]
+
+
+def test_turn_speaker_in_underscores():
+    from deutschkurs.logic.parse import turns
+    found, _, bad = turns("# T\n\n- __A:__ Hallo.\n- **B** und **C:** Nein.\n")
+    assert [(u.speaker, u.german) for u in found] == [("A", "Hallo."), ("", "B und C: Nein.")]
+    assert bad == [4]
+
+
+def test_paragraph_text_has_no_images_links_or_tags():
+    from deutschkurs.logic.parse import paragraphs
+    text = "# T\n\n![Foto](a.png) Siehe [die Seite](http://x.de) und <b>hier</b>.\n\n![Nur Bild](b.png)\n"
+    assert [u.german for u in paragraphs(text)] == ["Siehe die Seite und hier."]
+
+
+def test_rules_and_boxes_are_not_paragraphs():
+    from deutschkurs.logic.parse import paragraphs
+    text = "# T\n\nEins.\n\n---\n\n!!! note\n    Im Kasten.\n\n<span>Zwei</span> und mehr.\n\n<div>Block</div>\n"
+    assert [u.german for u in paragraphs(text)] == ["Eins.", "Zwei und mehr."]

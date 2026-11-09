@@ -1,12 +1,9 @@
 """The theme's own pages: home, lists by type and facet pages."""
 
-from kb4it.theme import page_name
-
 from .course import Course
 from .model import AREAS
-from .render import GENDER, perfekt
+from .render import FACET_KEYS, GENDER, facet_page, perfekt
 
-FACET_KEYS = ("Level", "Topic", "Register")
 LISTS = (("vocabulary", "Word"), ("verbs", "Verb"), ("chunks", "Chunk"), ("grammar", "Grammar"))
 
 
@@ -66,13 +63,13 @@ def write_pages(theme, site, course: Course) -> None:
     columns = [L["word"], L["type"], L["translation"], L["level"]]
     for key in FACET_KEYS:
         facet = course.facet(key)
-        values = [(value, page_name(key, value), len(entries)) for value, entries in facet.items()]
+        values = [(value, facet_page(key, value), len(entries)) for value, entries in facet.items()]
         heading = L[key.lower()]
-        site.page(page_name(key), heading, theme.render("DK_FACET", dk=dk, heading=heading, values=values),
+        site.page(facet_page(key), heading, theme.render("DK_FACET", dk=dk, heading=heading, values=values),
                   listing=True)
         for value, entries in facet.items():
             title = f"{heading}: {value}"
-            table(page_name(key, value), title, columns, [any_row(e, url) for e in entries])
+            table(facet_page(key, value), title, columns, [any_row(e, url) for e in entries])
 
     if "index.md" in course.entries:
         return  # the learner's own index.md is the home page

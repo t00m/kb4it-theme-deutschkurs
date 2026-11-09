@@ -65,3 +65,37 @@ def test_new_word_relinks_unchanged_pages(tmp_path):
     subprocess.run([KB4IT, "build", str(config)], check=True, capture_output=True)
     page = (config.parent.parent / "target" / "krank-test.html").read_text(encoding="utf-8")
     assert 'href="fieber.html"' in page
+
+
+TALK = """---
+Kind: model
+Level: A1
+Type: Conversation
+---
+
+# Testgespräch
+
+- **Mutter:** {line}
+"""
+
+
+def rebuild(tmp_path, name, first, second, extra={}):
+    """Build, replace one source file and build again; return the target folder."""
+    config = prepare_site(tmp_path, {name: first, **extra})
+    subprocess.run([KB4IT, "build", str(config)], check=True, capture_output=True)
+    (config.parent.parent / "source" / name).write_text(second, encoding="utf-8")
+    subprocess.run([KB4IT, "build", str(config)], check=True, capture_output=True)
+    return config.parent.parent / "target"
+
+
+def test_conversation_edit_rebuilds_the_word_page(tmp_path):
+    target = rebuild(tmp_path, "gespraech-test.md", TALK.format(line="Hallo!"),
+                     TALK.format(line="Hast du einen Termin?"))
+    assert 'href="gespraech-test.html#t1"' in (target / "termin.html").read_text(encoding="utf-8")
+
+
+def test_renamed_word_relinks_unchanged_pages(tmp_path):
+    word = "---\nArticle: das\nLevel: A2\nPartOfSpeech: noun\nTranslation: fever\nType: Word\n---\n\n# {title}\n"
+    target = rebuild(tmp_path, "fieber.md", word.format(title="Hitze"), word.format(title="Fieber"),
+                     {"krank-test.md": KRANK.replace("einen Termin beim Arzt", "Fieber")})
+    assert 'href="fieber.html"' in (target / "krank-test.html").read_text(encoding="utf-8")

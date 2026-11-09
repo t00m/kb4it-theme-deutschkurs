@@ -170,13 +170,22 @@ def test_own_index_replaces_home(tmp_path):
 
 
 def test_facet_page_names_reserved(tmp_path):
-    site = build_site(tmp_path, {"Topic.md": INDEX, "Level.md": INDEX, "Register.md": INDEX, "kind.md": KIND},
-                      starter=False)
+    names = ("Topic.md", "Level.md", "Register.md", "ConversationKind.md", "Genre.md")
+    site = build_site(tmp_path, {**{name: INDEX for name in names}, "kind.md": KIND}, starter=False)
     log = "\\n".join(warnings(site.log))
-    for name in ("Topic.md", "Level.md", "Register.md"):
+    assert "kind.md" not in log
+    for name in names:
         assert f"DOC_NAME_RESERVED doc={name}" in log or f'DOC_NAME_RESERVED doc="{name}"' in log, name
 
 
 def test_facet_value_names_warned(tmp_path):
     site = build_site(tmp_path, {"Level_A1.md": INDEX, "kind.md": KIND}, starter=False)
     assert any("PAGE_NAME_TAKEN doc=Level_A1.md" in line for line in warnings(site.log))
+
+
+def test_page_name_that_differs_only_by_case_is_warned(tmp_path):
+    genre = KIND.replace("# Kind", "# Genre").replace("die Kinder", "die Genres")
+    site = build_site(tmp_path, {"genre.md": genre, "kind.md": KIND}, starter=False)
+    log = warnings(site.log)
+    assert any("PAGE_NAME_TAKEN doc=genre.md" in line for line in log)
+    assert not any("kind.md" in line for line in log)

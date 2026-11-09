@@ -1,4 +1,4 @@
-// deutschkurs: shared namespace and the filter of list tables.
+// deutschkurs: shared namespace, the filter of list tables, dated blocks and dialogues.
 (function (root) {
   "use strict";
   var dk = (root.Deutschkurs = root.Deutschkurs || {});
@@ -38,10 +38,78 @@
     }
   }
 
+  // Day number of "YYYY-MM-DD", with or without a time; null when it is no real date.
+  function dayNumber(text) {
+    var match = /^(\d{4})-(\d{2})-(\d{2})(?:[ T]\d{2}:\d{2}(?::\d{2})?)?$/.exec(String(text || ""));
+    if (!match) return null;
+    var year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    var date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+    return date.getTime() / 86400000;
+  }
+
+  // "past" before today; "later" when more than `days` days away; "soon" otherwise; "invalid" for a bad date.
+  function dateState(date, today, days) {
+    var then = dayNumber(date), now = dayNumber(today);
+    if (then === null || now === null) return "invalid";
+    if (then < now) return "past";
+    if (days !== undefined && days !== null && then - now > Number(days)) return "later";
+    return "soon";
+  }
+
+  function localDay(now) {
+    function two(n) { return (n < 10 ? "0" : "") + n; }
+    return now.getFullYear() + "-" + two(now.getMonth() + 1) + "-" + two(now.getDate());
+  }
+
+  // Dated blocks are always in the page; hide the ones whose state is listed in data-hide.
+  function initDates(doc, today) {
+    var day = today || localDay(new Date());
+    Array.prototype.forEach.call(doc.querySelectorAll("[data-date]"), function (block) {
+      var days = block.getAttribute("data-days");
+      var state = dateState(block.getAttribute("data-date"), day, days === null || days === "" ? null : days);
+      var hide = (block.getAttribute("data-hide") || "").split(" ");
+      block.classList.add("dk-date-" + state);
+      if (state !== "invalid" && hide.indexOf(state) >= 0) block.hidden = true;
+    });
+  }
+
+  // Translations of turns show without this script; with it they hide behind a button.
+  function initDialogues(doc) {
+    var buttons = doc.querySelectorAll(".dk-toggle-tr");
+    if (!buttons.length) return;
+    var page = doc.documentElement;
+
+    function label() {
+      var hidden = page.classList.contains("dk-hide-tr");
+      Array.prototype.forEach.call(buttons, function (button) {
+        button.textContent = button.getAttribute(hidden ? "data-show" : "data-hide");
+      });
+    }
+
+    page.classList.add("dk-hide-tr");
+    Array.prototype.forEach.call(buttons, function (button) {
+      button.hidden = false;
+      button.addEventListener("click", function () {
+        if (page.classList.contains("dk-hide-tr")) page.classList.remove("dk-hide-tr");
+        else page.classList.add("dk-hide-tr");
+        label();
+      });
+    });
+    label();
+  }
+
   dk.rowMatches = rowMatches;
   dk.initFilters = initFilters;
+  dk.dateState = dateState;
+  dk.initDates = initDates;
+  dk.initDialogues = initDialogues;
 
   if (root.document && root.document.addEventListener) {
-    root.document.addEventListener("DOMContentLoaded", function () { initFilters(root.document); });
+    root.document.addEventListener("DOMContentLoaded", function () {
+      initFilters(root.document);
+      initDates(root.document);
+      initDialogues(root.document);
+    });
   }
 })(typeof window !== "undefined" ? window : this);

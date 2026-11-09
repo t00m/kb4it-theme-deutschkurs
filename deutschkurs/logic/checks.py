@@ -103,14 +103,14 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
         if get(flag) and get(flag) != ["yes"]:
             add(flag, "flag_invalid")
     for key in DATES:
-        if get(key) and not _real_date(get(key)[0]):
+        if get(key) and not real_date(get(key)[0]):
             add(key, "date_invalid")
     if topics is not None and any(t not in topics for t in get("Topic")):
         add("Topic", "topic_unknown")
     return problems
 
 
-def _real_date(value: str) -> bool:
+def real_date(value: str) -> bool:
     """True for YYYY-MM-DD, optionally with HH:MM or HH:MM:SS, that is a real calendar date."""
     if not DATE.match(value):
         return False

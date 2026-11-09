@@ -7,11 +7,17 @@ SECTION = re.compile(r"^## (.+?)\s*#*\s*$")
 FENCE = re.compile(r"^\s*(```|~~~)")
 ITEM = re.compile(r"^\s*[-*+]\s+(.*)$")
 TOP_ITEM = re.compile(r"^[-*+]\s+(.*)$")
-TURN = re.compile(r"^\*\*(.+?)(?::\*\*|\*\*:)\s*(.*)$")
+TURN = re.compile(r"^(\*\*|__)([^*_]+?)(?::\1|\1:)\s*(.*)$")
 VARIATION = re.compile(r"^(\d+)\s+(.*)$")
 TASK = re.compile(r"^\s*[-*+]\s+\[([ xX])\]\s")
 MARKUP = re.compile(r"[*_`]")
-NOT_A_PARAGRAPH = re.compile(r"^(#|>|[-*+]\s|\d+[.)]\s|\||```|~~~|<|!\[|\s{4}|\t)")
+IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+HTML_TAG = re.compile(r"<[^>]+>")
+INLINE_TAGS = "a|abbr|b|br|code|em|i|img|kbd|mark|s|small|span|strong|sub|sup|u"
+# First lines of blocks that are no paragraph: headings, quotes, lists, tables, code, rules, boxes, block HTML.
+NOT_A_PARAGRAPH = re.compile(r"^(#|>|[-*+]\s|\d+[.)]\s|\||```|~~~|!!!|\s{4}|\t|(-{3,}|\*{3,}|_{3,})\s*$"
+                             rf"|<(?!/?(?:{INLINE_TAGS})\b))")
 
 
 @dataclass(frozen=True)
@@ -108,6 +114,7 @@ def _numbered_body(markdown: str):
 
 def clean(text: str) -> str:
     """German text without Markdown emphasis marks, on one line."""
+    text = HTML_TAG.sub("", LINK.sub(r"\1", IMAGE.sub("", text)))
     return " ".join(MARKUP.sub("", text).split())
 
 
@@ -146,8 +153,8 @@ def turns(markdown: str) -> tuple[list[Unit], list[Unit], list[int]]:
             turn = TURN.match(item.group(1))
             anchor = f"t{len(found) + 1}"
             if turn:
-                german, translation = _split(turn.group(2))
-                found.append(Unit(anchor, german, translation, turn.group(1).strip(), n))
+                german, translation = _split(turn.group(3))
+                found.append(Unit(anchor, german, translation, turn.group(2).strip(), n))
             else:
                 german, translation = _split(item.group(1))
                 found.append(Unit(anchor, german, translation, "", n))
@@ -158,8 +165,8 @@ def turns(markdown: str) -> tuple[list[Unit], list[Unit], list[int]]:
             if not turn:
                 bad.append(n)
                 continue
-            german, translation = _split(turn.group(2))
-            variations.append(Unit(f"v{len(variations) + 1}", german, translation, turn.group(1).strip(), n,
+            german, translation = _split(turn.group(3))
+            variations.append(Unit(f"v{len(variations) + 1}", german, translation, turn.group(2).strip(), n,
                                    int(numbered.group(1))))
     return found, variations, bad
 
@@ -188,12 +195,14 @@ def paragraphs(markdown: str) -> list[Unit]:
         current.append(text)
     units: list[Unit] = []
     for i, (n, lines) in enumerate(blocks):
-        if NOT_A_PARAGRAPH.match(lines[0]):
+        german = clean(" ".join(lines))
+        # A paragraph that holds only images has no text.
+        if NOT_A_PARAGRAPH.match(lines[0]) or not german:
             continue
         translation = ""
         if i + 1 < len(blocks) and blocks[i + 1][1][0].startswith(">"):
             translation = " ".join(l.lstrip(">").strip() for l in blocks[i + 1][1]).strip()
-        units.append(Unit(f"s{len(units) + 1}", clean(" ".join(lines)), translation, "", n))
+        units.append(Unit(f"s{len(units) + 1}", german, translation, "", n))
     return units
 
 

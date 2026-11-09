@@ -59,3 +59,38 @@ a.dk-badge { color: inherit; text-decoration: none; }
 .dk-mistake .dk-right { display: block; }
 .dk-mistake .dk-right::before { content: "\2192\00a0"; color: var(--dk-accent); }
 .dk-speech-off .dk-listen { display: none; }
+/* Conversations: one bubble per turn, the learner on the right */
+.dk-dialogue { list-style: none; margin: 1rem 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+li.dk-turn { max-width: 85%; padding: .5rem .75rem; border: 1px solid #d0d7de; border-radius: 12px; background: #f6f8fa; }
+.dk-dialogue > .dk-turn { align-self: flex-start; }
+.dk-dialogue > .dk-me, li.dk-variation.dk-me { align-self: flex-end; margin-left: auto; background: #fff; border-color: var(--dk-accent); }
+li.dk-invalid { border-style: dashed; }
+li.dk-variation { list-style: none; margin: .5rem 0; }
+.dk-turn > p { margin: 0; }
+.dk-speaker { font-weight: 700; margin-right: .25rem; }
+.dk-speaker::after { content: ":"; }
+.dk-turn .dk-tr { display: block; color: var(--dk-muted); }
+.dk-hide-tr .dk-turn .dk-tr { display: none; }
+.dk-replaces { font-size: .75rem; padding: 0 .4rem; border-radius: 999px; background: #eaeef2; color: inherit; text-decoration: none; }
+.dk-toggle-tr { font: inherit; font-size: .8rem; padding: .1rem .5rem; border: 1px solid #d0d7de; border-radius: 4px; background: #f6f8fa; cursor: pointer; }
+.dk-turn:target, .dk-sentence:target { outline: 2px solid var(--dk-accent); outline-offset: 2px; }
+/* Texts: sentences and folded translations */
+.dk-sentence { margin-bottom: .25rem; }
+.dk-tr-fold { margin: 0 0 1rem; }
+.dk-tr-fold blockquote { margin: .25rem 0 0; padding-left: .75rem; border-left: 3px solid #d0d7de; color: var(--dk-muted); }
+/* Dated banners, kinds and reply */
+.dk-banner { padding: .5rem .75rem; border-radius: 6px; border: 1px solid #d0d7de; }
+.dk-deadline { color: #fff; background: #cf222e; border-color: #cf222e; font-weight: 700; }
+.dk-coming { border-left: 4px solid var(--dk-accent); }
+.dk-kind-real { background: #dafbe1; }
+.dk-kind-reconstructed { background: #fff8c5; }
+.dk-kind-model { background: #ddf4ff; }
+.dk-reply { color: #fff; background: #cf222e; }
+/* Where it appears, related entries and coverage */
+.dk-occurrences { list-style: none; padding: 0; }
+.dk-occurrences li { padding: .4rem 0; border-bottom: 1px solid #eaeef2; }
+.dk-occurrences .dk-tr { display: block; color: var(--dk-muted); }
+.dk-from { font-size: .85rem; }
+.dk-more, .dk-note { color: var(--dk-muted); font-size: .875rem; }
+.dk-missing { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+.dk-missing li { padding: .1rem .5rem; border: 1px solid #d0d7de; border-radius: 4px; }
