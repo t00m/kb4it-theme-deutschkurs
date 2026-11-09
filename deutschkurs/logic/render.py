@@ -35,38 +35,61 @@ def pairs_html(fragment: str, native: str, listen_label: str) -> str:
                    else _pairs_html(c, native, listen_label) for c in chunks)
 
 
+def split_pair(content: str) -> tuple[str, str] | None:
+    """Split 'left :: right' at the first '::' outside any element; None when there is none."""
+    depth, pos = 0, 0
+    for piece in re.split(r"(<[^>]+>)", content):
+        if piece.startswith("<"):
+            if piece.startswith("</"):
+                depth = max(0, depth - 1)
+            elif not piece.endswith("/>") and not re.match(r"<(br|img|hr|wbr)\b", piece):
+                depth += 1
+        elif depth == 0 and "::" in piece:
+            at = pos + piece.index("::")
+            return content[:at].strip(), content[at + 2:].strip()
+        pos += len(piece)
+    return None
+
+
+def _list_items(fragment: str, render: Callable[[str, str], str]) -> str:
+    """Apply render(left, right) to each simple list item 'left :: right', keeping a <p> wrapper."""
+
+    def item(match: re.Match) -> str:
+        inner = match.group(1)
+        if re.search(r"<(ul|ol|li)\b", inner):
+            return match.group(0)
+        wrapped = PARAGRAPH.match(inner)
+        content = wrapped.group(1) if wrapped else inner
+        pair = split_pair(content)
+        if pair is None:
+            return match.group(0)
+        css, body = render(*pair)
+        return f'<li class="{css}">{f"<p>{body}</p>" if wrapped else body}</li>'
+
+    return LIST_ITEM.sub(item, fragment)
+
+
 def _mistakes_html(fragment: str, listen_label: str) -> str:
     """List items 'wrong :: right': both German, only the right form gets a Listen button."""
 
-    def item(match: re.Match) -> str:
-        content = match.group(1)
-        if "::" not in content:
-            return match.group(0)
-        wrong, _, right = (part.strip() for part in content.partition("::"))
-        return (f'<li class="dk-mistake"><span class="dk-wrong" lang="de">{wrong}</span> '
-                f'<span class="dk-right" lang="de">{right}</span> {listen_button(plain(right), listen_label)}</li>')
+    def render(wrong: str, right: str) -> tuple[str, str]:
+        return "dk-mistake", (f'<span class="dk-wrong" lang="de">{wrong}</span> '
+                              f'<span class="dk-right" lang="de">{right}</span> '
+                              f'{listen_button(plain(right), listen_label)}')
 
-    return LIST_ITEM.sub(item, fragment)
+    return _list_items(fragment, render)
 
 
 def _pairs_html(fragment: str, native: str, listen_label: str) -> str:
     lang = html.escape(native, quote=True)
 
-    def item(match: re.Match) -> str:
-        inner = match.group(1)
-        wrapped = PARAGRAPH.match(inner)
-        content = wrapped.group(1) if wrapped else inner
-        if "::" not in content:
-            return match.group(0)
-        german, _, translation = content.partition("::")
-        german, translation = german.strip(), translation.strip()
+    def render(german: str, translation: str) -> tuple[str, str]:
         parts = [f'<span class="dk-de" lang="de">{german}</span>', listen_button(plain(german), listen_label)]
         if translation:
             parts.append(f'<span class="dk-tr dk-no-link" lang="{lang}">{translation}</span>')
-        body = " ".join(parts)
-        return f'<li class="dk-pair">{f"<p>{body}</p>" if wrapped else body}</li>'
+        return "dk-pair", " ".join(parts)
 
-    return LIST_ITEM.sub(item, fragment)
+    return _list_items(fragment, render)
 
 
 def level_at_least(level: str, other: str) -> bool:
