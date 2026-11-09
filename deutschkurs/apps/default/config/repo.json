@@ -1,0 +1,9 @@
+{
+    "title": "Mein Deutschkurs",
+    "theme": "deutschkurs",
+    "source": "source",
+    "target": "target",
+    "seo": {"index": false, "lang": "de"},
+    "markdown": {"extensions": ["pymdownx.tasklist"]},
+    "deutschkurs": {}
+}
