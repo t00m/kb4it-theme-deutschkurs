@@ -10,6 +10,9 @@ from .config import DeutschkursConfig
 from .course import Course, build_course
 from .glossary import link_html
 from .labels import labels
+from .render import card, fold_sections, grammar_order, pairs_html
+
+ENTRY_TYPES = ("Word", "Verb", "Chunk", "Grammar")
 
 
 class Theme(BaseTheme):
@@ -36,18 +39,38 @@ class Theme(BaseTheme):
         if self.config.strict and self.course.problems:
             raise ThemeError(f"{len(self.course.problems)} metadata problems and strict is on")
 
+    def dk_var(self, entry=None):
+        """The var['dk'] of every page the theme renders."""
+        data = {"labels": self.labels, "settings": self.config, "native": self.config.native, "entry": entry,
+                "card": None}
+        if entry is not None and entry.type in ENTRY_TYPES:
+            data["card"] = card(entry, self.course, self.labels, self.course.url)
+        return data
+
     def build(self, site):
         documents = [{"title": doc.title or self.untitled_label, "url": doc.url} for doc in site.documents]
         documents.sort(key=lambda item: item["title"].lower())
-        site.page("index", self.labels["home"], self.render("PAGE_INDEX", documents=documents))
+        site.page("index", self.labels["home"], self.render("PAGE_INDEX", documents=documents, dk=self.dk_var()))
+
+    def page_context(self, doc, var):
+        var["dk"] = self.dk_var(self.course.entries.get(doc.id))
+        return var
+
+    def page_template(self, doc, var):
+        entry = self.course.entries.get(doc.id)
+        return "DK_ENTRY" if entry is not None and entry.type in ENTRY_TYPES else "HTML_BODY"
 
     def body_transforms(self, doc, var):
-        glossary, course = self.course.glossary, self.course
-
-        def link(html):
-            return link_html(html, glossary, doc.id, course.url)
-
-        return [*super().body_transforms(doc, var), link]
+        course, labels_, config = self.course, self.labels, self.config
+        entry = course.entries.get(doc.id)
+        transforms = [*super().body_transforms(doc, var)]
+        transforms.append(lambda html: pairs_html(html, config.native, labels_["listen"]))
+        if entry is not None and entry.type == "Grammar":
+            shown, folded = grammar_order(entry, config)
+            summary = labels_["simple_german"] if folded == "simple-german" else labels_["explanation"]
+            transforms.append(lambda html: fold_sections(html, shown, folded, summary))
+        transforms.append(lambda html: link_html(html, course.glossary, doc.id, course.url))
+        return transforms
 
     def site_signature(self):
         # Called before prepare(), so it reads the documents itself; any property change relinks every page.
