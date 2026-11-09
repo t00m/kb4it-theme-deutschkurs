@@ -28,6 +28,7 @@
         <a href="verbs.html">${dk['labels']['verbs']}</a>
         <a href="chunks.html">${dk['labels']['chunks']}</a>
         <a href="grammar.html">${dk['labels']['grammar']}</a>
+        <a href="skill.html">${dk['labels']['skill']}</a>
 % endif
     </nav>
     ${var['search_box'] | n}

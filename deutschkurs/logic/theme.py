@@ -3,6 +3,7 @@
 import hashlib
 import json
 from dataclasses import asdict
+from pathlib import Path
 
 from kb4it.theme import BaseTheme, ThemeError
 
@@ -11,6 +12,7 @@ from .course import Course, build_course
 from .glossary import link_html
 from .labels import labels
 from .pages import write_pages
+from .skill import PUBLISHED, publish, skill_html
 from .render import card, fold_sections, grammar_order, pairs_html
 
 ENTRY_TYPES = ("Word", "Verb", "Chunk", "Grammar")
@@ -58,6 +60,12 @@ class Theme(BaseTheme):
 
     def build(self, site):
         write_pages(self, site, self.course)
+        html = self.render("DK_SKILL", dk=self.dk_var(), skill_html=skill_html(),
+                           skill_url=f"{PUBLISHED}/SKILL.md", site_url=f"{PUBLISHED}/reference/site.md")
+        site.page("skill", self.labels["skill"], html)
+
+    def after_deploy(self, site):
+        publish(Path(site.paths.target), self.course)
 
     def search_record(self, doc):
         record = self.site.features.search.search_record(doc)
