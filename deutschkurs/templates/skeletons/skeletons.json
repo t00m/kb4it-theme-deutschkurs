@@ -1,0 +1,6 @@
+[
+  {"id": "word", "name": "Word", "description": "A noun, adjective or other single word, with examples."},
+  {"id": "verb", "name": "Verb", "description": "A verb with its Perfekt and present forms."},
+  {"id": "chunk", "name": "Chunk", "description": "A fixed phrase you use as one block."},
+  {"id": "grammar", "name": "Grammar", "description": "One grammar point, explained briefly."}
+]
