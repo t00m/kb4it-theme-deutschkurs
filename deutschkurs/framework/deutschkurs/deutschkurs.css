@@ -94,3 +94,10 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-more, .dk-note { color: var(--dk-muted); font-size: .875rem; }
 .dk-missing { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
 .dk-missing li { padding: .1rem .5rem; border: 1px solid #d0d7de; border-radius: 4px; }
+/* Lists of situations, conversations and texts */
+.dk-situations { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: .75rem; }
+.dk-situation { padding: .75rem; border: 1px solid #d0d7de; border-left: 4px solid var(--dk-accent); border-radius: 6px; }
+.dk-situation-title { font-weight: 700; font-size: 1.1rem; text-decoration: none; }
+.dk-cover { color: var(--dk-muted); font-size: .85rem; }
+.dk-items .dk-deadline { font-weight: 400; }
+.dk-dated time { color: var(--dk-muted); font-size: .85rem; }

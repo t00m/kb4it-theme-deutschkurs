@@ -4,7 +4,7 @@ import re
 import pytest
 
 from conftest import build_site, warnings
-from test_pages import ANRUFEN, BUTTERBROT, DATIV, HELFEN, TERMIN
+from test_pages import ANRUFEN, BUTTERBROT, DATIV, HELFEN, TALK, TERMIN
 
 KIND = """---
 Article: das
@@ -130,8 +130,9 @@ def test_card_links_to_facets(site):
 def test_nav(site):
     for name in ("index.html", "termin.html", "search.html", "404.html"):
         nav = re.search(r'<nav class="dk-nav">.*?</nav>', site.page(name), re.S).group()
-        for href in ("index.html", "vocabulary.html", "verbs.html", "chunks.html", "grammar.html"):
-            assert f'href="{href}"' in nav, (name, href)
+        hrefs = re.findall(r'href="([^"]+)"', nav)
+        assert hrefs == ["index.html", "situations.html", "conversations.html", "texts.html", "vocabulary.html",
+                         "verbs.html", "chunks.html", "grammar.html", "skill.html"], name
 
 
 def test_home(site):
@@ -189,3 +190,132 @@ def test_page_name_that_differs_only_by_case_is_warned(tmp_path):
     log = warnings(site.log)
     assert any("PAGE_NAME_TAKEN doc=genre.md" in line for line in log)
     assert not any("kind.md" in line for line in log)
+
+
+ARZT = """---
+Kind: real
+Level: A2
+Type: Conversation
+---
+
+# Beim Arzt
+
+- **Arzt:** Guten Tag! :: Good day!
+- **ich:** Guten Tag!
+"""
+
+ZETTEL = """---
+Level: A1
+Type: Text
+---
+
+# Zettel im Flur
+
+Bitte Schuhe ausziehen.
+"""
+
+SPIELPLATZ = """---
+Type: Situation
+---
+
+# Auf dem Spielplatz
+"""
+
+LATE = """---
+Deadline: 2026-12-01
+Genre: Notice
+Level: A1
+Type: Text
+---
+
+# Aushang
+
+Der Termin ist neu.
+"""
+
+
+@pytest.fixture(scope="module")
+def talk(tmp_path_factory):
+    extra = {**TALK, "beim-arzt.md": ARZT, "zettel.md": ZETTEL, "spielplatz.md": SPIELPLATZ, "aushang.md": LATE}
+    return build_site(tmp_path_factory.mktemp("talk-lists"), extra, starter=False)
+
+
+def cards(html):
+    return re.findall(r'<li class="dk-situation">.*?</li>', html, re.S)
+
+
+def test_situations_page_has_a_card_per_situation(talk):
+    found = cards(main(talk.page("situations.html")))
+    assert len(found) == 2
+    tor = next(c for c in found if 'href="am-schultor.html"' in c)
+    assert "<dt>I can</dt><dd>1 / 2</dd>" in tor
+    assert "<dt>Next time</dt><dd>2026-11-10</dd>" in tor
+    assert "<dt>Conversations</dt><dd>1</dd>" in tor
+    assert "<dt>Texts</dt><dd>1</dd>" in tor
+    assert "<dt>Chunks</dt><dd>0</dd>" in tor
+    assert "<dt>Vocabulary</dt><dd>1</dd>" in tor
+
+
+def test_situation_card_without_tasks_or_date_leaves_them_out(talk):
+    platz = next(c for c in cards(main(talk.page("situations.html"))) if 'href="spielplatz.html"' in c)
+    assert "I can" not in platz and "Next time" not in platz
+    assert "<dt>Conversations</dt><dd>0</dd>" in platz
+
+
+def test_conversations_are_grouped_by_situation(talk):
+    html = main(talk.page("conversations.html"))
+    assert html.index('<h2><a href="am-schultor.html" lang="de">Am Schultor</a></h2>') < html.index('href="gruss.html"')
+    assert html.index('href="gruss.html"') < html.index("<h2>No situation</h2>") < html.index('href="beim-arzt.html"')
+    gruss = re.search(r'<li>(?:(?!</li>).)*href="gruss.html".*?</li>', html, re.S).group()
+    assert 'class="dk-badge dk-kind dk-kind-model">model<' in gruss
+    assert 'class="dk-badge dk-level">A1<' in gruss
+    assert "70 %" in gruss
+
+
+def test_texts_are_grouped_by_genre(talk):
+    html = main(talk.page("texts.html"))
+    assert html.index("<h2>School letter</h2>") < html.index('href="brief.html"') < html.index("<h2>Notice</h2>")
+    assert html.index("<h2>Other</h2>") < html.index('href="zettel.html"')
+    brief = re.search(r'<li>(?:(?!</li>).)*href="brief.html".*?</li>', html, re.S).group()
+    assert 'class="dk-badge dk-level">A2<' in brief
+    assert "57 %" in brief
+    assert 'data-date="2026-11-20" data-hide="past"' in brief and "Deadline: " in brief
+    zettel = re.search(r'<li>(?:(?!</li>).)*href="zettel.html".*?</li>', html, re.S).group()
+    assert "data-date" not in zettel
+
+
+def test_home_counts_the_new_lists(talk):
+    html = main(talk.page("index.html"))
+    assert re.search(r'href="situations.html"[^>]*>\s*<span class="dk-count">2</span>', html)
+    assert re.search(r'href="conversations.html"[^>]*>\s*<span class="dk-count">2</span>', html)
+    assert re.search(r'href="texts.html"[^>]*>\s*<span class="dk-count">3</span>', html)
+    assert html.index('href="situations.html"') < html.index('href="vocabulary.html"')
+
+
+def test_home_lists_coming_up_situations(talk):
+    html = main(talk.page("index.html"))
+    block = re.search(r'<section class="dk-dated dk-coming-up">.*?</section>', html, re.S).group()
+    assert "<h2>Coming up</h2>" in block
+    items = re.findall(r"<li.*?</li>", block, re.S)
+    assert len(items) == 1
+    assert 'data-date="2026-11-10" data-days="7" data-hide="past later"' in items[0]
+    assert 'href="am-schultor.html"' in items[0] and "2026-11-10" in items[0]
+
+
+def test_home_lists_deadlines_soonest_first(talk):
+    html = main(talk.page("index.html"))
+    block = re.search(r'<section class="dk-dated dk-deadlines">.*?</section>', html, re.S).group()
+    assert "<h2>Open deadlines</h2>" in block
+    items = re.findall(r"<li.*?</li>", block, re.S)
+    assert ['data-date="2026-11-20" data-hide="past"' in items[0], 'href="brief.html"' in items[0]] == [True, True]
+    assert 'data-date="2026-12-01"' in items[1] and 'href="aushang.html"' in items[1]
+    assert len(items) == 2
+
+
+def test_home_without_dates_has_no_dated_blocks(site):
+    assert "dk-dated" not in main(site.page("index.html"))
+
+
+def test_new_lists_exist_when_empty(site):
+    for name in ("situations.html", "conversations.html", "texts.html"):
+        assert "<main" in site.page(name)

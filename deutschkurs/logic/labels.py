@@ -63,6 +63,8 @@ LABELS: dict[str, str] = {
     "reply": "Needs a reply",
     "next_time": "Next time",
     "coming_up": "Coming up",
+    "open_deadlines": "Open deadlines",
+    "no_situation": "No situation",
     "i_can": "I can",
     "where": "Where it appears",
     "more": "and {n} more",

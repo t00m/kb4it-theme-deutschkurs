@@ -72,6 +72,12 @@
       block.classList.add("dk-date-" + state);
       if (state !== "invalid" && hide.indexOf(state) >= 0) block.hidden = true;
     });
+    // A block with a heading goes away when none of its dated items is left.
+    Array.prototype.forEach.call(doc.querySelectorAll(".dk-dated"), function (group) {
+      var items = group.querySelectorAll("[data-date]");
+      var open = Array.prototype.some.call(items, function (item) { return !item.hidden; });
+      if (items.length && !open) group.hidden = true;
+    });
   }
 
   // Translations of turns show without this script; with it they hide behind a button.

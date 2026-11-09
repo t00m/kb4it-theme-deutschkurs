@@ -80,7 +80,8 @@ test("dated blocks are hidden in the states they name", () => {
   const far = element({ "data-date": "2026-12-24", "data-days": "7", "data-hide": "past later" });
   const near = element({ "data-date": "2026-11-12", "data-days": "7", "data-hide": "past later" });
   const broken = element({ "data-date": "bald", "data-hide": "past later" });
-  initDates({ querySelectorAll: () => [past, open, far, near, broken] }, TODAY);
+  const all = [past, open, far, near, broken];
+  initDates({ querySelectorAll: (selector) => (selector === "[data-date]" ? all : []) }, TODAY);
   assert.deepStrictEqual([past.hidden, open.hidden, far.hidden, near.hidden, broken.hidden],
     [true, false, true, false, false]);
   assert.ok(open.classList.contains("dk-date-soon"));
@@ -106,4 +107,18 @@ test("a page without a dialogue keeps its translations", () => {
   const root = element();
   initDialogues({ documentElement: root, querySelectorAll: () => [] });
   assert.ok(!root.classList.contains("dk-hide-tr"));
+});
+
+test("a dated block is hidden when all its dated items are", () => {
+  const gone = element({ "data-date": "2026-11-01", "data-hide": "past" });
+  const open = element({ "data-date": "2026-11-20", "data-hide": "past" });
+  const empty = element();
+  const used = element();
+  const doc = {
+    querySelectorAll: (selector) => (selector === ".dk-dated" ? [empty, used] : [gone, open]),
+  };
+  empty.querySelectorAll = () => [gone];
+  used.querySelectorAll = () => [gone, open];
+  initDates(doc, TODAY);
+  assert.deepStrictEqual([empty.hidden, used.hidden], [true, false]);
 });

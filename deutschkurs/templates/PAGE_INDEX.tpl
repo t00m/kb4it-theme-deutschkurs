@@ -10,6 +10,26 @@
         </a></li>
 % endfor
     </ul>
+% if var['coming']:
+    <section class="dk-dated dk-coming-up">
+        <h2>${L['coming_up']}</h2>
+        <ul class="dk-items">
+% for title, href, date in var['coming']:
+            <li data-date="${date}" data-days="7" data-hide="past later"><a href="${href}" lang="de">${title}</a> <time datetime="${date}">${date}</time></li>
+% endfor
+        </ul>
+    </section>
+% endif
+% if var['deadlines']:
+    <section class="dk-dated dk-deadlines">
+        <h2>${L['open_deadlines']}</h2>
+        <ul class="dk-items">
+% for title, href, date in var['deadlines']:
+            <li data-date="${date}" data-hide="past"><a href="${href}" lang="de">${title}</a> <time datetime="${date}">${date}</time></li>
+% endfor
+        </ul>
+    </section>
+% endif
 % if var['latest']:
     <h2>${L['latest']}</h2>
     <ul class="dk-items">
