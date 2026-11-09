@@ -6,7 +6,7 @@ Level: A1
 Participle: gefahren
 Present: ich fahre, du fährst, er fährt, wir fahren, ihr fahrt, sie fahren
 Preterite: ich fuhr
-Translation: ir en vehículo
+Translation: to go by vehicle, to drive
 Type: Verb
 ---
 
@@ -14,9 +14,9 @@ Type: Verb
 
 ## Examples
 
-- Wir fahren mit dem Bus zur Schule. :: Vamos al colegio en autobús.
-- Am Wochenende sind wir zu Oma gefahren. :: El fin de semana fuimos a casa de la abuela.
+- Wir fahren mit dem Bus zur Schule. :: We go to school by bus.
+- Am Wochenende sind wir zu Oma gefahren. :: At the weekend we went to grandma's.
 
 ## Notes
 
-Con *sein* cuando es moverse. Con *haben* cuando conduces algo: *Ich habe das Auto gefahren*.
+With *sein* when you move. With *haben* when you drive something: *Ich habe das Auto gefahren*.

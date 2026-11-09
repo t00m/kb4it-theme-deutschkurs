@@ -13,7 +13,7 @@ This skill matches theme version 0.1.0. It knows four entry types: Word, Verb, C
 
 1. Find the course: a folder with `config/repo.json` whose `"theme"` is `"deutschkurs"`. Entries live in its `source/` folder.
 2. Read the `"deutschkurs"` block of `config/repo.json`. The keys you need:
-   - `native`: language of translations and explanations (default `es`, Spanish).
+   - `native`: language of translations and explanations (default `en`, English; a learner may set `es` or another language code).
    - `learner_level`: the learner's level (default `A2`).
    - `german_from`: from this level, explanations are written in simple German (default `B1`).
    - `topics`: when set, the only allowed `Topic` values.
@@ -53,7 +53,7 @@ Input: a sentence or text the learner wrote or said.
 1. Apply rule 1.
 2. Give the corrected version first, then each change with a one-line reason.
 3. Say what was already good. Keep it short.
-4. When a mistake comes from Spanish or English habits, say so: that helps the learner spot it again.
+4. When a mistake comes from the habits of the learner's own language, say so: that helps the learner spot it again.
 5. Offer to add a chunk or a word entry for the correct form when it is reusable. A Mistake entry type comes in a later version; until then, put the wrong and right form under `## Typical mistakes` of the Verb or Grammar entry it belongs to, as `wrong :: right`.
 
 ### Fix problems

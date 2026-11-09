@@ -2,7 +2,7 @@
 Checked: assistant
 Level: A2
 Register: Sie
-Translation: concertar una cita
+Translation: to make an appointment
 Type: Chunk
 ---
 
@@ -10,9 +10,9 @@ Type: Chunk
 
 ## Variants
 
-- Ich möchte gern einen Termin vereinbaren. :: Quisiera pedir una cita.
-- Können wir einen Termin vereinbaren? :: ¿Podemos concertar una cita?
+- Ich möchte gern einen Termin vereinbaren. :: I would like to make an appointment.
+- Können wir einen Termin vereinbaren? :: Can we make an appointment?
 
 ## Usage
 
-Para pedir cita en el médico, en una oficina o con la maestra. Más informal: *einen Termin ausmachen*.
+To book at the doctor's, an office or with the teacher. More informal: *einen Termin ausmachen*.

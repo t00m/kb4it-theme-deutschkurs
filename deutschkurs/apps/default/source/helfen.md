@@ -7,7 +7,7 @@ Level: A1
 Participle: geholfen
 Present: ich helfe, du hilfst, er hilft, wir helfen, ihr helft, sie helfen
 Preterite: ich half
-Translation: ayudar
+Translation: to help
 Type: Verb
 ---
 
@@ -15,8 +15,8 @@ Type: Verb
 
 ## Examples
 
-- Kannst du mir bei den Hausaufgaben helfen? :: ¿Me puedes ayudar con los deberes?
-- Die Lehrerin hilft den Kindern beim Lesen. :: La maestra ayuda a los niños a leer.
+- Kannst du mir bei den Hausaufgaben helfen? :: Can you help me with my homework?
+- Die Lehrerin hilft den Kindern beim Lesen. :: The teacher helps the children to read.
 
 ## Typical mistakes
 

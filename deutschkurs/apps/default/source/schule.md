@@ -5,7 +5,7 @@ Level: A1
 PartOfSpeech: noun
 Plural: die Schulen
 Topic: Schule
-Translation: colegio
+Translation: school
 Type: Word
 ---
 
@@ -13,9 +13,9 @@ Type: Word
 
 ## Examples
 
-- Die Schule beginnt um acht Uhr. :: El colegio empieza a las ocho.
-- Mein Kind ist heute nicht in der Schule. :: Mi hijo hoy no está en el colegio.
+- Die Schule beginnt um acht Uhr. :: School starts at eight.
+- Mein Kind ist heute nicht in der Schule. :: My child is not at school today.
 
 ## Notes
 
-*in die Schule gehen* (ir al colegio, acusativo), *in der Schule sein* (estar en el colegio, dativo).
+*in die Schule gehen* (go to school, accusative), *in der Schule sein* (be at school, dative).

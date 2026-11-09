@@ -10,10 +10,10 @@ Type: Grammar
 
 ## Explanation
 
-El Perfekt es el pasado de la conversación: *haben* o *sein* en segunda posición y el participio al final.
+The Perfekt is the past tense of conversation: *haben* or *sein* in second position and the participle at the end.
 
-- Con *sein*: verbos de movimiento o de cambio de estado (*gehen*, *fahren*, *kommen*, *aufstehen*).
-- Con *haben*: casi todos los demás (*lernen*, *anrufen*, *helfen*).
+- With *sein*: verbs of movement or change of state (*gehen*, *fahren*, *kommen*, *aufstehen*).
+- With *haben*: almost all the others (*lernen*, *anrufen*, *helfen*).
 
 *Ich bin zur Schule gegangen. Ich habe die Lehrerin angerufen.*
 

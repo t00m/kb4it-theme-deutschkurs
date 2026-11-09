@@ -25,7 +25,7 @@ In `config/repo.json`, block `"deutschkurs"`:
 
 | Key | Default | Meaning |
 |---|---|---|
-| `native` | `es` | Language of translations |
+| `native` | `en` | Language of translations, such as `en` or `es` |
 | `labels` | `{}` | Overrides of single interface strings |
 | `learner_level` | `A2` | Your level |
 | `german_from` | `B1` | From this level, grammar pages show the simple German version first |

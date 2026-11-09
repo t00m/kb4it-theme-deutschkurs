@@ -143,3 +143,8 @@ def test_word_skeleton_is_correct_german():
 
 def test_examples_do_not_name_unconsulted_sources():
     assert "Source: Duden" not in entry_types()
+
+
+def test_reference_examples_are_english():
+    for example in FENCED.findall(entry_types()):
+        assert not set("¿¡ñáíóú") & set(example), example[:60]

@@ -2,7 +2,7 @@
 Checked: assistant
 Level: A2
 Register: neutral
-Translation: avisar a alguien
+Translation: to let someone know
 Type: Chunk
 ---
 
@@ -10,9 +10,9 @@ Type: Chunk
 
 ## Variants
 
-- Sag mir Bescheid! :: ¡Avísame!
-- Sagen Sie mir bitte Bescheid. :: Avíseme, por favor.
+- Sag mir Bescheid! :: Let me know!
+- Sagen Sie mir bitte Bescheid. :: Please let me know. (formal)
 
 ## Usage
 
-Cuando prometes informar a alguien más tarde. La persona va en dativo: *mir*, *dir*, *Ihnen*.
+When you promise to tell someone later. The person is in the dative: *mir*, *dir*, *Ihnen*.

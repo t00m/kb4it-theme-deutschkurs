@@ -6,7 +6,7 @@ PartOfSpeech: noun
 Plural: die Termine
 Stress: Ter-MIN
 Topic: Alltag
-Translation: cita
+Translation: appointment
 Type: Word
 ---
 
@@ -14,9 +14,9 @@ Type: Word
 
 ## Examples
 
-- Ich habe morgen einen Termin beim Arzt. :: Mañana tengo cita con el médico.
-- Der Termin ist leider schon voll. :: Esa hora por desgracia ya está completa.
+- Ich habe morgen einen Termin beim Arzt. :: Tomorrow I have a doctor's appointment.
+- Der Termin ist leider schon voll. :: Unfortunately that slot is already taken.
 
 ## False friends
 
-*Termin* no es *término*: es una cita con fecha y hora, en el médico, en una oficina o en el colegio.
+*Termin* is not a *term*: it is an appointment with a date and time, at the doctor's, an office or the school.

@@ -5,7 +5,7 @@ Level: A1
 PartOfSpeech: noun
 Plural: die Ausflüge
 Topic: Schule
-Translation: excursión
+Translation: trip
 Type: Word
 ---
 
@@ -13,5 +13,5 @@ Type: Word
 
 ## Examples
 
-- Am Freitag macht die Klasse einen Ausflug in den Zoo. :: El viernes la clase hace una excursión al zoo.
-- Für den Ausflug braucht mein Kind eine Brotdose. :: Para la excursión mi hijo necesita una fiambrera.
+- Am Freitag macht die Klasse einen Ausflug in den Zoo. :: On Friday the class goes on a trip to the zoo.
+- Für den Ausflug braucht mein Kind eine Brotdose. :: For the trip my child needs a lunch box.

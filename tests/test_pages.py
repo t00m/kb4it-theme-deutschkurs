@@ -120,7 +120,7 @@ def test_word_card(site):
 def test_examples_split_into_german_and_translation(site):
     html = main(site.page("termin.html"))
     assert '<span class="dk-de" lang="de">Ich habe morgen einen Termin.</span>' in html
-    assert '<span class="dk-tr dk-no-link" lang="es">Mañana tengo una cita.</span>' in html
+    assert '<span class="dk-tr dk-no-link" lang="en">Mañana tengo una cita.</span>' in html
     assert " :: " not in html
 
 

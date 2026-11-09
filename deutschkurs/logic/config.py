@@ -10,7 +10,7 @@ def _gender_colors() -> dict:
 
 @dataclass
 class DeutschkursConfig:
-    native: str = "es"
+    native: str = "en"
     labels: dict = field(default_factory=dict)
     learner_level: str = "A2"
     german_from: str = "B1"

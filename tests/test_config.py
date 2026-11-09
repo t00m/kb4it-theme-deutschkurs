@@ -3,7 +3,7 @@ from deutschkurs.logic.config import DeutschkursConfig
 
 def test_defaults():
     c = DeutschkursConfig()
-    assert c.native == "es"
+    assert c.native == "en"
     assert c.labels == {}
     assert c.learner_level == "A2"
     assert c.german_from == "B1"

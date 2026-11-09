@@ -49,3 +49,19 @@ def test_examples_link_to_other_entries(built_site):
     page = built_site.page("elternabend.html")
     body = page.split('<div class="dk-body">', 1)[1]
     assert 'class="dk-link' in body
+
+
+SPANISH = set("¿¡ñáíóú")
+
+
+def test_starter_translations_are_english():
+    for entry in course().typed():
+        texts = [entry.translation, *(p.translation for p in entry.examples), *entry.sections.values()]
+        for text in texts:
+            assert not SPANISH & set(text), (entry.id, text)
+
+
+def test_starter_uses_the_default_language():
+    import json
+    repo = json.loads((SOURCE.parent / "config" / "repo.json").read_text(encoding="utf-8"))
+    assert "native" not in repo.get("deutschkurs", {})

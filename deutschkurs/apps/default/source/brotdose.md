@@ -6,7 +6,7 @@ PartOfSpeech: noun
 Plural: die Brotdosen
 Regional: Brotbox, Brotbüchse
 Topic: Schule
-Translation: fiambrera
+Translation: lunch box
 Type: Word
 ---
 
@@ -14,5 +14,5 @@ Type: Word
 
 ## Examples
 
-- Hast du deine Brotdose eingepackt? :: ¿Has metido tu fiambrera en la mochila?
-- Die Brotdose ist noch in der Schule. :: La fiambrera sigue en el colegio.
+- Hast du deine Brotdose eingepackt? :: Have you packed your lunch box?
+- Die Brotdose ist noch in der Schule. :: The lunch box is still at school.
