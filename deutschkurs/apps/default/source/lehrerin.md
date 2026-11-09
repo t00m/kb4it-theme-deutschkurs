@@ -5,6 +5,7 @@ Family: der Lehrer
 Level: A1
 PartOfSpeech: noun
 Plural: die Lehrerinnen
+Situation: Elternabend
 Topic: Schule
 Translation: teacher (female)
 Type: Word

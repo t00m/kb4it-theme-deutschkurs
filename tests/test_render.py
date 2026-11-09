@@ -315,3 +315,15 @@ def test_dates_with_a_time_keep_only_the_day():
     course, entries = built(docs)
     assert extras(entries["brief.md"], course, LABELS, course.url)["deadline"] == "2026-11-20"
     assert extras(entries["alt.md"], course, LABELS, course.url)["deadline"] == ""
+
+
+def test_word_family_links_a_word_not_a_situation_with_the_same_title():
+    word = "---\nArticle: der\nLevel: A1\nPartOfSpeech: noun\nType: Word\n---\n\n# Abend\n"
+    family = {"Type": ("Word",), "Level": ("A1",), "Article": ("der",), "PartOfSpeech": ("noun",),
+              "Family": ("der Abend",)}
+    docs = [("a-abend.md", {"Type": ("Situation",)}, "---\nType: Situation\n---\n\n# Abend\n"),
+            ("abend.md", {"Type": ("Word",), "Level": ("A1",), "Article": ("der",), "PartOfSpeech": ("noun",)}, word),
+            ("feierabend.md", family, word.replace("# Abend", "# Feierabend"))]
+    course, entries = built(docs)
+    data = card(entries["feierabend.md"], course, LABELS, course.url)
+    assert ("Word family", [("der Abend", "abend.html")]) in data["links"]

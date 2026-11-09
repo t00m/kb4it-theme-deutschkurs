@@ -2,6 +2,7 @@
 Checked: assistant
 Level: A2
 Register: neutral
+Situation: Elternbrief
 Translation: to let someone know
 Type: Chunk
 ---

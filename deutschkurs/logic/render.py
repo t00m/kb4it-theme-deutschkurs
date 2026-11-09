@@ -439,9 +439,9 @@ def extras(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[
 
 
 def _find(course: Course, value: str) -> str:
-    """Id of the entry whose title matches a value such as 'der Terminkalender', or ''."""
+    """Id of the Word, Verb or Chunk whose title matches a value such as 'der Terminkalender', or ''."""
     title = re.sub(r"^(der|die|das)\s+", "", value.strip())
     for entry in course.entries.values():
-        if entry.type and entry.title == title:
+        if entry.type in INDEXED and entry.title == title:
             return entry.id
     return ""

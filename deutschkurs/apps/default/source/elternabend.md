@@ -4,6 +4,7 @@ Checked: assistant
 Level: A1
 PartOfSpeech: noun
 Plural: die Elternabende
+Situation: Elternabend
 Topic: Schule
 Translation: parents' evening
 Type: Word

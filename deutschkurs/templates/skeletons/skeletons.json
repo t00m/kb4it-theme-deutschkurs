@@ -1,4 +1,7 @@
 [
+  {"id": "situation", "name": "Situation", "description": "A moment of real life you want to manage in German."},
+  {"id": "conversation", "name": "Conversation", "description": "A dialogue: one that happened, one you rebuilt or a model."},
+  {"id": "text", "name": "Text", "description": "A letter, notice or message, paragraph by paragraph."},
   {"id": "word", "name": "Word", "description": "A noun, adjective or other single word, with examples."},
   {"id": "verb", "name": "Verb", "description": "A verb with its Perfekt and present forms."},
   {"id": "chunk", "name": "Chunk", "description": "A fixed phrase you use as one block."},

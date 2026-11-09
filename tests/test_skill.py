@@ -92,7 +92,7 @@ def test_examples_are_valid():
 
 def test_skeletons_valid():
     listing = json.loads((SKELETONS / "skeletons.json").read_text(encoding="utf-8"))
-    assert [e["id"] for e in listing] == ["word", "verb", "chunk", "grammar"]
+    assert [e["id"] for e in listing] == ["situation", "conversation", "text", "word", "verb", "chunk", "grammar"]
     for item in listing:
         text = (SKELETONS / f"{item['id'].upper()}-SKELETON.md").read_text(encoding="utf-8")
         props = props_of(text)
@@ -130,7 +130,7 @@ def test_nav_links_skill(built_site):
 
 def test_add_page_skeletons(built_site):
     page = built_site.page("add.html")
-    for name in ("Word", "Verb", "Chunk", "Grammar"):
+    for name in ("Situation", "Conversation", "Text", "Word", "Verb", "Chunk", "Grammar"):
         assert f'"name": "{name}"' in page, name
     assert '"person"' not in page.lower()
 
@@ -148,3 +148,15 @@ def test_examples_do_not_name_unconsulted_sources():
 def test_reference_examples_are_english():
     for example in FENCED.findall(entry_types()):
         assert not set("¿¡ñáíóú") & set(example), example[:60]
+
+
+def test_conversation_skeleton_names_roles_and_asks_for_its_kind():
+    text = (SKELETONS / "CONVERSATION-SKELETON.md").read_text(encoding="utf-8")
+    entry = entry_from("x.md", props_of(text), text)
+    assert entry.value("Kind") == "reconstructed"
+    assert [u.speaker for u in entry.units] == ["Lehrerin", "ich"]
+
+
+def test_situation_skeleton_starts_with_open_tasks():
+    text = (SKELETONS / "SITUATION-SKELETON.md").read_text(encoding="utf-8")
+    assert entry_from("x.md", props_of(text), text).cando == (0, 2)

@@ -2,6 +2,7 @@
 Checked: assistant
 Level: A1
 Register: colloquial
+Situation: Am Schultor
 Translation: How are you?
 Type: Chunk
 ---
