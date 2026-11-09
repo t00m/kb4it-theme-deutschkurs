@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.1.0, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.1.1, for KB4IT 0.12.x.
 
 ## Entries
 
