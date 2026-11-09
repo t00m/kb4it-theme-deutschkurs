@@ -26,7 +26,7 @@ Cuando prometes informar a alguien más tarde.
 
 
 def test_types():
-    assert TYPES == ("Word", "Verb", "Chunk", "Grammar")
+    assert TYPES == ("Word", "Verb", "Chunk", "Grammar", "Text", "Conversation", "Situation")
 
 
 def test_word_entry():
@@ -59,3 +59,32 @@ def test_sections_known_per_type():
 def test_translation_with_comma_joined():
     props = {"Type": ("Word",), "Translation": ("pan", "mantequilla")}
     assert entry_from("x", props, "# X").translation == "pan, mantequilla"
+
+
+def test_new_types_and_their_sections():
+    assert TYPES[4:] == ("Text", "Conversation", "Situation")
+    assert SECTIONS["Conversation"] == ("Variations", "Notes")
+    assert SECTIONS["Situation"] == ("I can", "Log")
+
+
+def test_conversation_entry_has_units():
+    from test_parse import CONVERSATION
+    entry = entry_from("gruss.md", {"Type": ("Conversation",), "Kind": ("model",)}, CONVERSATION)
+    assert [u.anchor for u in entry.units] == ["t1", "t2", "t3", "t4"]
+    assert [u.anchor for u in entry.variations] == ["v1"]
+    assert entry.bad_lines == (10, 16)
+
+
+def test_text_entry_has_units():
+    from test_parse import TEXT
+    entry = entry_from("brief.md", {"Type": ("Text",)}, TEXT)
+    assert [u.anchor for u in entry.units] == ["s1", "s2", "s3"]
+
+
+def test_situation_entry_counts_can_do():
+    text = "---\nType: Situation\n---\n\n# Elternabend\n\n## I can\n\n- [x] Eins :: one\n- [ ] Zwei :: two\n"
+    assert entry_from("s.md", {"Type": ("Situation",)}, text).cando == (1, 2)
+
+
+def test_word_entry_has_no_units():
+    assert entry_from("x.md", {"Type": ("Word",)}, "# Termin\n\nEin Absatz.\n").units == ()

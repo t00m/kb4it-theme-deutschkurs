@@ -3,18 +3,21 @@
 import re
 from datetime import datetime
 from dataclasses import dataclass
-from typing import Mapping, Optional, Sequence
+from typing import Collection, Mapping, Optional, Sequence
 
-from .model import AREAS, ARTICLES, AUXILIARIES, CHECKED, LEVELS, PARTS_OF_SPEECH, REGISTERS, TYPES, Entry
+from .model import (AREAS, ARTICLES, AUXILIARIES, CHECKED, GENRES, KINDS, LEVELS, NO_LEVEL, PARTS_OF_SPEECH,
+                    REGISTERS, TYPES, Entry)
 
 REASONS = (
     "type_missing", "type_unknown", "level_missing", "level_invalid", "translation_missing",
     "article_missing", "part_of_speech_invalid", "participle_missing", "auxiliary_missing",
     "prefix_missing", "register_invalid", "checked_invalid", "area_invalid", "date_invalid",
-    "topic_unknown", "explanation_missing", "flag_invalid",
+    "topic_unknown", "explanation_missing", "flag_invalid", "kind_missing", "kind_invalid", "genre_invalid",
+    "situation_unknown", "turn_invalid",
 )
 
-FLAGS = ("PluralOnly", "Irregular", "Separable", "Reflexive")
+FLAGS = ("PluralOnly", "Irregular", "Separable", "Reflexive", "Reply")
+DATES = ("Date", "NextTime", "Received", "Deadline")
 
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?)?$")
 NEEDS_TRANSLATION = ("Word", "Verb", "Chunk")
@@ -25,9 +28,11 @@ class MetaProblem:
     doc: str
     key: str
     reason: str
+    line: int = 0
 
     def __str__(self) -> str:
-        return f"META_INVALID doc={self.doc} key={self.key} reason={self.reason}"
+        where = f" line={self.line}" if self.line else ""
+        return f"META_INVALID doc={self.doc} key={self.key} reason={self.reason}{where}"
 
 
 def check_properties(doc: str, props: Mapping[str, Sequence[str]],
@@ -52,7 +57,8 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
 
     level = get("Level")
     if not level:
-        add("Level", "level_missing")
+        if kind not in NO_LEVEL:
+            add("Level", "level_missing")
     elif level[0] not in LEVELS:
         add("Level", "level_invalid")
 
@@ -80,6 +86,15 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
         if not area or area[0] not in AREAS:
             add("Area", "area_invalid")
 
+    if kind == "Conversation":
+        if not get("Kind"):
+            add("Kind", "kind_missing")
+        elif get("Kind")[0] not in KINDS:
+            add("Kind", "kind_invalid")
+
+    if kind == "Text" and get("Genre") and get("Genre")[0] not in GENRES:
+        add("Genre", "genre_invalid")
+
     if get("Register") and get("Register")[0] not in REGISTERS:
         add("Register", "register_invalid")
     if get("Checked") and get("Checked")[0] not in CHECKED:
@@ -87,8 +102,9 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
     for flag in FLAGS:
         if get(flag) and get(flag) != ["yes"]:
             add(flag, "flag_invalid")
-    if get("Date") and not _real_date(get("Date")[0]):
-        add("Date", "date_invalid")
+    for key in DATES:
+        if get(key) and not _real_date(get(key)[0]):
+            add(key, "date_invalid")
     if topics is not None and any(t not in topics for t in get("Topic")):
         add("Topic", "topic_unknown")
     return problems
@@ -107,9 +123,13 @@ def _real_date(value: str) -> bool:
     return False
 
 
-def check_body(entry: Entry) -> list[MetaProblem]:
-    """Problems in the body sections of one entry."""
+def check_body(entry: Entry, situations: Optional[Collection[str]] = None) -> list[MetaProblem]:
+    """Problems in the body of one entry; with the situation titles, also unknown Situation values."""
     problems = []
     if entry.type == "Grammar" and not entry.sections.get("Explanation", "").strip():
         problems.append(MetaProblem(entry.id, "Explanation", "explanation_missing"))
+    for line in entry.bad_lines:
+        problems.append(MetaProblem(entry.id, "Turn", "turn_invalid", line))
+    if situations is not None and entry.type and any(s not in situations for s in entry.values("Situation")):
+        problems.append(MetaProblem(entry.id, "Situation", "situation_unknown"))
     return problems
