@@ -24,7 +24,7 @@ lingua was an earlier KB4IT theme for language courses. Its files are close to d
 | `## Examples` with `German :: translation` | Same |
 | Free text right after the title (Word, Verb) | Move it under `## Notes` |
 | Grammar: free text and tables after the title | Move them under `## Explanation` |
-| Grammar: `## Examples` | Keep it after `## Explanation`; it is shown as normal text |
+| Grammar: `## Examples` | Keep it after `## Explanation`; its `German :: translation` items get Listen buttons |
 
 ## Example
 

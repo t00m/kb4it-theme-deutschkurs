@@ -41,7 +41,7 @@ Settings for later versions (`voice_me`, `slow_rate`, `daily_reviews`, `daily_ne
 
 ## Pages
 
-Home, Vocabulary, Verbs, Chunks, Grammar, Assistant skill, search, and facet pages `Level.html`, `Topic.html`, `Register.html` with one page per value. These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chunks.md`, `grammar.md`, `skill.md` (and the others in `logic/theme.py`) is refused.
+Home, Vocabulary, Verbs, Chunks, Grammar, Assistant skill, search, and facet pages `Level.html`, `Topic.html`, `Register.html` with one page per value. These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chunks.md`, `grammar.md`, `skill.md`, `Level.md`, `Topic.md`, `Register.md` (and the others in `logic/theme.py`) is refused. A file whose name starts with `Level_`, `Topic_` or `Register_` gets a `PAGE_NAME_TAKEN` warning. Your own `index.md` replaces the home page.
 
 ## German voice
 

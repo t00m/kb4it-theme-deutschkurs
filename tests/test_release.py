@@ -55,7 +55,7 @@ def test_theme_info():
 
 def test_no_em_dash_in_docs():
     for name in ("README.md", "deutschkurs/README.md", "CHANGELOG.md"):
-        assert "—" not in (ROOT / name).read_text(encoding="utf-8"), name
+        assert "\u2014" not in (ROOT / name).read_text(encoding="utf-8"), name
 
 
 def test_ci_workflow_present():

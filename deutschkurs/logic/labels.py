@@ -51,7 +51,7 @@ LABELS: dict[str, str] = {
     "tense": "Tense",
     "verbs_with_case": "Verbs with this case",
     "listen": "Listen",
-    "no_voice": "No German voice is installed on this device, so audio is off. The README explains how to add one.",
+    "no_voice": "No German voice is installed on this device, so audio is off. Add a German text-to-speech voice in the device settings.",
     "filter": "Filter",
     "all": "All",
     "count": "Entries",

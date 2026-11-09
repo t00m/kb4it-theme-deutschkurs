@@ -13,4 +13,9 @@ def test_unknown_override_reported():
 
 
 def test_no_em_dash():
-    assert not any("—" in text for text in LABELS.values())
+    assert not any("\u2014" in text for text in LABELS.values())
+
+
+def test_no_voice_note_points_to_device_settings():
+    assert "README" not in LABELS["no_voice"]
+    assert "settings" in LABELS["no_voice"]

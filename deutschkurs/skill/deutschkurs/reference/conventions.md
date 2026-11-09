@@ -4,7 +4,9 @@
 
 - Lower case, words joined by hyphens, ending in `.md`: `termin.md`, `bescheid-sagen.md`, `perfekt-haben-sein.md`.
 - Umlauts and ß spelled out: `ä` as `ae`, `ö` as `oe`, `ü` as `ue`, `ß` as `ss` (`maedchen.md`, `strasse.md`).
-- These names are taken by the theme's own pages and are refused: `vocabulary`, `verbs`, `chunks`, `grammar`, `texts`, `conversations`, `situations`, `photos`, `mistakes`, `inbox`, `practice`, `progress`, `skill`, `search`, `404`, and `add` while the editor is on.
+- These names are taken by the theme's own pages and are refused: `vocabulary`, `verbs`, `chunks`, `grammar`, `texts`, `conversations`, `situations`, `photos`, `mistakes`, `inbox`, `practice`, `progress`, `skill`, `search`, `404`, `Level`, `Topic`, `Register`, and `add` while the editor is on.
+- Names that start with `Level_`, `Topic_` or `Register_` clash with the theme's facet pages: the build warns, and the file must be renamed.
+- `index.md`, when present, replaces the theme's home page.
 
 ## Frontmatter
 
@@ -31,7 +33,7 @@
 | `native` | A native speaker confirmed it | Only the learner |
 | `attested` | Seen or heard in real life | Only the learner |
 
-The site underlines `unchecked` and `assistant` facts with dots, so the learner knows what to trust less.
+Each entry page shows the value as a badge; `unchecked` and `assistant` badges are underlined with dots, so the learner knows what to trust less.
 
 ## Sources
 

@@ -1,6 +1,6 @@
 # Entry types
 
-One file per entry, in the course's `source/` folder. Each file has YAML frontmatter, one `#` title, and optional `##` sections. Section headings are in English, exactly as written here. Unknown sections are kept and shown as normal text.
+One file per entry, in the course's `source/` folder. Each file has YAML frontmatter, one `#` title, and optional `##` sections. Section headings are in English, exactly as written here. Unknown sections are kept and shown. In any section, a list item written `German :: translation` gets a Listen button.
 
 ## Common properties
 
@@ -45,7 +45,6 @@ Checked: assistant
 Level: A1
 PartOfSpeech: noun
 Plural: die Termine
-Source: Duden
 Stress: Ter-MIN
 Topic: Schule
 Translation: cita

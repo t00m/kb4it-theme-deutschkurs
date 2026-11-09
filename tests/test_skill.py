@@ -102,7 +102,7 @@ def test_skeletons_valid():
 
 def test_no_em_dash():
     for path in [*SKILL.rglob("*.md"), *SKELETONS.glob("*")]:
-        assert "—" not in path.read_text(encoding="utf-8"), path.name
+        assert "\u2014" not in path.read_text(encoding="utf-8"), path.name
 
 
 def test_published(built_site):
@@ -133,3 +133,13 @@ def test_add_page_skeletons(built_site):
     for name in ("Word", "Verb", "Chunk", "Grammar"):
         assert f'"name": "{name}"' in page, name
     assert '"person"' not in page.lower()
+
+
+def test_word_skeleton_is_correct_german():
+    text = (SKELETONS / "WORD-SKELETON.md").read_text(encoding="utf-8")
+    props = props_of(text)
+    assert props["Article"] == ("das",) and props["Plural"] == ("die Wörter",)
+
+
+def test_examples_do_not_name_unconsulted_sources():
+    assert "Source: Duden" not in entry_types()

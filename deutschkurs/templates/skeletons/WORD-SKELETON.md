@@ -1,9 +1,9 @@
 ---
-Article: der
+Article: das
 Checked: unchecked
 Level: A1
 PartOfSpeech: noun
-Plural: none
+Plural: die Wörter
 Translation: translation
 Type: Word
 ---

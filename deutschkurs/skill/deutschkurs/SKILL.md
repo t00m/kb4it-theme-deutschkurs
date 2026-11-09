@@ -24,7 +24,7 @@ This skill matches theme version 0.1.0. It knows four entry types: Word, Verb, C
 
 1. **Privacy first.** Before you read a text for language, replace personal data with placeholders: names, addresses, phone numbers, e-mail addresses, account numbers and IBANs, dates of birth, number plates, customer and contract numbers. Show the learner the list of what you replaced. Never write the original data into a file. Details in `reference/privacy.md`.
 2. **Honest trust levels.** Every fact you produce gets `Checked: assistant`. Only the learner sets `native` (a native speaker confirmed it) or `attested` (it was seen or heard in real life). Use `reference` only when you name the dictionary or grammar in `Source`. Never raise a value the learner set.
-3. **Valid files.** Every file follows `reference/entry-types.md` and `reference/conventions.md`. After writing, run `kb4it verify <course>/config/repo.json` when you can, and fix every line it reports.
+3. **Valid files.** Every file follows `reference/entry-types.md` and `reference/conventions.md`. After writing, run `kb4it verify <course>/config/repo.json` when you can, then `kb4it build`, and fix every line they report.
 4. **Small explanations.** Explanations are a few lines and an example, in the `native` language while `learner_level` is below `german_from`, in simple German from it. No grammar lectures.
 5. **No duplicates.** Before adding an entry, look for it: same file name, same H1 title, or the word as a form of another entry (a plural, a conjugated verb). Extend the existing file instead.
 6. **Few new entries.** From one piece of material, propose at most five new entries. The learner chooses which ones to keep. Prefer words and chunks the learner will need again in their own life.
@@ -63,7 +63,7 @@ Input: the output of `kb4it build` or `kb4it verify`.
 1. Read `reference/checks.md`.
 2. For each `META_INVALID doc=<file> key=<key> reason=<reason>` line, open the file and apply the fix for that reason.
 3. For KB4IT's own messages (`DOC_INVALID`, `DOC_NAME_RESERVED`), apply the fixes in the same file.
-4. Run `kb4it verify` again until it reports no problems.
+4. Run `kb4it verify` again until it reports no problems. `verify` reads properties only; run `kb4it build` too, which also checks sections such as `## Explanation`.
 
 ### Convert lingua files
 
