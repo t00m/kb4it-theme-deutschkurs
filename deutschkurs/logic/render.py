@@ -4,6 +4,8 @@ import html
 import re
 from typing import Callable
 
+from kb4it.theme import page_name
+
 from .config import DeutschkursConfig
 from .course import Course
 from .model import LEVELS, Entry
@@ -82,7 +84,7 @@ def stress(entry: Entry) -> str:
     return ""
 
 
-def _perfekt(entry: Entry) -> str:
+def perfekt(entry: Entry) -> str:
     aux = "/".join(PERFEKT[a] for a in entry.values("Auxiliary") if a in PERFEKT)
     participle = entry.value("Participle")
     return f"{aux} {participle}".strip() if participle else ""
@@ -106,7 +108,7 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
             article = entry.value("Article")
             headline, css = f"{article} {entry.title}".strip(), GENDER.get(article, "")
             plural = entry.value("Plural")
-            fact("plural", labels["no_plural"] if plural == "-" else plural)
+            fact("plural", labels["no_plural"] if plural in ("none", "-") else plural)
     if entry.type == "Word":
         fact("part_of_speech", entry.value("PartOfSpeech"))
         fact("forms", ", ".join(entry.values("Forms")))
@@ -118,7 +120,7 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     if entry.type == "Verb":
         fact("present", ", ".join(entry.values("Present")))
         fact("preterite", ", ".join(entry.values("Preterite")))
-        fact("perfekt", _perfekt(entry))
+        fact("perfekt", perfekt(entry))
         fact("konjunktiv", entry.value("KonjunktivII"))
         if entry.value("Separable") == "yes":
             fact("separable", f"{entry.value('Prefix')}-")
@@ -134,14 +136,15 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
         if verbs:
             links.append((labels["verbs_with_case"], [(v.title, url(v.id)) for v in verbs]))
     fact("stress", stress(entry))
-    fact("topic", ", ".join(entry.values("Topic")))
+    if entry.values("Topic"):
+        links.append((labels["topic"], [(t, page_name("Topic", t)) for t in entry.values("Topic")]))
 
     badges = []
     if entry.level:
-        badges.append(("dk-badge dk-level", entry.level))
+        badges.append(("dk-badge dk-level", entry.level, page_name("Level", entry.level)))
     if entry.value("Register"):
-        badges.append(("dk-badge dk-register", entry.value("Register")))
-    badges.append((f"dk-badge dk-checked dk-checked-{entry.checked}", entry.checked))
+        badges.append(("dk-badge dk-register", entry.value("Register"), page_name("Register", entry.value("Register"))))
+    badges.append((f"dk-badge dk-checked dk-checked-{entry.checked}", entry.checked, ""))
     return {"kind": entry.type, "headline": headline, "headline_class": css, "say": headline,
             "translation": entry.translation, "badges": badges, "facts": facts, "links": links}
 

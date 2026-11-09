@@ -12,6 +12,7 @@ LABELS: dict[str, str] = {
     "skill": "Assistant skill",
     "search": "Search",
     "word": "Word",
+    "type": "Type",
     "verb": "Verb",
     "chunk": "Chunk",
     "article": "Article",

@@ -13,8 +13,12 @@
         <p class="dk-translation" lang="${dk['native']}">${c['translation']}</p>
 % endif
         <p class="dk-badges">
-% for css, text in c['badges']:
+% for css, text, href in c['badges']:
+% if href:
+            <a class="${css}" href="${href}">${text}</a>
+% else:
             <span class="${css}">${text}</span>
+% endif
 % endfor
         </p>
 % if c['facts'] or c['links']:

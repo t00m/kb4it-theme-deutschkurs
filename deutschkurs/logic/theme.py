@@ -10,6 +10,7 @@ from .config import DeutschkursConfig
 from .course import Course, build_course
 from .glossary import link_html
 from .labels import labels
+from .pages import write_pages
 from .render import card, fold_sections, grammar_order, pairs_html
 
 ENTRY_TYPES = ("Word", "Verb", "Chunk", "Grammar")
@@ -22,6 +23,9 @@ class Theme(BaseTheme):
     person_pages = False
     profile_skeleton = False
     untitled_label = "Untitled"
+    reserved_pages = tuple(f"{name}.md" for name in (
+        "vocabulary", "verbs", "chunks", "grammar", "texts", "conversations", "situations", "photos", "mistakes",
+        "inbox", "practice", "progress", "skill", "search", "404"))
 
     def setup(self):
         # KB4IT sets self.config after setup(), so settings are read in prepare().
@@ -47,10 +51,26 @@ class Theme(BaseTheme):
             data["card"] = card(entry, self.course, self.labels, self.course.url)
         return data
 
+    def base_var(self):
+        var = super().base_var()
+        var.setdefault("dk", self.dk_var())
+        return var
+
     def build(self, site):
-        documents = [{"title": doc.title or self.untitled_label, "url": doc.url} for doc in site.documents]
-        documents.sort(key=lambda item: item["title"].lower())
-        site.page("index", self.labels["home"], self.render("PAGE_INDEX", documents=documents, dk=self.dk_var()))
+        write_pages(self, site, self.course)
+
+    def search_record(self, doc):
+        record = self.site.features.search.search_record(doc)
+        entry = self.course.entries.get(doc.id)
+        if record is not None and entry is not None and entry.type:
+            facets = {"Type": [entry.type]}
+            if entry.level:
+                facets["Level"] = [entry.level]
+            if entry.value("Article"):
+                facets["Article"] = [entry.value("Article")]
+            record["f"] = facets
+            record["s"] = entry.translation
+        return record
 
     def page_context(self, doc, var):
         var["dk"] = self.dk_var(self.course.entries.get(doc.id))

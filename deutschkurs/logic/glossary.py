@@ -53,7 +53,7 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
             for form in [e.title, *e.values("Forms")]:
                 g.nouns.setdefault(form.strip(), (e.id, gender))
             for plural in e.values("Plural"):
-                if plural.strip() != "-":
+                if plural.strip() not in ("none", "-"):
                     g.nouns.setdefault(_strip_article(plural), (e.id, "dk-pl"))
         elif e.type == "Word":
             for form in [e.title, *e.values("Forms")]:

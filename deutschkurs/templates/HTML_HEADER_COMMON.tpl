@@ -21,6 +21,14 @@
 % endif
 <header class="dk-top">
     <a class="dk-brand" href="index.html">${var['repo']['title']}</a>
-    <nav class="dk-nav"></nav>
+    <nav class="dk-nav">
+% if dk:
+        <a href="index.html">${dk['labels']['home']}</a>
+        <a href="vocabulary.html">${dk['labels']['vocabulary']}</a>
+        <a href="verbs.html">${dk['labels']['verbs']}</a>
+        <a href="chunks.html">${dk['labels']['chunks']}</a>
+        <a href="grammar.html">${dk['labels']['grammar']}</a>
+% endif
+    </nav>
     ${var['search_box'] | n}
 </header>
