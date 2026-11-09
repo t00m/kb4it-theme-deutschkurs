@@ -15,6 +15,7 @@
 - KB4IT splits every value on commas. `Topic: Schule, Familie` gives two topics. Never put a sentence or an explanation with a comma in a property: write it in the body.
 - Quote a value with double quotes when it contains `: ` or starts with `[`, `{`, `#`, `&`, `*`, `!`, `|`, `>`, `%`, `@` or `-`.
 - A word with no plural is `Plural: none`, never `Plural: -` (a bare dash breaks YAML).
+- Yes-or-no properties (`PluralOnly`, `Irregular`, `Separable`, `Reflexive`) take only `yes`, in lower case. Leave them out for no.
 
 ## Body
 

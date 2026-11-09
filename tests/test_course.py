@@ -40,9 +40,3 @@ def test_glossary_uses_url():
     course = build_course(DOCS, DeutschkursConfig(), url=lambda i: "x/" + i)
     assert course.url("zug.md") == "x/zug.md"
     assert course.glossary.lookup("Zug") == ("zug.md", "dk-m")
-
-
-def test_signature_changes_with_properties():
-    a = build_course(DOCS, DeutschkursConfig()).signature
-    b = build_course(DOCS[:-1], DeutschkursConfig()).signature
-    assert a and a != b

@@ -2,7 +2,7 @@
 Checked: assistant
 Level: A1
 Register: neutral
-Translation: hasta mañana
+Translation: see you tomorrow
 Type: Chunk
 ---
 
@@ -10,9 +10,9 @@ Type: Chunk
 
 ## Variants
 
-- Bis später! :: ¡Hasta luego!
-- Bis Montag! :: ¡Hasta el lunes!
+- Bis später! :: See you later!
+- Bis Montag! :: See you on Monday!
 
 ## Usage
 
-Despedida cuando os veréis pronto. *Bis* + el momento.
+Goodbye when you will meet again soon. *Bis* + the time.

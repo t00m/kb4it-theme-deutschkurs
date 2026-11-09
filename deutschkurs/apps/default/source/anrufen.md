@@ -9,7 +9,7 @@ Prefix: an
 Present: ich rufe an, du rufst an, er ruft an, wir rufen an, ihr ruft an, sie rufen an
 Preterite: ich rief an
 Separable: yes
-Translation: llamar por teléfono
+Translation: to phone
 Type: Verb
 ---
 
@@ -17,8 +17,8 @@ Type: Verb
 
 ## Examples
 
-- Ich rufe dich morgen an. :: Te llamo mañana.
-- Hast du die Schule schon angerufen? :: ¿Ya has llamado al colegio?
+- Ich rufe dich morgen an. :: I will call you tomorrow.
+- Hast du die Schule schon angerufen? :: Have you called the school yet?
 
 ## Typical mistakes
 
@@ -27,4 +27,4 @@ Type: Verb
 
 ## Notes
 
-*anrufen* lleva acusativo: *ich rufe dich an*, no *dir*.
+*anrufen* takes the accusative: *ich rufe dich an*, not *dir*.

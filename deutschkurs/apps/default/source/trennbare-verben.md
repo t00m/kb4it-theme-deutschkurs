@@ -9,11 +9,11 @@ Type: Grammar
 
 ## Explanation
 
-Algunos verbos llevan un prefijo que se separa: *anrufen*, *abholen*, *einkaufen*. En la frase principal el verbo va en segunda posición y el prefijo al final.
+Some verbs have a prefix that splits off: *anrufen*, *abholen*, *einkaufen*. In a main clause the verb is in second position and the prefix goes to the end.
 
 *Ich rufe die Lehrerin an. Wir holen die Kinder um eins ab.*
 
-En el Perfekt el *ge-* va entre prefijo y verbo: *angerufen*, *abgeholt*.
+In the Perfekt, *ge-* goes between the prefix and the verb: *angerufen*, *abgeholt*.
 
 ## Simple German
 

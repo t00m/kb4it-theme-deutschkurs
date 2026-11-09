@@ -5,7 +5,7 @@ Level: A1
 PartOfSpeech: noun
 Plural: die Mädchen
 Topic: Familie
-Translation: niña
+Translation: girl
 Type: Word
 ---
 
@@ -13,9 +13,9 @@ Type: Word
 
 ## Examples
 
-- Das Mädchen in der Klasse heißt Lea. :: La niña de la clase se llama Lea.
-- In der Klasse sind zwölf Mädchen. :: En la clase hay doce niñas.
+- Das Mädchen in der Klasse heißt Lea. :: The girl in the class is called Lea.
+- In der Klasse sind zwölf Mädchen. :: There are twelve girls in the class.
 
 ## Notes
 
-Es neutro porque las palabras en *-chen* siempre son *das*. El plural no cambia.
+It is neuter because words ending in *-chen* are always *das*. The plural does not change.

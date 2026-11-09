@@ -15,7 +15,7 @@ pipx install "git+https://github.com/t00m/KB4IT@0.12.0"
 Download `deutschkurs-X.Y.Z.zip` from the [releases](https://github.com/t00m/kb4it-theme-deutschkurs/releases) and install it:
 
 ```bash
-kb4it install-theme deutschkurs-0.1.0.zip
+kb4it install-theme deutschkurs-0.1.1.zip
 kb4it create deutschkurs default ~/deutschkurs
 kb4it build ~/deutschkurs/config/repo.json
 ```
@@ -40,7 +40,7 @@ The theme lives in `deutschkurs/`, the folder name the release zip needs.
 - The theme follows Semantic Versioning; the version is in `deutschkurs/theme.json` and `CHANGELOG.md`.
 - Below 1.0.0 a minor release may change the document format. The changelog says what to edit, and the skill learns the conversion.
 - Each release is a `vX.Y.Z` tag on `main` and a GitHub release with the zip.
-- Each theme version names the KB4IT versions it supports in `theme.json` (0.1.0: `>=0.12.0, <0.13.0`).
+- Each theme version names the KB4IT versions it supports in `theme.json` (0.1.x: `>=0.12.0, <0.13.0`).
 
 ## License
 

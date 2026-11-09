@@ -5,7 +5,7 @@ Level: A1
 PartOfSpeech: noun
 Plural: die Elternabende
 Topic: Schule
-Translation: reunión de padres
+Translation: parents' evening
 Type: Word
 ---
 
@@ -13,9 +13,9 @@ Type: Word
 
 ## Examples
 
-- Der Elternabend ist am Dienstag um sieben. :: La reunión de padres es el martes a las siete.
-- Beim Elternabend erklärt die Lehrerin den Ausflug. :: En la reunión de padres la maestra explica la excursión.
+- Der Elternabend ist am Dienstag um sieben. :: The parents' evening is on Tuesday at seven.
+- Beim Elternabend erklärt die Lehrerin den Ausflug. :: At the parents' evening the teacher explains the trip.
 
 ## Notes
 
-Palabra compuesta: *die Eltern* + *der Abend*. El género lo da la última palabra: *der*.
+Compound: *die Eltern* + *der Abend*. The last word gives the gender: *der*.

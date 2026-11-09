@@ -1,7 +1,5 @@
 """The course: every entry of the site, its glossary and its problems."""
 
-import hashlib
-import json
 from dataclasses import dataclass, field
 from typing import Callable, Iterable, Mapping, Sequence
 
@@ -29,7 +27,6 @@ class Course:
     glossary: Glossary = field(default_factory=Glossary)
     problems: list[MetaProblem] = field(default_factory=list)
     urls: dict[str, str] = field(default_factory=dict)
-    signature: str = ""
 
     def url(self, doc_id: str) -> str:
         return self.urls.get(doc_id) or default_url(doc_id)
@@ -53,15 +50,11 @@ def build_course(docs: Iterable[Doc], config: DeutschkursConfig,
                  url: Callable[[str], str] = default_url) -> Course:
     """Read every document into an Entry, check it and index its forms."""
     course = Course()
-    digest = hashlib.sha256()
     for doc_id, props, markdown in sorted(docs, key=lambda d: d[0]):
         entry = entry_from(doc_id, props, markdown)
         course.entries[doc_id] = entry
         course.urls[doc_id] = url(doc_id)
         course.problems += check_properties(doc_id, props, config.topics)
         course.problems += check_body(entry)
-        digest.update(json.dumps([doc_id, entry.title, {k: list(v) for k, v in sorted(entry.props.items())}],
-                                 ensure_ascii=False).encode())
     course.glossary = build_glossary(course.entries.values())
-    course.signature = digest.hexdigest()[:16]
     return course

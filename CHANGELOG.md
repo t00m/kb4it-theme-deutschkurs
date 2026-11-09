@@ -4,6 +4,22 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-09
+
+### Changed
+
+- Translations default to English: `native` is now `en`. A course with Spanish translations sets `"native": "es"` in the `deutschkurs` block of `repo.json`.
+- The starter course and the skill examples are in English.
+- The top bar is one compact row, as in the techdoc theme: logo, links and a small search box. On phones the links scroll sideways.
+- `PluralOnly`, `Irregular`, `Separable` and `Reflexive` accept only `yes`; other values give `flag_invalid`. Impossible dates such as `2026-13-45` give `date_invalid`.
+
+### Fixed
+
+- Glossary linking: attributes containing `>`, closing tags without an opening tag, and separable verbs that share a stem (`anrufen`, `zurückrufen`).
+- Invalid colours in `accent` or `gender_colors` are replaced by the default with a `COLOR_INVALID` warning.
+- The 404 page, footer, skill page and facet headings take their text from the labels, so `labels` overrides reach them.
+- CI uses the Node 24 versions of the GitHub actions.
+
 ## [0.1.0] - 2026-11-09
 
 ### Added

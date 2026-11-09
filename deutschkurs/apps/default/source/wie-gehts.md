@@ -2,7 +2,7 @@
 Checked: assistant
 Level: A1
 Register: colloquial
-Translation: ¿Qué tal?
+Translation: How are you?
 Type: Chunk
 ---
 
@@ -10,9 +10,9 @@ Type: Chunk
 
 ## Variants
 
-- Wie geht es Ihnen? :: ¿Cómo está usted?
-- Gut, danke. Und dir? :: Bien, gracias. ¿Y tú?
+- Wie geht es Ihnen? :: How are you? (formal)
+- Gut, danke. Und dir? :: Fine, thanks. And you?
 
 ## Usage
 
-Saludo entre conocidos, por ejemplo con otros padres en la puerta del colegio. Con *Sie*: *Wie geht es Ihnen?*
+Greeting between people who know each other, such as other parents at the school gate. With *Sie*: *Wie geht es Ihnen?*

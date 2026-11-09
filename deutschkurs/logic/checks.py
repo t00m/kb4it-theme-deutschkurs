@@ -1,6 +1,7 @@
 """Metadata checks: one MetaProblem per invalid or missing property."""
 
 import re
+from datetime import datetime
 from dataclasses import dataclass
 from typing import Mapping, Optional, Sequence
 
@@ -10,8 +11,10 @@ REASONS = (
     "type_missing", "type_unknown", "level_missing", "level_invalid", "translation_missing",
     "article_missing", "part_of_speech_invalid", "participle_missing", "auxiliary_missing",
     "prefix_missing", "register_invalid", "checked_invalid", "area_invalid", "date_invalid",
-    "topic_unknown", "explanation_missing",
+    "topic_unknown", "explanation_missing", "flag_invalid",
 )
+
+FLAGS = ("PluralOnly", "Irregular", "Separable", "Reflexive")
 
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?)?$")
 NEEDS_TRANSLATION = ("Word", "Verb", "Chunk")
@@ -81,11 +84,27 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
         add("Register", "register_invalid")
     if get("Checked") and get("Checked")[0] not in CHECKED:
         add("Checked", "checked_invalid")
-    if get("Date") and not DATE.match(get("Date")[0]):
+    for flag in FLAGS:
+        if get(flag) and get(flag) != ["yes"]:
+            add(flag, "flag_invalid")
+    if get("Date") and not _real_date(get("Date")[0]):
         add("Date", "date_invalid")
     if topics is not None and any(t not in topics for t in get("Topic")):
         add("Topic", "topic_unknown")
     return problems
+
+
+def _real_date(value: str) -> bool:
+    """True for YYYY-MM-DD, optionally with HH:MM or HH:MM:SS, that is a real calendar date."""
+    if not DATE.match(value):
+        return False
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+        try:
+            datetime.strptime(value, fmt)
+            return True
+        except ValueError:
+            continue
+    return False
 
 
 def check_body(entry: Entry) -> list[MetaProblem]:

@@ -21,7 +21,8 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`.
 | `register_invalid` | `Register` not `du`, `Sie`, `neutral` or `colloquial` | Correct it |
 | `checked_invalid` | `Checked` not one of the five values | Use a value from `conventions.md` |
 | `area_invalid` | Grammar without `Area`, or not an allowed value | Use one of the values in `entry-types.md` |
-| `date_invalid` | `Date` not `YYYY-MM-DD` | Write it as `2026-11-09` |
+| `date_invalid` | `Date` not `YYYY-MM-DD`, or not a real day such as `2026-13-45` | Write it as `2026-11-09` |
+| `flag_invalid` | `PluralOnly`, `Irregular`, `Separable` or `Reflexive` with a value other than `yes` (such as `Yes` or `true`) | Write `yes` in lower case, or remove the property |
 | `topic_unknown` | `Topic` not in the `topics` setting | Use an allowed topic, or ask the learner to add it to the setting |
 | `explanation_missing` | Grammar without a `## Explanation` section | Add it. Only `kb4it build` reports this one: `kb4it verify` reads properties, not sections |
 
@@ -30,6 +31,7 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`.
 | Message | Cause | Fix |
 |---|---|---|
 | `LABEL_UNKNOWN key=<key>` | A `labels` override names a label that does not exist | Remove or correct that key in the `labels` setting |
+| `COLOR_INVALID key=<key>` | `accent` or a `gender_colors` value is not a CSS colour; the default is used | Use a hex colour such as `#c0392b`, a colour name, or `rgb()` |
 | `PAGE_NAME_TAKEN doc=<file>` | The file name starts with `Level_`, `Topic_` or `Register_`, like a facet page | Rename the file |
 
 ## KB4IT messages

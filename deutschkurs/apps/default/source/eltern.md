@@ -4,7 +4,7 @@ Level: A1
 PartOfSpeech: noun
 PluralOnly: yes
 Topic: Familie
-Translation: padres
+Translation: parents
 Type: Word
 ---
 
@@ -12,9 +12,9 @@ Type: Word
 
 ## Examples
 
-- Liebe Eltern, am Freitag ist kein Unterricht. :: Queridos padres: el viernes no hay clase.
-- Die Eltern holen die Kinder um eins ab. :: Los padres recogen a los niños a la una.
+- Liebe Eltern, am Freitag ist kein Unterricht. :: Dear parents, there are no lessons on Friday.
+- Die Eltern holen die Kinder um eins ab. :: The parents pick up the children at one.
 
 ## Notes
 
-Solo existe en plural: *die Eltern*. Un padre o una madre: *ein Elternteil*.
+Only exists in the plural: *die Eltern*. One parent: *ein Elternteil*.

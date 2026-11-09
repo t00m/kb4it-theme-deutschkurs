@@ -67,9 +67,11 @@ def write_pages(theme, site, course: Course) -> None:
     for key in FACET_KEYS:
         facet = course.facet(key)
         values = [(value, page_name(key, value), len(entries)) for value, entries in facet.items()]
-        site.page(page_name(key), key, theme.render("DK_FACET", dk=dk, heading=key, values=values), listing=True)
+        heading = L[key.lower()]
+        site.page(page_name(key), heading, theme.render("DK_FACET", dk=dk, heading=heading, values=values),
+                  listing=True)
         for value, entries in facet.items():
-            title = f"{key}: {value}"
+            title = f"{heading}: {value}"
             table(page_name(key, value), title, columns, [any_row(e, url) for e in entries])
 
     if "index.md" in course.entries:

@@ -35,7 +35,7 @@ Sections, all optional, in this order:
 
 - `## Examples`: list items `German sentence :: translation`.
 - `## Pronunciation`: what is hard to say for the learner.
-- `## False friends`: words that look like Spanish or English words but mean something else.
+- `## False friends`: words that look like words of the learner's language but mean something else.
 - `## Notes`: anything else, short.
 
 ```markdown
@@ -47,7 +47,7 @@ PartOfSpeech: noun
 Plural: die Termine
 Stress: Ter-MIN
 Topic: Schule
-Translation: cita
+Translation: appointment
 Type: Word
 ---
 
@@ -55,12 +55,12 @@ Type: Word
 
 ## Examples
 
-- Ich habe morgen einen Termin beim Arzt. :: Mañana tengo cita con el médico.
-- Können wir einen Termin vereinbaren? :: ¿Podemos concertar una cita?
+- Ich habe morgen einen Termin beim Arzt. :: Tomorrow I have a doctor's appointment.
+- Können wir einen Termin vereinbaren? :: Can we make an appointment?
 
 ## False friends
 
-*Termin* no es *término*: es una cita con hora fija.
+*Termin* is not a *term*: it is an appointment with a fixed time.
 ```
 
 ## Verb
@@ -100,7 +100,7 @@ Prefix: an
 Present: ich rufe an, du rufst an, er ruft an, wir rufen an, ihr ruft an, sie rufen an
 Preterite: ich rief an
 Separable: yes
-Translation: llamar por teléfono
+Translation: to phone
 Type: Verb
 ---
 
@@ -108,8 +108,8 @@ Type: Verb
 
 ## Examples
 
-- Ich rufe dich morgen an. :: Te llamo mañana.
-- Hast du die Schule angerufen? :: ¿Has llamado al colegio?
+- Ich rufe dich morgen an. :: I will call you tomorrow.
+- Hast du die Schule angerufen? :: Have you called the school?
 
 ## Typical mistakes
 
@@ -134,7 +134,7 @@ Sections, all optional:
 Checked: assistant
 Level: A2
 Register: neutral
-Translation: avisar a alguien
+Translation: to let someone know
 Type: Chunk
 ---
 
@@ -142,12 +142,12 @@ Type: Chunk
 
 ## Variants
 
-- Sag mir Bescheid! :: ¡Avísame!
-- Sagen Sie mir bitte Bescheid. :: Avíseme, por favor.
+- Sag mir Bescheid! :: Let me know!
+- Sagen Sie mir bitte Bescheid. :: Please let me know. (formal)
 
 ## Usage
 
-Cuando prometes informar a alguien más tarde. La persona va en dativo: mir, dir, Ihnen.
+When you promise to tell someone later. The person is in the dative: mir, dir, Ihnen.
 ```
 
 ## Grammar
@@ -181,8 +181,8 @@ Type: Grammar
 
 ## Explanation
 
-El Perfekt es el pasado de la conversación: *haben* o *sein* más el participio al final.
-Con *sein* van los verbos de movimiento o cambio de estado: *gehen*, *fahren*, *kommen*.
+The Perfekt is the past tense of conversation: *haben* or *sein* plus the participle at the end.
+Verbs of movement or change of state take *sein*: *gehen*, *fahren*, *kommen*.
 
 ## Simple German
 

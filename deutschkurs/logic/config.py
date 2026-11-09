@@ -1,7 +1,17 @@
 """Theme settings: the "deutschkurs" block of repo.json."""
 
+import re
 from dataclasses import dataclass, field
 from typing import Optional
+
+
+COLOR = re.compile(r"^(#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|[a-zA-Z]+"
+                   r"|(?:rgb|rgba|hsl|hsla)\([0-9.,%\s/]+\))$")
+
+
+def valid_color(value) -> bool:
+    """True for a CSS colour: hex, a colour name, or rgb()/hsl() with numbers only."""
+    return isinstance(value, str) and bool(COLOR.match(value.strip()))
 
 
 def _gender_colors() -> dict:
@@ -10,7 +20,7 @@ def _gender_colors() -> dict:
 
 @dataclass
 class DeutschkursConfig:
-    native: str = "es"
+    native: str = "en"
     labels: dict = field(default_factory=dict)
     learner_level: str = "A2"
     german_from: str = "B1"

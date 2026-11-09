@@ -5,7 +5,7 @@ Level: A1
 PartOfSpeech: noun
 Plural: die Kinder
 Topic: Familie
-Translation: niño
+Translation: child
 Type: Word
 ---
 
@@ -13,9 +13,9 @@ Type: Word
 
 ## Examples
 
-- Mein Kind geht in die zweite Klasse. :: Mi hijo va a segundo.
-- Die Kinder spielen nach der Schule im Park. :: Los niños juegan en el parque después del colegio.
+- Mein Kind geht in die zweite Klasse. :: My child is in second grade.
+- Die Kinder spielen nach der Schule im Park. :: The children play in the park after school.
 
 ## Notes
 
-*Kind* es neutro para niño y niña. *Mein Kind* puede ser hijo o hija.
+*Kind* is neuter for boys and girls. *Mein Kind* can be my son or my daughter.

@@ -6,7 +6,7 @@ Level: A1
 PartOfSpeech: noun
 Plural: die Lehrerinnen
 Topic: Schule
-Translation: maestra
+Translation: teacher (female)
 Type: Word
 ---
 
@@ -14,9 +14,9 @@ Type: Word
 
 ## Examples
 
-- Die Lehrerin hat uns eine Nachricht geschrieben. :: La maestra nos ha escrito un mensaje.
-- Ich rufe morgen die Lehrerin an. :: Mañana llamo a la maestra.
+- Die Lehrerin hat uns eine Nachricht geschrieben. :: The teacher has written us a message.
+- Ich rufe morgen die Lehrerin an. :: I will call the teacher tomorrow.
 
 ## Notes
 
-El femenino se forma con *-in*: *der Lehrer*, *die Lehrerin*.
+The feminine form adds *-in*: *der Lehrer*, *die Lehrerin*.

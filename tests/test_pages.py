@@ -120,7 +120,7 @@ def test_word_card(site):
 def test_examples_split_into_german_and_translation(site):
     html = main(site.page("termin.html"))
     assert '<span class="dk-de" lang="de">Ich habe morgen einen Termin.</span>' in html
-    assert '<span class="dk-tr dk-no-link" lang="es">Mañana tengo una cita.</span>' in html
+    assert '<span class="dk-tr dk-no-link" lang="en">Mañana tengo una cita.</span>' in html
     assert " :: " not in html
 
 
@@ -174,3 +174,12 @@ def test_typical_mistakes_are_german_and_only_the_right_form_is_spoken(site):
     assert '<span class="dk-right" lang="de">Kannst du mir helfen?</span>' in html
     assert 'data-say="Kannst du mir helfen?"' in html
     assert 'data-say="Kannst du mich helfen?"' not in html
+
+
+def test_compact_top_bar(site):
+    header = re.search(r'<header class="dk-top">.*?</header>', site.page("termin.html"), re.S).group()
+    assert '<div class="dk-bar">' in header
+    assert re.search(r'<a class="dk-brand" href="index.html"[^>]*><img [^>]*width="24" height="24"', header)
+    assert header.index('class="dk-nav"') < header.index('class="dk-search"')
+    css = (site.target / "resources/themes/deutschkurs/framework/deutschkurs/deutschkurs.css").read_text()
+    assert "position: sticky" in css and "white-space: nowrap" in css
