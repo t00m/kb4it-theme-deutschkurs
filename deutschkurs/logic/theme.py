@@ -2,12 +2,12 @@
 
 import hashlib
 import json
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 from kb4it.theme import BaseTheme, ThemeError
 
-from .config import DeutschkursConfig
+from .config import DeutschkursConfig, valid_color
 from .course import Course, build_course
 from .glossary import link_html
 from .labels import labels
@@ -34,7 +34,23 @@ class Theme(BaseTheme):
         self.course = Course()
         self.labels, _ = labels({})
 
+    def _checked_colors(self):
+        """Settings with every invalid colour replaced by its default, each one logged."""
+        defaults = DeutschkursConfig()
+        accent = self.config.accent
+        if not valid_color(accent):
+            self.log.warning("[DEUTSCHKURS] COLOR_INVALID key=accent")
+            accent = defaults.accent
+        colors = dict(defaults.gender_colors)
+        for key, value in (self.config.gender_colors or {}).items():
+            if key in colors and valid_color(value):
+                colors[key] = value
+            else:
+                self.log.warning(f"[DEUTSCHKURS] COLOR_INVALID key=gender_colors.{key}")
+        return replace(self.config, accent=accent, gender_colors=colors)
+
     def prepare(self, site):
+        self.config = self._checked_colors()
         self.labels, unknown = labels(self.config.labels)
         for key in unknown:
             self.log.warning(f"[DEUTSCHKURS] LABEL_UNKNOWN key={key}")

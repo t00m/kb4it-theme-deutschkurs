@@ -1,4 +1,7 @@
+<%
+    L = var['dk']['labels']
+%>
 <main class="dk-main">
-    <h1>Page not found</h1>
-    <p>This page does not exist or has moved. Go to the <a href="index.html">home page</a>.</p>
+    <h1>${L['not_found_title']}</h1>
+    <p>${L['not_found_text']} <a href="index.html">${L['home']}</a></p>
 </main>

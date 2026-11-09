@@ -11,7 +11,7 @@ GENDER = {"der": "dk-m", "die": "dk-f", "das": "dk-n"}
 SKIP_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "a", "code", "pre", "blockquote", "script", "style",
              "button", "textarea", "select", "head", "title"}
 VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
-TAG = re.compile(r"(<!--.*?-->|<[^>]+>)", re.S)
+TAG = re.compile(r"""(<!--.*?-->|<(?:[^>"']|"[^"]*"|'[^']*')*>)""", re.S)
 TAG_NAME = re.compile(r"^<\s*(/)?\s*([a-zA-Z][a-zA-Z0-9]*)")
 ENTITY = re.compile(r"(&#?\w+;)")
 CLAUSE_END = re.compile(r"[.,;:!?]")
@@ -26,8 +26,8 @@ class Glossary:
     forms: dict[str, str] = field(default_factory=dict)
     # Chunk text, lower-cased, to entry id; longest first.
     phrases: list[tuple[str, str]] = field(default_factory=list)
-    # Finite form of a separable verb, lower-cased, to (prefix, entry id).
-    separable: dict[str, tuple[str, str]] = field(default_factory=dict)
+    # Finite form of a separable verb, lower-cased, to its (prefix, entry id) pairs.
+    separable: dict[str, list[tuple[str, str]]] = field(default_factory=dict)
 
     def lookup(self, token: str) -> tuple[str, str] | None:
         """(entry id, css class) of a token, or None."""
@@ -66,7 +66,9 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
                 g.forms.setdefault(form.strip().lower(), e.id)
             for form in finite:
                 if prefix:
-                    g.separable.setdefault(form.lower(), (prefix, e.id))
+                    pairs = g.separable.setdefault(form.lower(), [])
+                    if (prefix, e.id) not in pairs:
+                        pairs.append((prefix, e.id))
                 else:
                     g.forms.setdefault(form.lower(), e.id)
         elif e.type == "Chunk" and e.title:
@@ -101,16 +103,19 @@ def _link_text(text: str, g: Glossary, self_id: str, url: Callable[[str], str]) 
 
     words = list(WORD.finditer(text))
     for i, m in enumerate(words):
-        sep = g.separable.get(m.group().lower())
-        if not sep or not free(m.start(), m.end()):
+        candidates = g.separable.get(m.group().lower())
+        if not candidates or not free(m.start(), m.end()):
             continue
-        prefix, doc_id = sep
         end = CLAUSE_END.search(text, m.end())
         limit = end.start() if end else len(text)
         clause = [w for w in words[i + 1:] if w.end() <= limit]
-        if clause and clause[-1].group() == prefix and doc_id != self_id:
-            take(m.start(), m.end(), doc_id, "dk-bracket")
-            take(clause[-1].start(), clause[-1].end(), doc_id, "dk-bracket")
+        if not clause:
+            continue
+        for prefix, doc_id in candidates:
+            if clause[-1].group() == prefix and doc_id != self_id:
+                take(m.start(), m.end(), doc_id, "dk-bracket")
+                take(clause[-1].start(), clause[-1].end(), doc_id, "dk-bracket")
+                break
 
     for m in words:
         if not free(m.start(), m.end()):
@@ -142,9 +147,10 @@ def link_html(html: str, glossary: Glossary, self_id: str, url: Callable[[str], 
                 continue
             closing, name = m.group(1), m.group(2).lower()
             if closing:
-                while stack:
-                    if stack.pop()[0] == name:
-                        break
+                # A closing tag with no matching open tag is ignored.
+                if any(open_name == name for open_name, _ in stack):
+                    while stack.pop()[0] != name:
+                        pass
             elif name not in VOID_TAGS and not piece.rstrip().endswith("/>"):
                 skip = name in SKIP_TAGS or "dk-no-link" in piece
                 stack.append((name, skip))

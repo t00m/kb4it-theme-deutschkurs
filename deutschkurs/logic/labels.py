@@ -59,6 +59,13 @@ LABELS: dict[str, str] = {
     "documents": "Other pages",
     "untitled": "Untitled",
     "filter_placeholder": "Type to filter",
+    "not_found_title": "Page not found",
+    "not_found_text": "This page does not exist or has moved. Go to the home page:",
+    "built_with": "Built with KB4IT on",
+    "skill_intro": "This course comes with a skill: instructions an AI assistant follows to help you add entries from real material, correct your German and fix build problems. It removes personal data before anything else.",
+    "skill_claude": "Claude Code: copy the folder skills/deutschkurs/ of this site to ~/.claude/skills/deutschkurs/.",
+    "skill_other": "Another assistant: give it these instructions and the files in reference/:",
+    "skill_site": "This list of the entries of your course helps the assistant reuse their names:",
 }
 
 

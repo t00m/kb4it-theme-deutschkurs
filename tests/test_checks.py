@@ -39,6 +39,8 @@ ROWS = [
     (change(GRAMMAR, Area="Stuff"), None, ("Area", "area_invalid")),
     (change(WORD, Date="09.11.2026"), None, ("Date", "date_invalid")),
     (change(WORD, Topic="Kino"), ["Schule"], ("Topic", "topic_unknown")),
+    (change(VERB, Separable="Yes", Prefix="an"), None, ("Separable", "flag_invalid")),
+    (change(WORD, PluralOnly="true"), None, ("PluralOnly", "flag_invalid")),
 ]
 
 
@@ -46,6 +48,11 @@ ROWS = [
 def test_reason(props, topics, expected):
     problems = check_properties("a.md", props, topics)
     assert [(p.key, p.reason) for p in problems] == [expected]
+
+
+def test_impossible_date():
+    problems = check_properties("a.md", change(WORD, Date="2026-13-45"), None)
+    assert [(p.key, p.reason) for p in problems] == [("Date", "date_invalid")]
 
 
 def test_explanation_missing():

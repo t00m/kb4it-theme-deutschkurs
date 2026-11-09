@@ -92,3 +92,23 @@ def test_attributes_untouched():
 
 def test_entities_kept():
     assert link("<p>Termin &amp; Kind</p>").count("&amp;") == 1
+
+
+def test_quoted_attribute_with_greater_than():
+    html = '<span title="a > Kind">x</span>'
+    assert link(html) == html
+
+
+def test_unmatched_closing_tag_keeps_skip():
+    for html in ("<pre></span>Termin</pre>", "<h2>Termin</b> Kind</h2>"):
+        assert link(html) == html
+
+
+def test_separable_verbs_sharing_a_stem():
+    g = build_glossary(ENTRIES + [make("zurueckrufen", "# zurückrufen", Type="Verb", Separable="yes",
+                                       Prefix="zurück", Present="ich rufe zurück, du rufst zurück",
+                                       Participle="zurückgerufen")])
+    back = link_html("<p>Ich rufe dich zurück.</p>", g, "none", lambda i: f"{i}.html")
+    assert 'href="zurueckrufen.html">rufe</a>' in back and 'href="zurueckrufen.html">zurück</a>' in back
+    on = link_html("<p>Ich rufe dich an.</p>", g, "none", lambda i: f"{i}.html")
+    assert 'href="anrufen.html">rufe</a>' in on
