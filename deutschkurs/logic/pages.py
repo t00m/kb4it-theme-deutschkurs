@@ -72,6 +72,8 @@ def write_pages(theme, site, course: Course) -> None:
             title = f"{key}: {value}"
             table(page_name(key, value), title, columns, [any_row(e, url) for e in entries])
 
+    if "index.md" in course.entries:
+        return  # the learner's own index.md is the home page
     counts = [(L[name], f"{name}.html", len(course.by_type(kind))) for name, kind in LISTS]
     latest = [e for e in (course.entries.get(doc.id) for doc in site.documents.latest(20)) if e and e.type][:5]
     others = [e for e in course.entries.values() if not e.type]

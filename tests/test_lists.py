@@ -150,5 +150,33 @@ def test_search_record(site):
 
 def test_reserved_name_refused(tmp_path):
     site = build_site(tmp_path, {"vocabulary.md": TERMIN, "kind.md": KIND}, starter=False)
-    assert "vocabulary" in "\n".join(warnings(site.log))
+    assert any("DOC_NAME_RESERVED" in line and "vocabulary.md" in line for line in warnings(site.log))
     assert 'class="dk-row"' in site.page("vocabulary.html")
+
+
+INDEX = """---
+Topic: Schule
+---
+
+# Willkommen
+
+Mein eigener Startseitentext.
+"""
+
+
+def test_own_index_replaces_home(tmp_path):
+    site = build_site(tmp_path, {"index.md": INDEX, "kind.md": KIND}, starter=False)
+    assert "Mein eigener Startseitentext." in site.page("index.html")
+
+
+def test_facet_page_names_reserved(tmp_path):
+    site = build_site(tmp_path, {"Topic.md": INDEX, "Level.md": INDEX, "Register.md": INDEX, "kind.md": KIND},
+                      starter=False)
+    log = "\\n".join(warnings(site.log))
+    for name in ("Topic.md", "Level.md", "Register.md"):
+        assert f"DOC_NAME_RESERVED doc={name}" in log or f'DOC_NAME_RESERVED doc="{name}"' in log, name
+
+
+def test_facet_value_names_warned(tmp_path):
+    site = build_site(tmp_path, {"Level_A1.md": INDEX, "kind.md": KIND}, starter=False)
+    assert any("PAGE_NAME_TAKEN doc=Level_A1.md" in line for line in warnings(site.log))

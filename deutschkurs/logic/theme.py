@@ -11,7 +11,7 @@ from .config import DeutschkursConfig
 from .course import Course, build_course
 from .glossary import link_html
 from .labels import labels
-from .pages import write_pages
+from .pages import FACET_KEYS, write_pages
 from .skill import PUBLISHED, publish, skill_html
 from .render import card, fold_sections, grammar_order, pairs_html
 
@@ -27,7 +27,7 @@ class Theme(BaseTheme):
     untitled_label = "Untitled"
     reserved_pages = tuple(f"{name}.md" for name in (
         "vocabulary", "verbs", "chunks", "grammar", "texts", "conversations", "situations", "photos", "mistakes",
-        "inbox", "practice", "progress", "skill", "search", "404"))
+        "inbox", "practice", "progress", "skill", "search", "404", *FACET_KEYS))
 
     def setup(self):
         # KB4IT sets self.config after setup(), so settings are read in prepare().
@@ -42,6 +42,9 @@ class Theme(BaseTheme):
         self.course = build_course(docs, self.config, url=lambda doc_id: site.doc(doc_id).url)
         for problem in self.course.problems:
             self.log.warning(f"[DEUTSCHKURS] {problem}")
+        for doc_id in self.course.entries:
+            if any(doc_id.startswith(f"{key}_") for key in FACET_KEYS):
+                self.log.warning(f"[DEUTSCHKURS] PAGE_NAME_TAKEN doc={doc_id} reason=facet_page_name")
         if self.config.strict and self.course.problems:
             raise ThemeError(f"{len(self.course.problems)} metadata problems and strict is on")
 
