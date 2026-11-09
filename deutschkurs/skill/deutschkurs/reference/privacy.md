@@ -28,6 +28,13 @@ Keep what the learner needs to learn: words, grammar, the kind of sender (`die S
 
 When you are not sure whether something is personal, replace it.
 
+## Conversations
+
+- Speakers are roles: `Mutter`, `Lehrerin`, `Arzt`, `Nachbar`. The learner is `ich`.
+- People named inside a turn get the same placeholders as in a text: `Frau A.`, `Kind C.`.
+- When the learner tells you about a conversation, the account may hold other people's private matters, such as a diagnosis or a family problem. Keep the language the learner needs and leave the matter out, or make it general.
+- The title names the moment, not the person: `Frage an die Lehrerin`.
+
 ## Photos
 
 Do not describe faces or people in photos. If a photo shows a person, a number plate or a house number, say that the learner should crop or blur it before keeping the image.

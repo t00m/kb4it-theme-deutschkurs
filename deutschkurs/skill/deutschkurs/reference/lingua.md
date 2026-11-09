@@ -7,7 +7,7 @@ lingua was an earlier KB4IT theme for language courses. Its files are close to d
 | lingua | deutschkurs |
 |---|---|
 | `Type: Word`, `Verb`, `Grammar` | Same |
-| `Type: Text` | Not supported yet: leave the file untouched and list it |
+| `Type: Text` | Same; see "Texts" below |
 | `PartOfSpeech: Noun`, `Adjective`... (capitalised) | Lower case: `noun`, `adjective`... |
 | `PartOfSpeech: Expression` | `Type: Chunk`, remove `PartOfSpeech` |
 | `Plural: Häuser` (without article) | `Plural: die Häuser` |
@@ -45,7 +45,7 @@ Translation: house
 
 deutschkurs:
 
-```text
+```markdown
 ---
 Article: das
 Checked: unchecked
@@ -57,4 +57,59 @@ Type: Word
 ---
 
 # Haus
+```
+
+## Texts
+
+A lingua Text has the same body: short paragraphs, each followed by a blockquote with its translation. Keep the body as it is. Change the properties:
+
+| lingua | deutschkurs |
+|---|---|
+| `Genre: Letter`, `School letter`, `Article` | Same |
+| `Genre: Message` | `Genre: Chat` |
+| `Genre: Invoice`, `Story` or any other value | `Genre: Other` |
+| `Genre: Conversation` | Ask the learner; see below |
+| `Source: Grundschule, 2020-09-01` (place and day) | `Source: Grundschule` and `Received: 2020-09-01` |
+| No `Level` | `Level` is required: estimate it and tell the learner |
+| A `Source` that names a person or a school | Replace it as `privacy.md` says |
+
+A Text with `Genre: Conversation` is a dialogue. Ask the learner where it comes from: it happened and was written down word for word (`real`), it is remembered (`reconstructed`), or it was written to practise (`model`). Then write it as `Type: Conversation` with that `Kind`, one turn per paragraph, speakers as roles. When the learner does not know, keep it a Text with `Genre: Other`.
+
+lingua:
+
+```text
+---
+Type: Text
+Genre: Message
+Topic: Schule
+Source: Elternchat, 2026-10-30
+Date: 2026-11-02
+---
+
+# Kein Sport am Montag
+
+Am Montag ist kein Sport.
+
+> There is no PE on Monday.
+```
+
+deutschkurs:
+
+```markdown
+---
+Checked: unchecked
+Date: 2026-11-02
+Genre: Chat
+Level: A1
+Received: 2026-10-30
+Source: Elternchat
+Topic: Schule
+Type: Text
+---
+
+# Kein Sport am Montag
+
+Am Montag ist kein Sport.
+
+> There is no PE on Monday.
 ```
