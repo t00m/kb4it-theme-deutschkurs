@@ -21,3 +21,4 @@ def test_defaults():
     assert c.weekly_new == 10
     assert c.prepare_days == 7
     assert c.privacy_allow == []
+    assert c.known_words == []
