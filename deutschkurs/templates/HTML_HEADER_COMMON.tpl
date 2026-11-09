@@ -20,16 +20,18 @@
 <body>
 % endif
 <header class="dk-top">
-    <a class="dk-brand" href="index.html">${var['repo']['title']}</a>
-    <nav class="dk-nav">
+    <div class="dk-bar">
+        <a class="dk-brand" href="index.html" title="${var['repo']['title']}"><img src="resources/themes/${var['theme']['id']}/images/logo.svg" width="24" height="24" alt="${var['repo']['title']}"></a>
+        <nav class="dk-nav">
 % if dk:
-        <a href="index.html">${dk['labels']['home']}</a>
-        <a href="vocabulary.html">${dk['labels']['vocabulary']}</a>
-        <a href="verbs.html">${dk['labels']['verbs']}</a>
-        <a href="chunks.html">${dk['labels']['chunks']}</a>
-        <a href="grammar.html">${dk['labels']['grammar']}</a>
-        <a href="skill.html">${dk['labels']['skill']}</a>
+            <a href="index.html">${dk['labels']['home']}</a>
+            <a href="vocabulary.html">${dk['labels']['vocabulary']}</a>
+            <a href="verbs.html">${dk['labels']['verbs']}</a>
+            <a href="chunks.html">${dk['labels']['chunks']}</a>
+            <a href="grammar.html">${dk['labels']['grammar']}</a>
+            <a href="skill.html">${dk['labels']['skill']}</a>
 % endif
-    </nav>
-    ${var['search_box'] | n}
+        </nav>
+        <div class="dk-search">${var['search_box'] | n}</div>
+    </div>
 </header>
