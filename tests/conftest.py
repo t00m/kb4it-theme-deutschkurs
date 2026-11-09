@@ -14,7 +14,18 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 THEME = ROOT / "deutschkurs"
 STARTER = THEME / "apps" / "default"
-KB4IT = str(Path(sys.executable).parent / "kb4it")
+
+
+def _kb4it() -> str:
+    """The kb4it command next to this Python, on Linux, macOS and Windows."""
+    bin_dir = Path(sys.executable).parent
+    for candidate in (bin_dir / "kb4it", bin_dir / "kb4it.exe", bin_dir / "Scripts" / "kb4it.exe"):
+        if candidate.is_file():
+            return str(candidate)
+    return shutil.which("kb4it") or "kb4it"
+
+
+KB4IT = _kb4it()
 LEVEL = re.compile(r"^\S+ \S+ \|\s+(WARNING|ERROR|CRITICAL) \|")
 
 
