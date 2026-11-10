@@ -2,6 +2,7 @@
 Checked: assistant
 Level: A1
 Register: neutral
+Situation: Am Schultor
 Translation: see you tomorrow
 Type: Chunk
 ---

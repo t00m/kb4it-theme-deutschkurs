@@ -82,8 +82,8 @@ def _anchor(text: str, href: str, css: str) -> str:
     return f'<a class="{classes}" href="{href}">{text}</a>'
 
 
-def _link_text(text: str, g: Glossary, self_id: str, url: Callable[[str], str]) -> str:
-    """Link the words of one plain text piece (no tags, no entities)."""
+def find_spans(text: str, g: Glossary, self_id: str = "") -> list[tuple[int, int, str, str]]:
+    """(start, end, entry id, css class) of every glossary form in a plain text, in order."""
     spans: list[tuple[int, int, str, str]] = []
     taken = [False] * len(text)
 
@@ -123,9 +123,13 @@ def _link_text(text: str, g: Glossary, self_id: str, url: Callable[[str], str]) 
         found = g.lookup(m.group())
         if found and found[0] != self_id:
             take(m.start(), m.end(), found[0], found[1])
+    return sorted(spans)
 
+
+def _link_text(text: str, g: Glossary, self_id: str, url: Callable[[str], str]) -> str:
+    """Link the words of one plain text piece (no tags, no entities)."""
     out, pos = [], 0
-    for start, end, doc_id, css in sorted(spans):
+    for start, end, doc_id, css in find_spans(text, g, self_id):
         out.append(text[pos:start])
         out.append(_anchor(text[start:end], url(doc_id), css))
         pos = end

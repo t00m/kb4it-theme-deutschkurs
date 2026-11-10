@@ -4,6 +4,7 @@ Checked: assistant
 Level: A1
 PartOfSpeech: noun
 Plural: die Ausflüge
+Situation: Elternbrief
 Topic: Schule
 Translation: trip
 Type: Word

@@ -6,10 +6,12 @@ from pathlib import Path
 import markdown
 
 from .course import Course
+from .model import NO_LEVEL
 from .parse import body
 
 SKILL_DIR = Path(__file__).resolve().parent.parent / "skill" / "deutschkurs"
 PUBLISHED = "skills/deutschkurs"
+TYPES_IN_ORDER = ("Situation", "Conversation", "Text", "Word", "Verb", "Chunk", "Grammar")
 
 
 def skill_html() -> str:
@@ -18,13 +20,22 @@ def skill_html() -> str:
     return markdown.markdown(text, extensions=["tables", "fenced_code"])
 
 
+def _facts(entry) -> str:
+    """Level and kind or genre of an entry, in brackets; nothing for a Situation."""
+    if entry.type in NO_LEVEL:
+        return ""
+    facts = [entry.level or "no level", entry.value("Kind") or entry.value("Genre")]
+    return f" ({', '.join(fact for fact in facts if fact)})"
+
+
 def site_appendix(course: Course) -> str:
     """Markdown listing the learner's entries: ids, titles, levels and topics, never body text."""
-    lines = ["# Your course", "", "Written by the deutschkurs theme on every build. Titles and ids only.", ""]
-    for kind in ("Word", "Verb", "Chunk", "Grammar"):
+    lines = ["# Your course", "", "Written by the deutschkurs theme on every build. Titles and ids only.", "",
+             "A `Situation` property takes a title of the Situation list, exactly as written here.", ""]
+    for kind in TYPES_IN_ORDER:
         entries = course.by_type(kind)
         lines += [f"## {kind}", ""]
-        lines += [f"- `{e.id}`: {e.title} ({e.level or 'no level'})" for e in entries] or ["- none yet"]
+        lines += [f"- `{e.id}`: {e.title}{_facts(e)}" for e in entries] or ["- none yet"]
         lines.append("")
     for key in ("Topic", "Level"):
         values = list(course.facet(key))

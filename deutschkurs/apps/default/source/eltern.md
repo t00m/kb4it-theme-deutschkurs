@@ -3,6 +3,7 @@ Checked: assistant
 Level: A1
 PartOfSpeech: noun
 PluralOnly: yes
+Situation: Elternabend
 Topic: Familie
 Translation: parents
 Type: Word

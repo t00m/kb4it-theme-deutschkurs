@@ -38,3 +38,5 @@ class DeutschkursConfig:
     weekly_new: int = 10
     prepare_days: int = 7
     privacy_allow: list = field(default_factory=list)
+    # Words the learner knows without an entry; coverage does not list them.
+    known_words: list = field(default_factory=list)

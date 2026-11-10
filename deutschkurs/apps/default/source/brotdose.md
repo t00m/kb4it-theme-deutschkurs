@@ -5,6 +5,7 @@ Level: A2
 PartOfSpeech: noun
 Plural: die Brotdosen
 Regional: Brotbox, Brotbüchse
+Situation: Elternbrief
 Topic: Schule
 Translation: lunch box
 Type: Word

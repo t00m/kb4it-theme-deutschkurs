@@ -112,3 +112,11 @@ def test_separable_verbs_sharing_a_stem():
     assert 'href="zurueckrufen.html">rufe</a>' in back and 'href="zurueckrufen.html">zurück</a>' in back
     on = link_html("<p>Ich rufe dich an.</p>", g, "none", lambda i: f"{i}.html")
     assert 'href="anrufen.html">rufe</a>' in on
+
+
+def test_find_spans_gives_positions_and_entries():
+    from deutschkurs.logic.glossary import find_spans
+    text = "Ich rufe das Kind an."
+    assert [(text[a:b], doc) for a, b, doc, _ in find_spans(text, G)] == [
+        ("rufe", "anrufen"), ("Kind", "kind"), ("an", "anrufen")]
+    assert find_spans("Das Kind.", G, "kind") == []

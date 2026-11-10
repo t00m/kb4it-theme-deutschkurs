@@ -11,11 +11,21 @@ from .config import DeutschkursConfig, valid_color
 from .course import Course, build_course
 from .glossary import link_html
 from .labels import labels
-from .pages import FACET_KEYS, write_pages
+from .model import TYPES
+from .pages import write_pages
 from .skill import PUBLISHED, publish, skill_html
-from .render import card, fold_sections, grammar_order, pairs_html
+from .render import (FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, pairs_html,
+                     text_html)
 
-ENTRY_TYPES = ("Word", "Verb", "Chunk", "Grammar")
+# File names of the facet pages, without their extension.
+FACET_NAMES = tuple(facet_page(key)[:-len(".html")] for key in FACET_KEYS)
+# Types whose sentences other pages show, so a change in their text relinks every page.
+SENTENCE_TYPES = ("Text", "Conversation")
+
+
+def whole_days(value, default: int = 7) -> int:
+    """A number of days from the settings, or the default when it is no whole number from 0 up."""
+    return value if type(value) is int and value >= 0 else default
 
 
 class Theme(BaseTheme):
@@ -27,7 +37,7 @@ class Theme(BaseTheme):
     untitled_label = "Untitled"
     reserved_pages = tuple(f"{name}.md" for name in (
         "vocabulary", "verbs", "chunks", "grammar", "texts", "conversations", "situations", "photos", "mistakes",
-        "inbox", "practice", "progress", "skill", "search", "404", *FACET_KEYS))
+        "inbox", "practice", "progress", "skill", "search", "404", *FACET_NAMES))
 
     def setup(self):
         # KB4IT sets self.config after setup(), so settings are read in prepare().
@@ -58,8 +68,11 @@ class Theme(BaseTheme):
         self.course = build_course(docs, self.config, url=lambda doc_id: site.doc(doc_id).url)
         for problem in self.course.problems:
             self.log.warning(f"[DEUTSCHKURS] {problem}")
+        # Facet pages are Name.html and Name_Value.html; a file system may ignore the case of file names.
+        taken = tuple(name.lower() for name in FACET_NAMES)
         for doc_id in self.course.entries:
-            if any(doc_id.startswith(f"{key}_") for key in FACET_KEYS):
+            name = doc_id.lower()
+            if name.startswith(tuple(f"{t}_" for t in taken)) or name.rsplit(".", 1)[0] in taken:
                 self.log.warning(f"[DEUTSCHKURS] PAGE_NAME_TAKEN doc={doc_id} reason=facet_page_name")
         if self.config.strict and self.course.problems:
             raise ThemeError(f"{len(self.course.problems)} metadata problems and strict is on")
@@ -67,9 +80,10 @@ class Theme(BaseTheme):
     def dk_var(self, entry=None):
         """The var['dk'] of every page the theme renders."""
         data = {"labels": self.labels, "settings": self.config, "native": self.config.native, "entry": entry,
-                "card": None}
-        if entry is not None and entry.type in ENTRY_TYPES:
+                "card": None, "extras": None, "prepare_days": whole_days(self.config.prepare_days)}
+        if entry is not None and entry.type in TYPES:
             data["card"] = card(entry, self.course, self.labels, self.course.url)
+            data["extras"] = extras(entry, self.course, self.labels, self.course.url)
         return data
 
     def base_var(self):
@@ -105,12 +119,18 @@ class Theme(BaseTheme):
 
     def page_template(self, doc, var):
         entry = self.course.entries.get(doc.id)
-        return "DK_ENTRY" if entry is not None and entry.type in ENTRY_TYPES else "HTML_BODY"
+        return "DK_ENTRY" if entry is not None and entry.type in TYPES else "HTML_BODY"
 
     def body_transforms(self, doc, var):
         course, labels_, config = self.course, self.labels, self.config
         entry = course.entries.get(doc.id)
         transforms = [*super().body_transforms(doc, var)]
+        # Turns and sentences first: they are list items and paragraphs the next steps must not touch.
+        if entry is not None and entry.type == "Conversation":
+            me = entry.value("Me") or "ich"
+            transforms.append(lambda html: dialogue_html(html, me, config.native, labels_))
+        if entry is not None and entry.type == "Text":
+            transforms.append(lambda html: text_html(html, entry.units, config.native, labels_))
         transforms.append(lambda html: pairs_html(html, config.native, labels_["listen"]))
         if entry is not None and entry.type == "Grammar":
             shown, folded = grammar_order(entry, config)
@@ -120,8 +140,12 @@ class Theme(BaseTheme):
         return transforms
 
     def site_signature(self):
-        # Called before prepare(), so it reads the documents itself; any property change relinks every page.
-        props = [[doc.id, {k: list(v) for k, v in sorted(doc.properties.items())}] for doc in self.site.documents]
+        # Called before prepare(), so it reads the documents itself. Every page is relinked when a property
+        # changes (the title is one), or the text of a document whose sentences other pages show.
+        props = []
+        for doc in self.site.documents:
+            shown = doc.source() if set(doc.properties.get("Type", ())) & set(SENTENCE_TYPES) else ""
+            props.append([doc.id, {k: list(v) for k, v in sorted(doc.properties.items())}, shown])
         settings = asdict(self.config)
         version = self.site.theme.get("version", "")
         data = json.dumps([sorted(props), settings, version], sort_keys=True, ensure_ascii=False, default=str)

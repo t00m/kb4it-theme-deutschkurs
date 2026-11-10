@@ -25,7 +25,7 @@ def change(base, **kw):
 
 ROWS = [
     ({"Level": ("A1",)}, None, ("Type", "type_missing")),
-    (change(WORD, Type="Text"), None, ("Type", "type_unknown")),
+    (change(WORD, Type="Photo"), None, ("Type", "type_unknown")),
     (change(WORD, Level=None), None, ("Level", "level_missing")),
     (change(WORD, Level="A3"), None, ("Level", "level_invalid")),
     (change(WORD, Translation=None), None, ("Translation", "translation_missing")),
@@ -84,7 +84,10 @@ def test_plural_only_noun_needs_no_article():
 
 
 def test_reasons_complete():
-    assert set(REASONS) == {r[2][1] for r in ROWS} | {"explanation_missing"}
+    # Reasons outside ROWS have their own tests below.
+    other = {"explanation_missing", "kind_missing", "kind_invalid", "genre_invalid", "situation_unknown",
+             "turn_invalid"}
+    assert set(REASONS) == {r[2][1] for r in ROWS} | other
 
 
 def test_problem_str():
@@ -96,3 +99,59 @@ def test_verify_hook_accepts_lists():
     lines = verify({"deutschkurs": {}}, {"a.md": {"Type": ["Word"]}})
     assert lines
     assert all(line.startswith("META_INVALID doc=a.md") for line in lines)
+
+
+CONV = {"Type": ("Conversation",), "Level": ("A1",), "Kind": ("model",)}
+TEXT = {"Type": ("Text",), "Level": ("A2",)}
+
+
+def reasons(props):
+    return [(p.key, p.reason) for p in check_properties("x.md", props, None)]
+
+
+def test_new_types_are_clean():
+    assert reasons(CONV) == []
+    assert reasons(TEXT) == []
+    assert reasons({"Type": ("Situation",)}) == []
+
+
+def test_conversation_needs_a_valid_kind():
+    assert reasons(change(CONV, Kind=None)) == [("Kind", "kind_missing")]
+    assert reasons(change(CONV, Kind="Model")) == [("Kind", "kind_invalid")]
+
+
+def test_text_genre_must_be_known():
+    assert reasons(change(TEXT, Genre="School letter")) == []
+    assert reasons(change(TEXT, Genre="Brief")) == [("Genre", "genre_invalid")]
+
+
+@pytest.mark.parametrize("key", ["NextTime", "Received", "Deadline"])
+def test_every_date_property_is_checked(key):
+    assert reasons(change(TEXT, **{key: "2026-02-30"})) == [(key, "date_invalid")]
+    assert reasons(change(TEXT, **{key: "2026-02-28"})) == []
+
+
+def test_reply_is_a_flag():
+    assert reasons(change(TEXT, Reply="true")) == [("Reply", "flag_invalid")]
+
+
+def test_malformed_turns_are_problems_with_the_line():
+    from test_parse import CONVERSATION
+    entry = entry_from("gruss.md", CONV, CONVERSATION)
+    problems = check_body(entry)
+    assert [str(p) for p in problems] == [
+        "META_INVALID doc=gruss.md key=Turn reason=turn_invalid line=10",
+        "META_INVALID doc=gruss.md key=Turn reason=turn_invalid line=16",
+    ]
+
+
+def test_unknown_situation_is_a_problem():
+    entry = entry_from("x.md", change(WORD, Situation="Elternabend, Beim Arzt"), "# Termin\n")
+    assert [(p.key, p.reason) for p in check_body(entry, {"Elternabend"})] == [("Situation", "situation_unknown")]
+    assert check_body(entry, {"Elternabend", "Beim Arzt"}) == []
+    assert check_body(entry) == []
+
+
+def test_new_reasons_listed():
+    for reason in ("kind_missing", "kind_invalid", "genre_invalid", "situation_unknown", "turn_invalid"):
+        assert reason in REASONS

@@ -4,6 +4,25 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-10
+
+### Added
+
+- Entry types Text, Conversation and Situation. A Conversation is a list of turns `**Speaker:** German :: translation` with a `Kind` badge (`real`, `reconstructed`, `model`). A Text is German paragraphs with folded blockquote translations. A Situation has a `## I can` task list and a `## Log`, and lists every entry whose `Situation` names it.
+- Common property `Situation`. A value that names no Situation gives `situation_unknown` during the build.
+- "Where it appears" on word, verb and chunk pages: up to 10 sentences from texts and conversations, each linked to its sentence anchor (`#t3`, `#s2`).
+- Coverage on text and conversation pages: the share of words the course already knows. The new setting `known_words` adds words without an entry.
+- Grammar property `Marker`: the page lists sentences that contain one of the markers.
+- Deadline banner on texts and a "coming up" block for situations. The new setting `prepare_days` (default 7) sets how many days before `NextTime` a situation shows as coming up. Dated blocks are hidden by JavaScript when out of range.
+- Pages Situations, Conversations and Texts, facet pages by `Kind` (`ConversationKind.html`) and `Genre`, and three new links in the top bar.
+- Starter course: situations "Am Schultor", "Elternbrief" and "Elternabend", the conversation "Gruß am Schultor" and the text "Elternbrief zum Ausflug".
+- Add page skeletons for the three new types.
+- Skill: the rule "honest conversations", workflows "Prepare a situation" and "Debrief", Capture writes a Text, lingua texts convert to Text files, and the site appendix lists situations, conversations and texts.
+
+### Changed
+
+- `texts.md`, `conversations.md`, `situations.md`, `Genre.md` and `ConversationKind.md` are now reserved source file names. Rename such a file if your course has one.
+
 ## [0.1.1] - 2026-11-09
 
 ### Changed

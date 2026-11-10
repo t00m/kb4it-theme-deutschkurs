@@ -92,7 +92,7 @@ def test_examples_are_valid():
 
 def test_skeletons_valid():
     listing = json.loads((SKELETONS / "skeletons.json").read_text(encoding="utf-8"))
-    assert [e["id"] for e in listing] == ["word", "verb", "chunk", "grammar"]
+    assert [e["id"] for e in listing] == ["situation", "conversation", "text", "word", "verb", "chunk", "grammar"]
     for item in listing:
         text = (SKELETONS / f"{item['id'].upper()}-SKELETON.md").read_text(encoding="utf-8")
         props = props_of(text)
@@ -130,7 +130,7 @@ def test_nav_links_skill(built_site):
 
 def test_add_page_skeletons(built_site):
     page = built_site.page("add.html")
-    for name in ("Word", "Verb", "Chunk", "Grammar"):
+    for name in ("Situation", "Conversation", "Text", "Word", "Verb", "Chunk", "Grammar"):
         assert f'"name": "{name}"' in page, name
     assert '"person"' not in page.lower()
 
@@ -148,3 +148,106 @@ def test_examples_do_not_name_unconsulted_sources():
 def test_reference_examples_are_english():
     for example in FENCED.findall(entry_types()):
         assert not set("¿¡ñáíóú") & set(example), example[:60]
+
+
+def test_conversation_skeleton_names_roles_and_asks_for_its_kind():
+    text = (SKELETONS / "CONVERSATION-SKELETON.md").read_text(encoding="utf-8")
+    entry = entry_from("x.md", props_of(text), text)
+    assert entry.value("Kind") == "reconstructed"
+    assert [u.speaker for u in entry.units] == ["Lehrerin", "ich"]
+
+
+def test_situation_skeleton_starts_with_open_tasks():
+    text = (SKELETONS / "SITUATION-SKELETON.md").read_text(encoding="utf-8")
+    assert entry_from("x.md", props_of(text), text).cando == (0, 2)
+
+
+def skill_text():
+    return (SKILL / "SKILL.md").read_text(encoding="utf-8")
+
+
+def workflow(name):
+    """Text of one workflow of SKILL.md."""
+    return re.search(rf"^### {name}\n(.*?)(?=^##)", skill_text(), re.S | re.M).group(1)
+
+
+def test_skill_names_every_type_it_may_write():
+    intro = skill_text().split("## Before you start")[0]
+    for kind in model.TYPES:
+        assert kind in intro, kind
+    assert "four entry types" not in intro
+
+
+def test_skill_has_the_rule_honest_conversations():
+    rule = re.search(r"\*\*Honest conversations\.\*\*(.*)", skill_text()).group(1)
+    for kind in model.KINDS:
+        assert f"`{kind}`" in rule, kind
+
+
+@pytest.mark.parametrize("name", ["Capture", "Prepare a situation", "Debrief", "Correct my German", "Fix problems",
+                                  "Convert lingua files"])
+def test_skill_workflows(name):
+    assert workflow(name).strip()
+
+
+def test_capture_stores_the_material_as_a_text():
+    text = workflow("Capture")
+    assert "`Type: Text`" in text
+    assert "not stored" not in text
+
+
+def test_prepare_writes_a_model_and_never_ticks():
+    text = workflow("Prepare a situation")
+    assert "`Kind: model`" in text and "## I can" in text
+    assert "tick" in text
+
+
+def test_debrief_writes_a_reconstructed_conversation_and_a_log_line():
+    text = workflow("Debrief")
+    assert "`Kind: reconstructed`" in text and "## Log" in text
+    assert "`real`" in text
+
+
+def test_conventions_list_reserved_names_and_flags():
+    from deutschkurs.logic.checks import FLAGS
+    from deutschkurs.logic.theme import Theme
+    text = (REFERENCE / "conventions.md").read_text(encoding="utf-8")
+    for page in Theme.reserved_pages:
+        assert f"`{page[:-3]}`" in text, page
+    for flag in FLAGS:
+        assert f"`{flag}`" in text, flag
+
+
+def test_conventions_explain_sentence_units():
+    text = (REFERENCE / "conventions.md").read_text(encoding="utf-8")
+    assert "## Sentence units" in text
+    for mark in ("`#t1`", "`#s1`", "`#v1`"):
+        assert mark in text, mark
+
+
+def test_lingua_texts_convert():
+    text = (REFERENCE / "lingua.md").read_text(encoding="utf-8")
+    assert "Not supported yet" not in text
+    kinds = set()
+    for example in FENCED.findall(text):
+        props = props_of(example)
+        entry = entry_from("example.md", props, example)
+        assert check_properties("example.md", props, None) == [], example[:80]
+        assert check_body(entry) == [], example[:80]
+        kinds.add(entry.type)
+    assert kinds == {"Word", "Text"}
+
+
+def test_site_appendix_lists_situations_conversations_and_texts(built_site):
+    site_md = (built_site.target / "skills" / "deutschkurs" / "reference" / "site.md").read_text(encoding="utf-8")
+    for heading in ("## Situation", "## Conversation", "## Text"):
+        assert heading in site_md, heading
+    assert "- `situation-elternabend.md`: Elternabend\n" in site_md
+    assert "- `gruss-am-schultor.md`: Gruß am Schultor (A1, model)" in site_md
+    assert "- `elternbrief-ausflug.md`: Elternbrief zum Ausflug (A2, School letter)" in site_md
+
+
+def test_site_appendix_has_no_sentence_of_a_conversation_or_a_text(built_site):
+    site_md = (built_site.target / "skills" / "deutschkurs" / "reference" / "site.md").read_text(encoding="utf-8")
+    assert "Liebe Eltern" not in site_md and "wie geht" not in site_md
+    assert "Ich kann" not in site_md

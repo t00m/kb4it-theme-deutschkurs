@@ -4,6 +4,27 @@ import re
 
 WORD = re.compile(r"[A-Za-zÄÖÜäöüß]+(?:-[A-Za-zÄÖÜäöüß]+)*")
 PRONOUNS = {"ich", "du", "er", "sie", "es", "wir", "ihr", "Sie", "man"}
+FOLD = str.maketrans({"ä": "a", "ö": "o", "ü": "u", "ß": "ss", "Ä": "a", "Ö": "o", "Ü": "u"})
+# Function words every learner meets in the first weeks; coverage counts them as known.
+BASIC = frozenset("""
+der die das den dem des ein eine einen einem einer eines kein keine keinen keinem keiner
+ich du er sie es wir ihr man mich dich sich uns euch mir dir ihm ihn ihnen
+mein meine meinen meinem meiner dein deine deinen deinem deiner sein seine seinen seinem seiner
+ihre ihren ihrem ihrer unser unsere unseren unserem unserer euer eure euren eurem eurer
+dieser diese dieses diesen diesem
+und oder aber denn sondern dass ob wenn weil als
+nicht ja nein doch auch nur noch schon sehr so da hier dort jetzt dann
+in an auf zu mit von bei nach aus für um durch über unter vor hinter neben zwischen bis ohne gegen seit
+im am zum zur vom beim ins ans
+bin bist ist sind seid war waren habe hast hat haben habt hatte hatten werde wirst wird werden
+wie was wer wo wann warum wohin woher
+bitte danke hallo
+""".split())
+
+
+def sort_key(text: str) -> tuple[str, str]:
+    """Sort German text case-insensitively, umlauts next to their base letter."""
+    return text.translate(FOLD).casefold(), text
 
 
 def tokens(text: str) -> list[str]:

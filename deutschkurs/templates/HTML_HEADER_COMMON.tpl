@@ -25,6 +25,9 @@
         <nav class="dk-nav">
 % if dk:
             <a href="index.html">${dk['labels']['home']}</a>
+            <a href="situations.html">${dk['labels']['situations']}</a>
+            <a href="conversations.html">${dk['labels']['conversations']}</a>
+            <a href="texts.html">${dk['labels']['texts']}</a>
             <a href="vocabulary.html">${dk['labels']['vocabulary']}</a>
             <a href="verbs.html">${dk['labels']['verbs']}</a>
             <a href="chunks.html">${dk['labels']['chunks']}</a>

@@ -40,3 +40,33 @@ def test_glossary_uses_url():
     course = build_course(DOCS, DeutschkursConfig(), url=lambda i: "x/" + i)
     assert course.url("zug.md") == "x/zug.md"
     assert course.glossary.lookup("Zug") == ("zug.md", "dk-m")
+
+
+SITUATION_DOCS = [
+    doc("termin.md", "Termin", Level="A1", Situation="Beim Arzt", **WORD),
+    doc("zug.md", "Zug", Level="A1", Situation="Am Bahnhof", **WORD),
+    ("arzt.md", {"Type": ("Situation",)}, "# Beim Arzt\n"),
+    ("anruf.md", {"Type": ("Conversation",), "Level": ("A1",), "Kind": ("model",), "Situation": ("Beim Arzt",)},
+     "# Anruf\n\n- **ich:** Ich brauche einen Termin.\n- kein Turn\n"),
+]
+
+
+def test_situations_by_title():
+    course = build_course(SITUATION_DOCS, DeutschkursConfig())
+    assert course.situations == {"Beim Arzt": "arzt.md"}
+    assert [e.id for e in course.in_situation("Beim Arzt")] == ["anruf.md", "termin.md"]
+
+
+def test_unknown_situation_and_bad_turn_are_problems():
+    course = build_course(SITUATION_DOCS, DeutschkursConfig())
+    assert [str(p) for p in course.problems] == [
+        "META_INVALID doc=anruf.md key=Turn reason=turn_invalid line=4",
+        "META_INVALID doc=zug.md key=Situation reason=situation_unknown",
+    ]
+
+
+def test_course_has_index_and_coverage():
+    course = build_course(SITUATION_DOCS, DeutschkursConfig(known_words=["Brauche"]))
+    assert [(o.doc, o.anchor) for o in course.index["termin.md"]] == [("anruf.md", "t1")]
+    found = course.coverage["anruf.md"]
+    assert (found.total, found.missing) == (6, ("Turn",))
