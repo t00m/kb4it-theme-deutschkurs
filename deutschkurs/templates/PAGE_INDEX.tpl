@@ -15,7 +15,7 @@
         <h2>${L['coming_up']}</h2>
         <ul class="dk-items">
 % for title, href, date in var['coming']:
-            <li data-date="${date}" data-days="7" data-hide="past later"><a href="${href}" lang="de">${title}</a> <time datetime="${date}">${date}</time></li>
+            <li data-date="${date}" data-days="${var['dk']['prepare_days']}" data-hide="past later"><a href="${href}" lang="de">${title}</a> <time datetime="${date}">${date}</time></li>
 % endfor
         </ul>
     </section>

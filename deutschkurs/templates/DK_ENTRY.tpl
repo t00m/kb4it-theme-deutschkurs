@@ -65,7 +65,7 @@
     <p class="dk-banner dk-deadline" data-date="${x['deadline']}" data-hide="past">${L['deadline']}: <time datetime="${x['deadline']}">${x['deadline']}</time></p>
 % endif
 % if x['next_time']:
-    <p class="dk-banner dk-coming" data-date="${x['next_time']}" data-days="7" data-hide="past later">${L['coming_up']}: <time datetime="${x['next_time']}">${x['next_time']}</time></p>
+    <p class="dk-banner dk-coming" data-date="${x['next_time']}" data-days="${var['dk']['prepare_days']}" data-hide="past later">${L['coming_up']}: <time datetime="${x['next_time']}">${x['next_time']}</time></p>
 % endif
     <div class="dk-body">
         ${var['source_html'] | n}

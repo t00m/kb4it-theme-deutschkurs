@@ -319,3 +319,25 @@ def test_home_without_dates_has_no_dated_blocks(site):
 def test_new_lists_exist_when_empty(site):
     for name in ("situations.html", "conversations.html", "texts.html"):
         assert "<main" in site.page(name)
+
+
+SOON = """---
+NextTime: 2026-11-10
+Type: Situation
+---
+
+# Beim Arzt
+"""
+
+
+def test_prepare_days_sets_the_coming_up_window(tmp_path):
+    site = build_site(tmp_path, {"situation-arzt.md": SOON}, settings={"prepare_days": 3}, starter=False)
+    assert 'data-date="2026-11-10" data-days="3" data-hide="past later"' in main(site.page("index.html"))
+    assert 'data-date="2026-11-10" data-days="3" data-hide="past later"' in site.page("situation-arzt.html")
+
+
+@pytest.mark.parametrize("value", [-1, True, "soon", 2.5])
+def test_prepare_days_that_is_no_number_of_days_falls_back(value):
+    from deutschkurs.logic.theme import whole_days
+    assert whole_days(value) == 7
+    assert whole_days(0) == 0

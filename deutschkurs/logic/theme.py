@@ -23,6 +23,11 @@ FACET_NAMES = tuple(facet_page(key)[:-len(".html")] for key in FACET_KEYS)
 SENTENCE_TYPES = ("Text", "Conversation")
 
 
+def whole_days(value, default: int = 7) -> int:
+    """A number of days from the settings, or the default when it is no whole number from 0 up."""
+    return value if type(value) is int and value >= 0 else default
+
+
 class Theme(BaseTheme):
     features = ("search", "not_found", "editor")
     config_class = DeutschkursConfig
@@ -75,7 +80,7 @@ class Theme(BaseTheme):
     def dk_var(self, entry=None):
         """The var['dk'] of every page the theme renders."""
         data = {"labels": self.labels, "settings": self.config, "native": self.config.native, "entry": entry,
-                "card": None, "extras": None}
+                "card": None, "extras": None, "prepare_days": whole_days(self.config.prepare_days)}
         if entry is not None and entry.type in TYPES:
             data["card"] = card(entry, self.course, self.labels, self.course.url)
             data["extras"] = extras(entry, self.course, self.labels, self.course.url)
