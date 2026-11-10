@@ -62,3 +62,33 @@ def test_ci_workflow_present():
     ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     assert "KB4IT@0.12.0" in ci or "requirements-dev.txt" in ci
     assert 'node --test "tests/js/*.test.js"' in ci
+
+
+def test_readmes_name_the_version():
+    assert f"Version {VERSION}," in (ROOT / "deutschkurs" / "README.md").read_text(encoding="utf-8")
+    assert f"deutschkurs-{VERSION}.zip" in (ROOT / "README.md").read_text(encoding="utf-8")
+
+
+def test_skill_names_the_theme_version():
+    skill = (ROOT / "deutschkurs" / "skill" / "deutschkurs" / "SKILL.md").read_text(encoding="utf-8")
+    assert f"theme version {VERSION.rsplit('.', 1)[0]}." in skill
+
+
+def test_theme_readme_lists_every_type_and_setting():
+    import dataclasses
+    from deutschkurs.logic.config import DeutschkursConfig
+    from deutschkurs.logic.model import TYPES
+    text = (ROOT / "deutschkurs" / "README.md").read_text(encoding="utf-8")
+    for kind in TYPES:
+        assert f"| {kind} |" in text, kind
+    for setting in dataclasses.fields(DeutschkursConfig):
+        assert f"`{setting.name}`" in text, setting.name
+
+
+def test_theme_readme_names_the_pages_in_the_top_bar():
+    from deutschkurs.logic.labels import LABELS
+    from deutschkurs.logic.pages import LISTS
+    text = (ROOT / "deutschkurs" / "README.md").read_text(encoding="utf-8")
+    pages = text.split("## Pages")[1].split("##")[0]
+    for name, _ in LISTS:
+        assert LABELS[name] in pages, name
