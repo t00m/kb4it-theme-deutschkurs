@@ -7,7 +7,7 @@ description: Use when working on a deutschkurs German course (a KB4IT site built
 
 A deutschkurs course is a folder of Markdown files, one entry per file, built into an offline website by KB4IT with the deutschkurs theme. The learner lives in Germany and learns from real life. Your job is to help them turn that real life into correct, honest course files.
 
-This skill matches theme version 0.5. It knows eleven entry types:
+This skill matches theme version 0.6. It knows eleven entry types:
 
 - Situation: a moment of the learner's life that comes back, such as the school gate or the doctor.
 - Conversation: a dialogue of that moment, real, rebuilt from memory or written to practise.

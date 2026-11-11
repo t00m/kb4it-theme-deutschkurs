@@ -137,3 +137,7 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-day { width: 14px; height: 14px; border-radius: 3px; background: #eaeef2; }
 .dk-day.dk-studied { background: var(--dk-n); }
 .dk-day.dk-future { background: transparent; }
+/* View source and edit links under the card of an entry page. */
+.dk-source-bar { gap: .25rem 1.25rem; margin: .5rem .25rem 1rem; }
+.dk-source-bar .uk-button-text { text-transform: none; font-size: .875rem; color: var(--dk-muted); }
+#dk-source-text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85rem; }
