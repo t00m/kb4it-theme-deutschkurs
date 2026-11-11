@@ -250,3 +250,10 @@ test("speech stops page players, and a page player stops speech", () => {
   assert.strictEqual(synth.spoken.cancelled, cancelled + 1);
   assert.strictEqual(player.paused, 1);
 });
+
+test("a date with a year or at the end of a sentence is read out", () => {
+  const { normalise } = load().Deutschkurs.speech;
+  assert.strictEqual(normalise("Der Termin ist am 3.4.2025."), "Der Termin ist am dritten April 2025.");
+  assert.strictEqual(normalise("am 3.4.2025. Dann gehen wir."), "am dritten April 2025. Dann gehen wir.");
+  assert.strictEqual(normalise("Heute ist der 3.4."), "Heute ist der dritte April.");
+});

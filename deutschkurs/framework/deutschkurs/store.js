@@ -17,7 +17,8 @@
     return value !== null && typeof value === "object" && !Array.isArray(value);
   }
 
-  var DAY = /^\d{4}-\d{2}-\d{2}$/;
+  var DAY = /^\d{4,}-\d{2}-\d{2}$/;
+  var MAX_INTERVAL = 3650;
 
   function count(value) {
     return typeof value === "number" && value >= 0 && Math.floor(value) === value;
@@ -36,9 +37,20 @@
     return true;
   }
 
+  // Before 0.6.1 free practice could push an interval past year 9999; such a card is kept, ten years ahead.
+  function capped(state) {
+    if (state.interval <= MAX_INTERVAL && state.due.length === 10) return state;
+    var copy = {}, key;
+    for (key in state) copy[key] = state[key];
+    var from = DAY.test(state.last || "") && state.last.length === 10 ? state.last : state.due.slice(-10);
+    copy.interval = MAX_INTERVAL;
+    copy.due = String(Number(from.slice(0, 4)) + 10) + from.slice(4);
+    return copy;
+  }
+
   function validCards(found) {
     var cards = {};
-    for (var key in found) if (validState(found[key])) cards[key] = found[key];
+    for (var key in found) if (validState(found[key])) cards[key] = capped(found[key]);
     return cards;
   }
 
@@ -122,7 +134,7 @@
       var state = file.cards[key];
       if ((known || []).indexOf(key) < 0 || !validState(state)) { skipped += 1; continue; }
       if (!cards[key] || String(state.last || "") > String(cards[key].last || "")) {
-        cards[key] = state;
+        cards[key] = capped(state);
         merged += 1;
       }
     }

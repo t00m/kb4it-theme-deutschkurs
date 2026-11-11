@@ -163,3 +163,13 @@ test("others finds progress of other course titles in the same browser", () => {
   assert.deepStrictEqual(plain(others(storage, "abc")), [{ site: "older", cards: 2 }, { site: "old", cards: 1 }]);
   assert.deepStrictEqual(plain(others(null, "abc")), []);
 });
+
+test("a state with an overlong interval is kept and capped at ten years", () => {
+  const storage = memoryStorage();
+  const long = Object.assign({}, STATE, { due: "10207-03-21", interval: 2987813, last: "2026-11-11" });
+  storage.setItem("deutschkurs.abc.cards", JSON.stringify({ a: long }));
+  const card = plain(open(storage, "abc").cards()).a;
+  assert.strictEqual(card.interval, 3650);
+  assert.strictEqual(card.due, "2036-11-11");
+  assert.strictEqual(card.reps, 1);
+});

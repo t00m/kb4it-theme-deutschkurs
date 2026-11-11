@@ -83,10 +83,12 @@
       return euros(whole, cents);
     });
     // A date is not part of a longer dotted number such as 1.2.3.
-    out = out.replace(/(?<![\d.])\b(\d{1,2})\.(\d{1,2})\.(\d{4}\b)?(?![\d.])/g, function (all, d, m, year, offset, whole) {
+    out = out.replace(/(?<![\d.])\b(\d{1,2})\.(\d{1,2})\.(\d{4}\b)?(?!\d|\.\d)/g, function (all, d, m, year, offset, whole) {
       var day = Number(d), month = Number(m);
       if (day < 1 || day > 31 || month < 1 || month > 12) return all;
-      return ordinal(day, dativeBefore(whole, offset)) + " " + MONTHS[month - 1] + (year ? " " + year : "");
+      // A date without a year at the end of the text also ended the sentence: keep that full stop.
+      var stop = !year && offset + all.length === whole.length ? "." : "";
+      return ordinal(day, dativeBefore(whole, offset)) + " " + MONTHS[month - 1] + (year ? " " + year : "") + stop;
     });
     out = out.replace(new RegExp("\\b(\\d{1,2})\\.\\s+(" + MONTHS.join("|") + ")", "g"),
       function (all, d, month, offset, whole) {

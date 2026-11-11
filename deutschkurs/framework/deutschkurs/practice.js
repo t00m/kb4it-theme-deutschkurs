@@ -80,13 +80,17 @@
   function offerOtherProgress(ctx) {
     var box = doc.getElementById("dk-other-progress");
     if (!box || !ctx.store.ok || Object.keys(ctx.store.cards()).length) return;
-    var found = dk.store.others(storage(), ctx.data.site);
+    var known = ctx.cards.map(function (c) { return c.id; });
+    // Only progress with cards of this course: another course in the same browser is not offered.
+    var found = dk.store.others(storage(), ctx.data.site).filter(function (other) {
+      var cards = dk.store.open(storage(), other.site).cards();
+      return known.some(function (id) { return id in cards; });
+    });
     if (!found.length) return;
     doc.getElementById("dk-other-text").textContent = fill(ctx.L.other_progress, { n: found[0].cards });
     box.hidden = false;
     doc.getElementById("dk-use-other").addEventListener("click", function () {
       var old = dk.store.open(storage(), found[0].site);
-      var known = ctx.cards.map(function (c) { return c.id; });
       var local = { cards: ctx.store.cards(), days: ctx.store.days() };
       var result = dk.store.merge(local, dk.store.exportJson(old, found[0].site, ctx.today), known);
       ctx.store.replace(result.cards, result.days);

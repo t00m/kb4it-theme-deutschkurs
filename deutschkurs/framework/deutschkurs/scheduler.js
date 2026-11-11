@@ -3,6 +3,7 @@
   "use strict";
   var dk = (root.Deutschkurs = root.Deutschkurs || {});
   var MIN_EASE = 1.3;
+  var MAX_INTERVAL = 3650;
 
   function fresh() {
     return { due: "", interval: 0, ease: 2.5, reps: 0, lapses: 0, last: "", goods: 0, first: "" };
@@ -43,6 +44,8 @@
       s.goods += 1;
     }
     if (kind === "mistake" && s.goods < 3) s.interval = 1;
+    // Free practice rates cards that are not due, so the interval could grow without end.
+    s.interval = Math.min(s.interval, MAX_INTERVAL);
     // The day a card was started counts it against daily_new (spec 7.4).
     s.first = base.last ? base.first || "" : today;
     s.last = today;
