@@ -16,13 +16,13 @@ from .model import TYPES
 from .pages import write_pages
 from .privacy import has_gps, image_path, photo_files, scan
 from .skill import PUBLISHED, publish, skill_html
-from .render import (FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, pairs_html,
-                     text_html)
+from .render import (FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, mistake_html,
+                     pairs_html, photo_html, text_html)
 
 # File names of the facet pages, without their extension.
 FACET_NAMES = tuple(facet_page(key)[:-len(".html")] for key in FACET_KEYS)
 # Types whose sentences other pages show, so a change in their text relinks every page.
-SENTENCE_TYPES = ("Text", "Conversation")
+SENTENCE_TYPES = ("Text", "Conversation", "Photo")
 
 
 def whole_days(value, default: int = 7) -> int:
@@ -138,8 +138,11 @@ class Theme(BaseTheme):
         publish(Path(site.paths.target), self.course)
 
     def search_record(self, doc):
-        record = self.site.features.search.search_record(doc)
         entry = self.course.entries.get(doc.id)
+        # Inbox documents are raw captures: the Inbox page lists them, search does not.
+        if entry is not None and entry.type == "Inbox":
+            return None
+        record = self.site.features.search.search_record(doc)
         if record is not None and entry is not None and entry.type:
             facets = {"Type": [entry.type]}
             if entry.level:
@@ -168,6 +171,10 @@ class Theme(BaseTheme):
             transforms.append(lambda html: dialogue_html(html, me, config.native, labels_))
         if entry is not None and entry.type == "Text":
             transforms.append(lambda html: text_html(html, entry.units, config.native, labels_))
+        if entry is not None and entry.type == "Photo":
+            transforms.append(lambda html: photo_html(html, entry.units, config.native, labels_))
+        if entry is not None and entry.type == "Mistake":
+            transforms.append(mistake_html)
         transforms.append(lambda html: pairs_html(html, config.native, labels_["listen"]))
         if entry is not None and entry.type == "Grammar":
             shown, folded = grammar_order(entry, config)

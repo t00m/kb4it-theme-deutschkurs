@@ -101,3 +101,7 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-cover { color: var(--dk-muted); font-size: .85rem; }
 .dk-items .dk-deadline { font-weight: 400; }
 .dk-dated time { color: var(--dk-muted); font-size: .85rem; }
+.dk-mistake-wrong .sectionbody p { text-decoration: line-through; color: var(--dk-muted); }
+.dk-mistake-right .sectionbody p::before { content: "\2192\00a0"; color: var(--dk-accent); }
+.dk-unverified { text-decoration: underline dotted; text-underline-offset: 0.2em; }
+.dk-see-inbox { margin-top: 1rem; }
