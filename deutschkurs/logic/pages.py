@@ -9,7 +9,7 @@ from .parse import inbox_items as list_items
 from .german import sort_key
 from .glossary import find_spans
 from .model import AREAS, GENRES
-from .render import ARTICLE_KEY, FACET_KEYS, GENDER, UNVERIFIED, cued, day, facet_page, has_plural, perfekt, plain_date
+from .render import ARTICLE_KEY, FACET_KEYS, FACET_LABELS, GENDER, UNVERIFIED, cued, day, facet_page, has_plural, perfekt, plain_date
 
 LISTS = (("situations", "Situation"), ("conversations", "Conversation"), ("texts", "Text"), ("vocabulary", "Word"),
          ("verbs", "Verb"), ("chunks", "Chunk"), ("grammar", "Grammar"), ("photos", "Photo"), ("mistakes", "Mistake"))
@@ -18,8 +18,13 @@ INBOX = "inbox"
 IN_SITUATION = (("conversations", "Conversation"), ("texts", "Text"), ("chunks", "Chunk"), ("vocabulary", "Word"))
 
 
-def cell(text="", href="", css=""):
-    return {"text": text, "href": href, "css": css}
+def cell(text="", href="", css="", lang="de"):
+    return {"text": text, "href": href, "css": css, "lang": lang}
+
+
+def facet_cell(key, value):
+    """A value that links the page of its facet, such as A1 to Level_A1.html."""
+    return cell(value, facet_page(key, value) if value else "", lang="")
 
 
 def plural_cell(plural):
@@ -39,19 +44,19 @@ def word_row(entry, url):
     plural = entry.value("Plural")
     href = facet_page(ARTICLE_KEY, article) if entry.is_noun and article in GENDER else ""
     return [cell(article, href, css), cell(entry.title, url(entry.id), cued(css)), plural_cell(plural),
-            translation(entry), cell(entry.level),
-            cell(entry.value("PartOfSpeech"))]
+            translation(entry), facet_cell("Level", entry.level),
+            facet_cell("PartOfSpeech", entry.value("PartOfSpeech"))]
 
 
 def verb_row(entry, url):
     separable = f"{entry.value('Prefix')}-" if entry.value("Separable") == "yes" else ""
     return [cell(entry.title, url(entry.id)), cell(perfekt(entry)), cell(separable), translation(entry),
-            cell(entry.level)]
+            facet_cell("Level", entry.level)]
 
 
 def chunk_row(entry, url):
     return [cell(entry.title, url(entry.id)), cell(entry.value("Register")), translation(entry),
-            cell(entry.level)]
+            facet_cell("Level", entry.level)]
 
 
 def any_row(entry, url):
@@ -304,7 +309,7 @@ def write_pages(theme, site, course: Course) -> None:
     for key in FACET_KEYS:
         facet = course.facet(key)
         values = [(value, facet_page(key, value), len(entries)) for value, entries in facet.items()]
-        heading = L[key.lower()]
+        heading = L[FACET_LABELS.get(key, key.lower())]
         site.page(facet_page(key), heading, theme.render("DK_FACET", dk=dk, heading=heading, values=values),
                   listing=True)
         for value, entries in facet.items():

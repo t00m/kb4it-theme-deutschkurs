@@ -132,3 +132,22 @@ def test_cue_css_covers_every_gender():
     css = (Path(__file__).resolve().parent.parent / "deutschkurs" / "framework" / "deutschkurs" / "deutschkurs.css").read_text()
     for g in ("m", "f", "n", "pl"):
         assert f'.dk-cued.dk-{g}::after' in css, g
+
+
+def test_vocabulary_links_level_and_part_of_speech(built_site):
+    vocabulary = main(built_site.page("vocabulary.html"))
+    row = re.search(r'<tr class="dk-row">\s*<td[^>]*>.*?href="termin.html".*?</tr>', vocabulary, re.S).group()
+    assert '<td><a href="Level_A1.html">A1</a></td>' in row
+    assert '<td><a href="PartOfSpeech_noun.html">noun</a></td>' in row
+
+
+def test_part_of_speech_pages(built_site):
+    assert 'href="PartOfSpeech_noun.html"' in main(built_site.page("PartOfSpeech.html"))
+    nouns = main(built_site.page("PartOfSpeech_noun.html"))
+    assert 'href="termin.html"' in nouns and 'href="krank.html"' not in nouns
+    assert "Part of speech: noun" in built_site.page("PartOfSpeech_noun.html")
+
+
+def test_verb_and_chunk_tables_link_the_level(built_site):
+    for name in ("verbs.html", "chunks.html"):
+        assert re.search(r'<td><a href="Level_A[12].html">A[12]</a></td>', main(built_site.page(name))), name
