@@ -9,6 +9,7 @@ from kb4it.core.checks import Problem
 from kb4it.theme import BaseTheme, ThemeError
 
 from .config import DeutschkursConfig, valid_color
+from .data import build_data, too_large, write_data
 from .course import Course, build_course
 from .glossary import link_html
 from .labels import labels
@@ -140,7 +141,12 @@ class Theme(BaseTheme):
         site.page("skill", self.labels["skill"], html)
 
     def after_deploy(self, site):
-        publish(Path(site.paths.target), self.course)
+        target = Path(site.paths.target)
+        publish(target, self.course)
+        payload = build_data(self.course, self.config, site.repo.get("title", ""), site.theme.get("version", ""))
+        size = write_data(target, payload)
+        if too_large(size):
+            self.log.warning(f"[DEUTSCHKURS] DATA_LARGE size={size}")
 
     def search_record(self, doc):
         entry = self.course.entries.get(doc.id)
