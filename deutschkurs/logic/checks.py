@@ -6,14 +6,14 @@ from dataclasses import dataclass
 from typing import Collection, Mapping, Optional, Sequence
 
 from .model import (AREAS, ARTICLES, AUXILIARIES, CHECKED, GENRES, KINDS, LEVELS, NO_LEVEL, PARTS_OF_SPEECH,
-                    REGISTERS, TYPES, Entry)
+                    PLACES, REGISTERS, TYPES, Entry)
 
 REASONS = (
     "type_missing", "type_unknown", "level_missing", "level_invalid", "translation_missing",
     "article_missing", "part_of_speech_invalid", "participle_missing", "auxiliary_missing",
     "prefix_missing", "register_invalid", "checked_invalid", "area_invalid", "date_invalid",
     "topic_unknown", "explanation_missing", "flag_invalid", "kind_missing", "kind_invalid", "genre_invalid",
-    "situation_unknown", "turn_invalid",
+    "situation_unknown", "turn_invalid", "place_invalid", "mistake_incomplete",
 )
 
 FLAGS = ("PluralOnly", "Irregular", "Separable", "Reflexive", "Reply")
@@ -95,6 +95,9 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
     if kind == "Text" and get("Genre") and get("Genre")[0] not in GENRES:
         add("Genre", "genre_invalid")
 
+    if kind == "Photo" and get("Place") and get("Place")[0] not in PLACES:
+        add("Place", "place_invalid")
+
     if get("Register") and get("Register")[0] not in REGISTERS:
         add("Register", "register_invalid")
     if get("Checked") and get("Checked")[0] not in CHECKED:
@@ -128,6 +131,10 @@ def check_body(entry: Entry, situations: Optional[Collection[str]] = None) -> li
     problems = []
     if entry.type == "Grammar" and not entry.sections.get("Explanation", "").strip():
         problems.append(MetaProblem(entry.id, "Explanation", "explanation_missing"))
+    if entry.type == "Mistake":
+        for name in ("Wrong", "Right"):
+            if not entry.sections.get(name, "").strip():
+                problems.append(MetaProblem(entry.id, name, "mistake_incomplete"))
     for line in entry.bad_lines:
         problems.append(MetaProblem(entry.id, "Turn", "turn_invalid", line))
     if situations is not None and entry.type and any(s not in situations for s in entry.values("Situation")):

@@ -3,9 +3,9 @@
 from dataclasses import dataclass, field
 from typing import Mapping
 
-from .parse import Pair, Unit, h1, pairs, paragraphs, sections, tasks, turns
+from .parse import InboxItem, Pair, Unit, h1, image, inbox_items, pairs, paragraphs, sections, tasks, turns
 
-TYPES = ("Word", "Verb", "Chunk", "Grammar", "Text", "Conversation", "Situation")
+TYPES = ("Word", "Verb", "Chunk", "Grammar", "Text", "Conversation", "Situation", "Photo", "Mistake", "Gap", "Inbox")
 LEVELS = ("A1", "A2", "B1", "B2", "C1", "C2")
 CHECKED = ("unchecked", "assistant", "reference", "native", "attested")
 REGISTERS = ("du", "Sie", "neutral", "colloquial")
@@ -16,9 +16,10 @@ GOVERNMENTS = ("Akkusativ", "Dativ", "Präposition")
 AUXILIARIES = ("haben", "sein")
 KINDS = ("real", "reconstructed", "model")
 GENRES = ("Letter", "School letter", "Official letter", "Notice", "Contract", "Chat", "Email", "Article", "Other")
+PLACES = ("Street", "Supermarket", "Station", "School", "Doctor", "Office", "Home", "Shop", "Playground", "Other")
 YES = ("yes",)
 # Types that need no Level.
-NO_LEVEL = ("Situation",)
+NO_LEVEL = ("Situation", "Photo", "Gap", "Inbox")
 
 COMMON = ("Type", "Level", "Topic", "Situation", "Translation", "Checked", "Source", "Date", "Tag")
 
@@ -31,6 +32,10 @@ PROPERTIES: dict[str, tuple[str, ...]] = {
     "Text": COMMON + ("Genre", "Received", "Deadline", "Reply"),
     "Conversation": COMMON + ("Kind", "Me", "Register"),
     "Situation": COMMON + ("NextTime",),
+    "Photo": COMMON + ("Place",),
+    "Mistake": COMMON + ("Pattern",),
+    "Gap": COMMON,
+    "Inbox": COMMON,
 }
 
 SECTIONS: dict[str, tuple[str, ...]] = {
@@ -41,6 +46,10 @@ SECTIONS: dict[str, tuple[str, ...]] = {
     "Text": ("Notes",),
     "Conversation": ("Variations", "Notes"),
     "Situation": ("I can", "Log"),
+    "Photo": ("Transcription", "Meaning"),
+    "Mistake": ("Wrong", "Right", "Why"),
+    "Gap": ("I wanted to say", "In German"),
+    "Inbox": (),
 }
 
 # Section that holds the example sentences of each type.
@@ -65,6 +74,9 @@ class Entry:
     bad_lines: tuple[int, ...] = ()
     # Ticked and total items of "I can".
     cando: tuple[int, int] = (0, 0)
+    # The image of a Photo and the captures of an Inbox document.
+    image: str = ""
+    inbox: tuple[InboxItem, ...] = ()
 
     def values(self, key: str) -> tuple[str, ...]:
         return tuple(self.props.get(key, ()))
@@ -72,6 +84,11 @@ class Entry:
     def value(self, key: str, default: str = "") -> str:
         values = self.values(key)
         return values[0] if values else default
+
+    @property
+    def open_gap(self) -> bool:
+        """A Gap that has no German yet."""
+        return self.type == "Gap" and not self.sections.get("In German", "").strip()
 
     @property
     def is_noun(self) -> bool:
@@ -94,6 +111,8 @@ def entry_from(doc_id: str, props: Mapping[str, tuple[str, ...]], markdown: str)
         units, variations, bad = (tuple(found) for found in turns(markdown))
     elif kind == "Text":
         units = tuple(paragraphs(markdown))
+    elif kind == "Photo":
+        units = tuple(paragraphs(parts.get("Transcription", ""), prefix="p"))
     return Entry(
         id=doc_id,
         type=kind,
@@ -108,4 +127,6 @@ def entry_from(doc_id: str, props: Mapping[str, tuple[str, ...]], markdown: str)
         variations=variations,
         bad_lines=bad,
         cando=tasks(parts.get("I can", "")) if kind == "Situation" else (0, 0),
+        image=image(markdown) if kind == "Photo" else "",
+        inbox=tuple(inbox_items(markdown)) if kind == "Inbox" else (),
     )
