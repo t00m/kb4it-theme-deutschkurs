@@ -6,12 +6,16 @@
     unverified = ' dk-unverified' if c['unverified'] else ''
     hint = c['hint_attr']
 %>
+<%def name="listen(text)">\
+<button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="${text}">${L['listen']}</button> \
+<button type="button" class="dk-listen dk-slow uk-button uk-button-default uk-button-small" data-say="${text}" data-rate="slow">${L['slow']}</button>\
+</%def>
 <%def name="sentences(items)">
         <ul class="dk-occurrences">
 % for o in items:
             <li>
                 <span class="dk-de" lang="de">${o['german']}</span>
-                <button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="${o['german']}">${L['listen']}</button>
+                ${listen(o['german'])}
 % if o['translation']:
                 <span class="dk-tr" lang="${dk['native']}">${o['translation']}</span>
 % endif
@@ -28,7 +32,7 @@
         <div class="dk-card-head">
             <h1 class="dk-headline ${c['headline_class']}${unverified}" lang="de"${hint | n}>${c['headline']}</h1>
 % if c['say']:
-            <button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="${c['say']}">${L['listen']}</button>
+            ${listen(c['say'])}
 % endif
         </div>
 % if c['translation']:

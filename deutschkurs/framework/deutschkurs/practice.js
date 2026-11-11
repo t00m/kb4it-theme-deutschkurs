@@ -37,9 +37,16 @@
     try { return root.localStorage; } catch (e) { return null; }
   }
 
+  // Listen and Slow buttons; speech.js handles their clicks.
   function listen(text, L, me) {
-    return el("button", { type: "button", className: "dk-listen uk-button uk-button-default uk-button-small",
-                          "data-say": text, "data-me": me ? "true" : "false", text: L.listen || "Listen" });
+    var css = "uk-button uk-button-default uk-button-small";
+    var mine = me ? "true" : "false";
+    return el("span", { className: "dk-say" }, [
+      el("button", { type: "button", className: "dk-listen " + css, "data-say": text, "data-me": mine,
+                     text: L.listen || "Listen" }),
+      doc.createTextNode(" "),
+      el("button", { type: "button", className: "dk-listen dk-slow " + css, "data-say": text, "data-me": mine,
+                     "data-rate": "slow", text: L.slow || "Slow" })]);
   }
 
   // State shared by the Today block and the Practice page.
@@ -185,21 +192,24 @@
       var list = el("ol", { className: "dk-dialogue" });
       body.appendChild(list);
       var turn = 0;
+      // Show the turns of the other speaker up to the next turn of the learner and speak them in a row.
       function step() {
+        var spoken = [];
+        while (turn < card.turns.length && !card.turns[turn].me) {
+          var other = card.turns[turn];
+          turn += 1;
+          list.appendChild(el("li", { className: "dk-turn dk-other" }, [
+            el("span", { className: "dk-speaker", text: other.speaker }),
+            el("span", { lang: "de", text: other.german }), listen(other.german, L, false)]));
+          spoken.push({ text: other.german, me: false });
+        }
+        if (spoken.length && dk.speech && dk.speech.sayAll) dk.speech.sayAll(spoken);
         if (turn >= card.turns.length) {
           body.appendChild(ratingButtons(card));
           return;
         }
         var t = card.turns[turn];
         turn += 1;
-        if (!t.me) {
-          list.appendChild(el("li", { className: "dk-turn dk-other" }, [
-            el("span", { className: "dk-speaker", text: t.speaker }), el("span", { lang: "de", text: t.german }),
-            listen(t.german, L, false)]));
-          if (dk.speech && dk.speech.say) dk.speech.say(t.german, false);
-          step();
-          return;
-        }
         var item = el("li", { className: "dk-turn dk-me" }, [
           el("span", { className: "dk-speaker", text: L.your_turn }),
           el("span", { className: "dk-tr", text: t.translation })]);

@@ -3,7 +3,7 @@
 import html
 import re
 from urllib.parse import quote
-from typing import Callable, Sequence
+from typing import Callable, Mapping, Sequence
 
 from kb4it.theme import page_name
 
@@ -57,16 +57,31 @@ def plain(fragment: str) -> str:
 BUTTON = "uk-button uk-button-default uk-button-small"
 
 
-def listen_button(text: str, label: str) -> str:
+# UIkit classes of the Play all button.
+PLAY_BUTTON = "uk-button uk-button-primary uk-button-small"
+
+
+def listen_button(text: str, labels: Mapping[str, str], me: bool = False) -> str:
+    """The Listen and Slow buttons of a German text; me speaks it with voice_me."""
     say = html.escape(text, quote=True)
-    return f'<button type="button" class="dk-listen {BUTTON}" data-say="{say}">{html.escape(label)}</button>'
+    mine = ' data-me="true"' if me else ""
+    return (f'<button type="button" class="dk-listen {BUTTON}" data-say="{say}"{mine}>'
+            f'{html.escape(labels["listen"])}</button> '
+            f'<button type="button" class="dk-listen dk-slow {BUTTON}" data-say="{say}"{mine} data-rate="slow">'
+            f'{html.escape(labels["slow"])}</button>')
 
 
-def pairs_html(fragment: str, native: str, listen_label: str) -> str:
+def play_all_button(selector: str, labels: Mapping[str, str]) -> str:
+    """A button that plays every element the selector finds, in page order."""
+    return (f'<button type="button" class="dk-play-all {PLAY_BUTTON}" data-play="{html.escape(selector, quote=True)}">'
+            f'{html.escape(labels["play_all"])}</button>')
+
+
+def pairs_html(fragment: str, native: str, labels: Mapping[str, str]) -> str:
     """Turn 'German :: translation' items into spans and Listen buttons; 'wrong :: right' under Typical mistakes."""
     chunks = SECTION_START.split(fragment)
-    return "".join(_mistakes_html(c, listen_label) if 'id="typical-mistakes"' in c
-                   else _pairs_html(c, native, listen_label) for c in chunks)
+    return "".join(_mistakes_html(c, labels) if 'id="typical-mistakes"' in c
+                   else _pairs_html(c, native, labels) for c in chunks)
 
 
 def split_pair(content: str) -> tuple[str, str] | None:
@@ -107,22 +122,22 @@ def _list_items(fragment: str, render: Callable[[str, str], str]) -> str:
     return LIST_ITEM.sub(item, fragment)
 
 
-def _mistakes_html(fragment: str, listen_label: str) -> str:
+def _mistakes_html(fragment: str, labels: Mapping[str, str]) -> str:
     """List items 'wrong :: right': both German, only the right form gets a Listen button."""
 
     def render(wrong: str, right: str) -> tuple[str, str]:
         return "dk-mistake", (f'<span class="dk-wrong" lang="de">{wrong}</span> '
                               f'<span class="dk-right" lang="de">{right}</span> '
-                              f'{listen_button(plain(right), listen_label)}')
+                              f'{listen_button(plain(right), labels)}')
 
     return _list_items(fragment, render)
 
 
-def _pairs_html(fragment: str, native: str, listen_label: str) -> str:
+def _pairs_html(fragment: str, native: str, labels: Mapping[str, str]) -> str:
     lang = html.escape(native, quote=True)
 
     def render(german: str, translation: str) -> tuple[str, str]:
-        parts = [f'<span class="dk-de" lang="de">{german}</span>', listen_button(plain(german), listen_label)]
+        parts = [f'<span class="dk-de" lang="de">{german}</span>', listen_button(plain(german), labels)]
         if translation:
             parts.append(f'<span class="dk-tr dk-no-link" lang="{lang}">{translation}</span>')
         return "dk-pair", " ".join(parts)
@@ -178,18 +193,19 @@ def _item_parts(inner: str) -> tuple[str, str, str]:
     return inner[:lead], line, inner[lead + len(line):]
 
 
-def _turn(line: str, me: str, native: str, listen_label: str) -> tuple[str, str, bool] | None:
+def _turn(line: str, me: str, native: str, labels: Mapping[str, str]) -> tuple[str, str, bool] | None:
     """(side class, HTML, has a translation) of a line '<strong>Speaker:</strong> German :: translation'."""
     match = TURN.match(line)
     if not match:
         return None
     speaker = match.group(2).strip()
     german, translation = split_pair(match.group(3)) or (match.group(3).strip(), "")
+    mine = plain(speaker).lower() == me.strip().lower()
     parts = [f'<span class="dk-speaker dk-no-link">{speaker}</span>',
-             f'<span class="dk-de" lang="de">{german}</span>', listen_button(plain(german), listen_label)]
+             f'<span class="dk-de" lang="de">{german}</span>', listen_button(plain(german), labels, mine)]
     if translation:
         parts.append(f'<span class="dk-tr dk-no-link" lang="{html.escape(native, quote=True)}">{translation}</span>')
-    side = "dk-me" if plain(speaker).lower() == me.strip().lower() else "dk-other"
+    side = "dk-me" if mine else "dk-other"
     return side, " ".join(parts), bool(translation)
 
 
@@ -207,7 +223,7 @@ def dialogue_html(fragment: str, me: str, native: str, labels: dict[str, str]) -
     changes, translated, count = [], False, 0
     for count, (_, li_start, body_start, body_end, li_end) in enumerate(_top_elements(inner, ("li",)), start=1):
         before, line, after = _item_parts(inner[body_start:body_end])
-        turn = _turn(line, me, native, labels["listen"])
+        turn = _turn(line, me, native, labels)
         if turn is None:
             changes.append((li_start, body_start, f'<li id="t{count}" class="dk-turn dk-invalid">'))
             continue
@@ -224,7 +240,7 @@ def dialogue_html(fragment: str, me: str, native: str, labels: dict[str, str]) -
             for _, li_start, body_start, body_end, li_end in _top_elements(chunk[list_start:list_end], ("li",)):
                 before, line, after = _item_parts(chunk[list_start + body_start:list_start + body_end])
                 numbered = NUMBERED.match(line)
-                turn = _turn(numbered.group(2), me, native, labels["listen"]) if numbered else None
+                turn = _turn(numbered.group(2), me, native, labels) if numbered else None
                 if turn is None:
                     continue
                 number += 1
@@ -243,7 +259,8 @@ def dialogue_html(fragment: str, me: str, native: str, labels: dict[str, str]) -
         show, hide = (html.escape(labels[key], quote=True) for key in ("show_translations", "hide_translations"))
         button = (f'<button type="button" class="dk-toggle-tr {BUTTON}" hidden data-show="{show}" data-hide="{hide}">'
                   f'{hide}</button>')
-    box = f'<div class="dk-dialogue-box">{button}<ol class="dk-dialogue">{turns_html}</ol></div>'
+    play = play_all_button(".dk-dialogue .dk-turn", labels)
+    box = f'<div class="dk-dialogue-box">{play}{button}<ol class="dk-dialogue">{turns_html}</ol></div>'
     chunks[0] = chunks[0][:start] + box + chunks[0][end:]
     return "".join(chunks)
 
@@ -258,12 +275,15 @@ def text_html(fragment: str, units: Sequence[Unit], native: str, labels: dict[st
     A paragraph is matched to a unit by its text, so a paragraph the index left out gets no anchor.
     """
     chunks = SECTION_START.split(fragment)
-    chunks[0] = _sentence_paragraphs(chunks[0], units, native, labels)
+    chunks[0] = _sentence_paragraphs(chunks[0], units, native, labels, play_all=True)
     return "".join(chunks)
 
 
-def _sentence_paragraphs(head: str, units: Sequence[Unit], native: str, labels: dict[str, str]) -> str:
-    """Paragraphs of head that match a unit get its anchor and a Listen button; a following quote is folded."""
+def _sentence_paragraphs(head: str, units: Sequence[Unit], native: str, labels: Mapping[str, str],
+                         play_all: bool = False) -> str:
+    """Paragraphs of head that match a unit get its anchor and a Listen button; a following quote is folded.
+
+    With play_all, a Play all button stands before the first of them."""
     keys = [_letters(unit.german) for unit in units]
     lang = html.escape(native, quote=True)
     changes, at, sentence_end = [], 0, -1
@@ -281,9 +301,11 @@ def _sentence_paragraphs(head: str, units: Sequence[Unit], native: str, labels: 
             continue
         at = keys.index(key, at) + 1
         unit = units[at - 1]
-        changes.append((start, end, f'<p id="{unit.anchor}" class="dk-sentence"><span class="dk-de" lang="de">'
+        first = play_all and not any('class="dk-sentence"' in change[2] for change in changes)
+        bar = f'<p class="dk-play-bar">{play_all_button(".dk-sentence", labels)}</p>' if first else ""
+        changes.append((start, end, f'{bar}<p id="{unit.anchor}" class="dk-sentence"><span class="dk-de" lang="de">'
                                     f'{head[inner_start:inner_end]}</span> '
-                                    f'{listen_button(unit.german, labels["listen"])}</p>'))
+                                    f'{listen_button(unit.german, labels)}</p>'))
         sentence_end = end
     return _replace(head, changes)
 

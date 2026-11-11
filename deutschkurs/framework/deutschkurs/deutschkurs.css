@@ -7,7 +7,9 @@
 .dk-main { margin-top: 1rem; }
 .dk-sheet { margin-bottom: 1rem; }
 .dk-footer { margin: 1.5rem auto 0; padding-bottom: 1.5rem; }
-.dk-listen.uk-button, .dk-toggle-tr.uk-button { text-transform: none; }
+.dk-listen.uk-button, .dk-toggle-tr.uk-button, .dk-play-all.uk-button { text-transform: none; }
+.dk-dialogue-box .dk-play-all { margin-right: .5rem; }
+.dk-play-bar { margin: 0 0 .75rem; }
 #dk-search .kb4it-search { display: block; }
 #dk-search .kb4it-search .kb4it-search-input { width: 100%; font-size: 1.1rem; padding: 8px 10px; }
 #dk-search .kb4it-search .kb4it-search-dropdown { left: 0; right: 0; width: auto; max-width: none; }
@@ -31,7 +33,7 @@ a.dk-link::after { font-size: .6em; vertical-align: super; margin-left: .1em; }
 .dk-facts dt { color: var(--dk-muted); }
 .dk-facts dd { margin: 0; }
 .dk-pair .dk-tr { display: block; color: var(--dk-muted); }
-.dk-no-voice .dk-listen { display: none; }
+.dk-no-voice .dk-listen:not([data-audio]), .dk-no-voice .dk-play-all { display: none; }
 .dk-no-voice .dk-voice-note { display: block; }
 .dk-fold { margin: 1rem 0; }
 .dk-fold > summary { cursor: pointer; color: var(--dk-muted); }
@@ -42,7 +44,7 @@ a.dk-badge { color: inherit; text-decoration: none; }
 .dk-mistake .dk-wrong { text-decoration: line-through; color: var(--dk-muted); }
 .dk-mistake .dk-right { display: block; }
 .dk-mistake .dk-right::before { content: "\2192\00a0"; color: var(--dk-accent); }
-.dk-speech-off .dk-listen { display: none; }
+.dk-speech-off .dk-listen, .dk-speech-off .dk-play-all { display: none; }
 /* Conversations: one bubble per turn, the learner on the right */
 .dk-dialogue { list-style: none; margin: 1rem 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
 li.dk-turn { max-width: 85%; padding: .5rem .75rem; border: 1px solid #d0d7de; border-radius: 12px; background: #f6f8fa; }

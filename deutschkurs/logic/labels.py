@@ -95,6 +95,8 @@ LABELS: dict[str, str] = {
     "show_translations": "Show translations",
     "hide_translations": "Hide translations",
     "listen": "Listen",
+    "slow": "Slow",
+    "play_all": "Play all",
     "practice": "Practice",
     "progress_cando": "What you can do",
     "progress_wins": "Real-life wins",

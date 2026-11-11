@@ -115,6 +115,8 @@ def test_word_card(site):
     assert "A1" in html
     assert "dk-checked-assistant" in html
     assert html.count('class="dk-listen uk-button uk-button-default uk-button-small"') == 3
+    assert html.count('class="dk-listen dk-slow uk-button uk-button-default uk-button-small"') == 3
+    assert html.count('data-rate="slow"') == 3
 
 
 def test_examples_split_into_german_and_translation(site):

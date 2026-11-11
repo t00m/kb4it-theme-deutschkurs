@@ -1,3 +1,4 @@
+from deutschkurs.logic.labels import LABELS
 from deutschkurs.logic.render import pairs_html
 
 MISTAKES = '<div class="kb-sect1">\n<h2 class="kb-h2" id="typical-mistakes">Typical mistakes</h2><div class="sectionbody">\n'
@@ -5,7 +6,7 @@ MISTAKES = '<div class="kb-sect1">\n<h2 class="kb-h2" id="typical-mistakes">Typi
 
 def test_loose_list_under_typical_mistakes():
     html = MISTAKES + "<ul>\n<li>\n<p>Ich anrufe dich. :: Ich rufe dich an.</p>\n</li>\n</ul></div></div>"
-    out = pairs_html(html, "es", "Listen")
+    out = pairs_html(html, "es", LABELS)
     assert '<p><span class="dk-wrong" lang="de">Ich anrufe dich.</span> ' in out
     assert '<span class="dk-right" lang="de">Ich rufe dich an.</span>' in out
     assert out.count("<p>") == out.count("</p>") == 1
@@ -13,24 +14,24 @@ def test_loose_list_under_typical_mistakes():
 
 
 def test_loose_list_in_examples():
-    out = pairs_html("<ul>\n<li>\n<p>Hallo! :: ¡Hola!</p>\n</li>\n</ul>", "es", "Listen")
+    out = pairs_html("<ul>\n<li>\n<p>Hallo! :: ¡Hola!</p>\n</li>\n</ul>", "es", LABELS)
     assert '<p><span class="dk-de" lang="de">Hallo!</span>' in out
 
 
 def test_nested_list_item_left_alone():
     html = "<ul>\n<li>Outer :: exterior<ul>\n<li>inner :: interior</li>\n</ul>\n</li>\n</ul>"
-    out = pairs_html(html, "es", "Listen")
+    out = pairs_html(html, "es", LABELS)
     assert '<span class="dk-tr dk-no-link" lang="es">exterior<ul>' not in out
     assert out.count("<ul>") == 2 and out.count("</ul>") == 2
 
 
 def test_double_colon_inside_code_is_not_a_separator():
     html = "<ul>\n<li>Use <code>a::b</code> here</li>\n</ul>"
-    assert pairs_html(html, "es", "Listen") == html
+    assert pairs_html(html, "es", LABELS) == html
 
 
 def test_separator_after_code():
-    out = pairs_html("<ul>\n<li>Sag <code>Hallo</code> :: di hola</li>\n</ul>", "es", "Listen")
+    out = pairs_html("<ul>\n<li>Sag <code>Hallo</code> :: di hola</li>\n</ul>", "es", LABELS)
     assert '<span class="dk-de" lang="de">Sag <code>Hallo</code></span>' in out
     assert '<span class="dk-tr dk-no-link" lang="es">di hola</span>' in out
 
@@ -173,7 +174,9 @@ def text():
 def test_paragraphs_get_the_anchor_of_their_unit():
     out = text()
     assert ('<p id="s1" class="dk-sentence"><span class="dk-de" lang="de">Liebe Eltern,</span> '
-            '<button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="Liebe Eltern,">Listen</button></p>') in out
+            '<button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="Liebe Eltern,">Listen</button> '
+            '<button type="button" class="dk-listen dk-slow uk-button uk-button-default uk-button-small" data-say="Liebe Eltern," '
+            'data-rate="slow">Slow</button></p>') in out
     assert '<p id="s2" class="dk-sentence"><span class="dk-de" lang="de">am Freitag machen wir einen <em>' in out
     assert 'data-say="am Freitag machen wir einen Ausflug. Bitte geben Sie Ihrem Kind eine Brotdose mit."' in out
 
@@ -302,7 +305,7 @@ def test_text_shows_coverage_and_deadline():
 def test_task_list_item_keeps_its_checkbox():
     html = ('<ul class="task-list">\n<li class="task-list-item"><input type="checkbox" disabled checked/> '
             'Ich kann grüßen. :: I can greet.</li>\n</ul>')
-    out = pairs_html(html, "en", "Listen")
+    out = pairs_html(html, "en", LABELS)
     assert ('<li class="dk-pair task-list-item"><input type="checkbox" disabled checked/> '
             '<span class="dk-de" lang="de">Ich kann grüßen.</span>') in out
     assert '<span class="dk-tr dk-no-link" lang="en">I can greet.</span>' in out
@@ -327,3 +330,31 @@ def test_word_family_links_a_word_not_a_situation_with_the_same_title():
     course, entries = built(docs)
     data = card(entries["feierabend.md"], course, LABELS, course.url)
     assert ("Word family", [("der Abend", "abend.html")]) in data["links"]
+
+
+def test_every_listen_button_has_a_slow_button():
+    out = pairs_html("<ul>\n<li>Hallo! :: Hello!</li>\n</ul>", "en", LABELS)
+    assert ('<button type="button" class="dk-listen dk-slow uk-button uk-button-default uk-button-small" data-say="Hallo!" '
+            'data-rate="slow">Slow</button>') in out
+
+
+def test_my_turns_speak_with_my_voice():
+    out = dialogue()
+    mine = out.split('<li id="t2"', 1)[1].split("</li>", 1)[0]
+    other = out.split('<li id="t1"', 1)[1].split("</li>", 1)[0]
+    assert mine.count('data-me="true"') == 2
+    assert "data-me" not in other
+
+
+def test_dialogue_has_play_all():
+    out = dialogue()
+    assert ('<div class="dk-dialogue-box"><button type="button" class="dk-play-all uk-button uk-button-primary uk-button-small" '
+            'data-play=".dk-dialogue .dk-turn">Play all</button>') in out
+
+
+def test_text_has_play_all_before_the_first_sentence():
+    out = text()
+    bar = ('<p class="dk-play-bar"><button type="button" class="dk-play-all uk-button uk-button-primary uk-button-small" '
+           'data-play=".dk-sentence">Play all</button></p>')
+    assert out.count(bar) == 1
+    assert out.index(bar) < out.index('<p id="s1"')
