@@ -189,3 +189,30 @@ test("a new say stops a running sayAll", () => {
   synth.spoken[0].onend();
   assert.deepStrictEqual(synth.spoken.map((u) => u.text), ["eins", "drei"]);
 });
+
+test("normalise reads prices with thousands and one cent digit", () => {
+  const { normalise } = load().Deutschkurs.speech;
+  assert.strictEqual(normalise("Miete 1.200 €"), "Miete tausendzweihundert Euro");
+  assert.strictEqual(normalise("3,5 €"), "drei Euro fünfzig");
+  assert.strictEqual(normalise("1,50 €"), "ein Euro fünfzig");
+  assert.strictEqual(normalise("10.000 €"), "10000 Euro");
+  assert.strictEqual(normalise("€ 1.200,50"), "tausendzweihundert Euro fünfzig");
+});
+
+function blockingAudio(alsoError) {
+  return function Audio(src) {
+    this.src = src;
+    this.play = () => { const self = this; return { catch(fn) { fn(new Error("blocked")); if (alsoError && self.onerror) self.onerror(); } }; };
+  };
+}
+
+for (const [name, alsoError] of [["a blocked recording does not stop the queue", false],
+                                 ["a recording that fails to load advances the queue once", true]]) {
+  test(name, () => {
+    const synth = fakeSynth();
+    const ctx = load({ speechSynthesis: synth, SpeechSynthesisUtterance: Utterance, Audio: blockingAudio(alsoError) });
+    ctx.Deutschkurs.speech.init(speakingDocument({}));
+    ctx.Deutschkurs.speech.sayAll([{ audio: "a.m4a" }, { text: "weiter" }, { text: "Ende" }]);
+    assert.deepStrictEqual(synth.spoken.map((u) => u.text), ["weiter"]);
+  });
+}

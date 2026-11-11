@@ -120,3 +120,11 @@ def test_data_carries_recordings(site):
     assert [t["audio"] for t in entries["am-telefon.md"]["turns"]] == [
         "resources/audio/praxis.m4a", "", "resources/audio/morgen.mp3", ""]
     assert entries["am-telefon.md"]["turns"][2]["translation"] == "Is tomorrow fine?"
+
+
+def test_turn_audio_link_with_angle_brackets_or_title():
+    text = ("# T\n\n- **Anna:** Ja [audio](resources/audio/a.m4a \"Titel\") :: Yes\n"
+            "- **ich:** Wie? :: How? [audio](<resources/audio/c d.m4a>)\n")
+    found, _, _ = turns(text)
+    assert [(u.german, u.translation, u.audio) for u in found] == [
+        ("Ja", "Yes", "resources/audio/a.m4a"), ("Wie?", "How?", "resources/audio/c d.m4a")]

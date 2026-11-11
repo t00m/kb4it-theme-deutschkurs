@@ -19,7 +19,9 @@ LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 HTML_TAG = re.compile(r"<[^>]+>")
 # A recording at the end of a turn: [audio](resources/audio/x.m4a).
 AUDIO_EXTENSIONS = r"\.(?:m4a|mp3|ogg|oga|opus|wav|webm)"
-AUDIO_LINK = re.compile(rf"\s*\[audio\]\(\s*([^)\s]+{AUDIO_EXTENSIONS})\s*\)", re.I)
+# The path may be in <...> (then it may hold spaces) and may have a "title", as Markdown allows.
+AUDIO_LINK = re.compile(rf"\s*\[audio\]\(\s*(?:<([^>]+{AUDIO_EXTENSIONS})>|([^)\s]+{AUDIO_EXTENSIONS}))"
+                        r"(?:\s+\"[^\"]*\")?\s*\)", re.I)
 INLINE_TAGS = "a|abbr|b|br|code|em|i|img|kbd|mark|s|small|span|strong|sub|sup|u"
 # First lines of blocks that are no paragraph: headings, quotes, lists, tables, code, rules, boxes, block HTML.
 NOT_A_PARAGRAPH = re.compile(r"^(#|>|[-*+]\s|\d+[.)]\s|\||```|~~~|!!!|\s{4}|\t|(-{3,}|\*{3,}|_{3,})\s*$"
@@ -137,7 +139,7 @@ def clean(text: str) -> str:
 
 def audio_link(text: str) -> tuple[str, str]:
     """(text without its [audio](...) links, the last recording or '')."""
-    found = AUDIO_LINK.findall(text)
+    found = [bracketed or plain for bracketed, plain in AUDIO_LINK.findall(text)]
     return AUDIO_LINK.sub("", text).strip(), found[-1] if found else ""
 
 

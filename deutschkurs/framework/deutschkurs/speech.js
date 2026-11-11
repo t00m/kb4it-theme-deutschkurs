@@ -50,10 +50,12 @@
     return DATIVE.indexOf(String(before[before.length - 1] || "").toLowerCase()) >= 0;
   }
 
+  // An amount such as 1.200,50: whole euros with thousands dots, and one or two cent digits.
   function euros(whole, cents) {
-    var euro = whole === "1" ? "ein" : numberWords(Number(whole));
-    var tail = cents && Number(cents) ? " " + numberWords(Number(cents)) : "";
-    return euro + " Euro" + tail;
+    var amount = Number(whole.replace(/\./g, ""));
+    var euro = amount === 1 ? "ein" : amount > 9999 ? String(amount) : numberWords(amount);
+    var cent = cents ? Number(cents.length === 1 ? cents + "0" : cents) : 0;
+    return euro + " Euro" + (cent ? " " + numberWords(cent) : "");
   }
 
   // Text as a German voice should read it: times, amounts, abbreviations and dates in words.
@@ -64,10 +66,10 @@
       var hour = Number(h) === 1 ? "ein" : numberWords(Number(h));
       return hour + " Uhr" + (Number(m) ? " " + numberWords(Number(m)) : "");
     });
-    out = out.replace(/\b(\d+)(?:,(\d{2}))?\s*(?:€|EUR\b)/g, function (all, whole, cents) {
+    out = out.replace(/\b(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?\s*(?:€|EUR\b)/g, function (all, whole, cents) {
       return euros(whole, cents);
     });
-    out = out.replace(/€\s*(\d+)(?:,(\d{2}))?\b/g, function (all, whole, cents) {
+    out = out.replace(/€\s*(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?\b/g, function (all, whole, cents) {
       return euros(whole, cents);
     });
     out = out.replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4}\b)?/g, function (all, d, m, year, offset, whole) {
@@ -141,11 +143,18 @@
     function play(item, done) {
       if (item.audio) {
         if (!root.Audio) return false;
+        // A blocked play() rejects without an error event; a failed load does both. Advance once.
+        var finished = false;
+        var once = function () {
+          if (finished) return;
+          finished = true;
+          done();
+        };
         audio = new root.Audio(item.audio);
-        audio.onended = done;
-        audio.onerror = done;
+        audio.onended = once;
+        audio.onerror = once;
         var started = audio.play();
-        if (started && started.catch) started.catch(function () {});
+        if (started && started.catch) started.catch(once);
         return true;
       }
       if (!voice || !item.text) return false;
