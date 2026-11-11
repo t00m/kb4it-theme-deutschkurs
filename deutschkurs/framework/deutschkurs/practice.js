@@ -49,6 +49,15 @@
                      "data-rate": "slow", text: L.slow || "Slow" })]);
   }
 
+  // A recording: one Listen button that plays the file, and the real badge.
+  function recording(src, L) {
+    return el("span", { className: "dk-say" }, [
+      el("button", { type: "button", className: "dk-listen uk-button uk-button-default uk-button-small",
+                     "data-audio": src, text: L.listen || "Listen" }),
+      doc.createTextNode(" "),
+      el("span", { className: "dk-badge dk-real", text: L.real_audio || "real" })]);
+  }
+
   // State shared by the Today block and the Practice page.
   function setup() {
     var data = root.DEUTSCHKURS_DATA;
@@ -200,8 +209,9 @@
           turn += 1;
           list.appendChild(el("li", { className: "dk-turn dk-other" }, [
             el("span", { className: "dk-speaker", text: other.speaker }),
-            el("span", { lang: "de", text: other.german }), listen(other.german, L, false)]));
-          spoken.push({ text: other.german, me: false });
+            el("span", { lang: "de", text: other.german }),
+            other.audio ? recording(other.audio, L) : listen(other.german, L, false)]));
+          spoken.push(other.audio ? { audio: other.audio } : { text: other.german, me: false });
         }
         if (spoken.length && dk.speech && dk.speech.sayAll) dk.speech.sayAll(spoken);
         if (turn >= card.turns.length) {
@@ -218,7 +228,7 @@
         reveal.addEventListener("click", function () {
           reveal.remove();
           item.appendChild(el("span", { className: "dk-de", lang: "de", text: t.german }));
-          item.appendChild(listen(t.german, L, true));
+          item.appendChild(t.audio ? recording(t.audio, L) : listen(t.german, L, true));
           step();
         });
         item.appendChild(reveal);

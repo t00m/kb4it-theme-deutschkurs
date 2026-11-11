@@ -119,6 +119,18 @@ class Theme(BaseTheme):
                 reason = "remote" if path is None else "" if path.is_file() else "missing"
             if reason:
                 problems.append(Problem("PHOTO_MISSING", entry.id, f"reason={reason}", label="doc"))
+        for entry in self.course.entries.values():
+            # A recording that is missing or on the web plays nothing (spec 8); one problem per reason.
+            recordings = [entry.value("Audio")] if entry.type in ("Word", "Verb", "Chunk") else []
+            recordings += [u.audio for u in (*entry.units, *entry.variations)]
+            reasons = []
+            for src in filter(None, recordings):
+                path = image_path(source, src)
+                reason = "remote" if path is None else "" if path.is_file() else "missing"
+                if reason and reason not in reasons:
+                    reasons.append(reason)
+            for reason in reasons:
+                problems.append(Problem("AUDIO_MISSING", entry.id, f"reason={reason}", label="doc"))
         for entry in self.course.by_type("Inbox"):
             if any(image_path(source, c.image) is None for c in entry.inbox if c.image):
                 problems.append(Problem("PHOTO_MISSING", entry.id, "reason=remote", label="doc"))

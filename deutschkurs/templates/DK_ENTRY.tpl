@@ -31,7 +31,9 @@
     <section class="dk-card uk-card uk-card-default uk-card-body uk-border-rounded">
         <div class="dk-card-head">
             <h1 class="dk-headline ${c['headline_class']}${unverified}" lang="de"${hint | n}>${c['headline']}</h1>
-% if c['say']:
+% if c['audio']:
+            <audio class="dk-audio" controls preload="none" src="${c['audio']}"></audio> <span class="dk-badge dk-real">${L['real_audio']}</span>
+% elif c['say']:
             ${listen(c['say'])}
 % endif
         </div>

@@ -30,6 +30,7 @@ Nouns, adjectives, adverbs and other single words. The `#` title is the word wit
 | `Stress` | `Ter-MIN` | Optional; the stressed syllable in capitals |
 | `Regional` | Other words for the same thing | Optional; such as `Brotbox, Brotbüchse` |
 | `Family` | Related words | Optional; such as `der Terminkalender`; linked when an entry exists |
+| `Audio` | `resources/audio/termin.m4a` | Optional; a recording under `source/resources/audio/`; the page plays it instead of the device voice |
 
 Sections, all optional, in this order:
 
@@ -81,6 +82,7 @@ The `#` title is the infinitive.
 | `Preposition` | `auf + Akk` | Optional; when `Government: Präposition` |
 | `KonjunktivII` | `würde anrufen` | Optional |
 | `Stress` | `AN-ru-fen` | Optional; for separable verbs the page stresses the prefix when this is missing |
+| `Audio` | `resources/audio/termin.m4a` | Optional; a recording under `source/resources/audio/`; the page plays it instead of the device voice |
 
 Sections, all optional:
 
@@ -123,6 +125,7 @@ A fixed phrase used as one block. The `#` title is the phrase.
 | Property | Values | Rule |
 |---|---|---|
 | `Register` | `du`, `Sie`, `neutral`, `colloquial` | Optional; who you can say it to |
+| `Audio` | `resources/audio/termin.m4a` | Optional; a recording under `source/resources/audio/`; the page plays it instead of the device voice |
 
 Sections, all optional:
 
@@ -260,6 +263,8 @@ A dialogue from the learner's life. The `#` title names the moment.
 - `model`: written to practise. Everything an assistant invents is `model`.
 
 Body, before any `##` heading: one list, one item per turn, written `**Speaker:** German :: translation`. The translation is optional. The turns are numbered by position (`#t1`, `#t2`...), so do not put other lists above the turns. Speaker names follow `privacy.md`: a role such as `Mutter`, `Lehrerin`, `Arzt`, never a real name.
+
+A turn may end with a recording: `**Lehrerin:** Guten Morgen! :: Good morning! [audio](resources/audio/guten-morgen.m4a)`. The file lives under `source/resources/audio/` (`.m4a`, `.mp3`, `.ogg`, `.oga`, `.opus`, `.wav`, `.webm`); the page plays it instead of the device voice and marks it `real`.
 
 Sections, all optional:
 

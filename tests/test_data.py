@@ -105,8 +105,8 @@ def test_conversation_turns_mark_me():
     talk = record(data(), "talk.md")
     assert talk["turns"] == [
         {"speaker": "Lehrerin", "german": "Haben Sie einen Termin?", "translation": "Do you have an appointment?",
-         "me": False},
-        {"speaker": "Mutter", "german": "Ja, morgen.", "translation": "Yes, tomorrow.", "me": True}]
+         "me": False, "audio": ""},
+        {"speaker": "Mutter", "german": "Ja, morgen.", "translation": "Yes, tomorrow.", "me": True, "audio": ""}]
 
 
 def test_mistake_and_gap_records():

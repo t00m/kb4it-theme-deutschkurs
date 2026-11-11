@@ -13,7 +13,7 @@ from .course import Course
 from .glossary import TAG, TAG_NAME, VOID_TAGS
 from .index import Occurrence, marker_hits
 from .model import KINDS, LEVELS, Entry
-from .parse import Unit
+from .parse import AUDIO_EXTENSIONS, Unit
 
 GENDER = {"der": "dk-m", "die": "dk-f", "das": "dk-n"}
 PERFEKT = {"haben": "hat", "sein": "ist"}
@@ -41,6 +41,9 @@ BLOCK = re.compile(r"<(ul|ol|p|div|blockquote|pre|table|details)\b")
 TURN = re.compile(r"^<(strong|b)>([^<]+?)(?::</\1>|</\1>:)\s*(.*)$", re.S)
 NUMBERED = re.compile(r"^(\d+)\s+(.*)$", re.S)
 NOT_A_LETTER = re.compile(r"[\W_]+")
+# The [audio](...) link of a turn after Markdown.
+RENDERED_AUDIO = re.compile(rf'\s*<a href="([^"]+{AUDIO_EXTENSIONS})"[^>]*>audio</a>', re.I)
+REMOTE = ("http://", "https://", "//")
 
 
 def facet_page(key: str, value: str | None = None) -> str:
@@ -69,6 +72,18 @@ def listen_button(text: str, labels: Mapping[str, str], me: bool = False) -> str
             f'{html.escape(labels["listen"])}</button> '
             f'<button type="button" class="dk-listen dk-slow {BUTTON}" data-say="{say}"{mine} data-rate="slow">'
             f'{html.escape(labels["slow"])}</button>')
+
+
+def local_audio(src: str) -> str:
+    """The path of a recording inside the site, or '' for a web address: pages load nothing from the internet."""
+    src = src.strip()
+    return "" if not src or src.lower().startswith(REMOTE) else src
+
+
+def audio_html(src: str, labels: Mapping[str, str]) -> str:
+    """A recording with its player and the real badge."""
+    return (f'<audio class="dk-audio" controls preload="none" src="{html.escape(src, quote=True)}"></audio> '
+            f'<span class="dk-badge dk-real">{html.escape(labels["real_audio"])}</span>')
 
 
 def play_all_button(selector: str, labels: Mapping[str, str]) -> str:
@@ -199,10 +214,14 @@ def _turn(line: str, me: str, native: str, labels: Mapping[str, str]) -> tuple[s
     if not match:
         return None
     speaker = match.group(2).strip()
-    german, translation = split_pair(match.group(3)) or (match.group(3).strip(), "")
+    recordings = RENDERED_AUDIO.findall(match.group(3))
+    content = RENDERED_AUDIO.sub("", match.group(3))
+    german, translation = split_pair(content) or (content.strip(), "")
     mine = plain(speaker).lower() == me.strip().lower()
+    recording = local_audio(html.unescape(recordings[-1])) if recordings else ""
+    voice = audio_html(recording, labels) if recording else listen_button(plain(german), labels, mine)
     parts = [f'<span class="dk-speaker dk-no-link">{speaker}</span>',
-             f'<span class="dk-de" lang="de">{german}</span>', listen_button(plain(german), labels, mine)]
+             f'<span class="dk-de" lang="de">{german}</span>', voice]
     if translation:
         parts.append(f'<span class="dk-tr dk-no-link" lang="{html.escape(native, quote=True)}">{translation}</span>')
     side = "dk-me" if mine else "dk-other"
@@ -469,7 +488,8 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     hint = f' title="{html.escape(labels["unverified_hint"], quote=True)}"' if unverified else ""
     # Only a German word, verb or chunk is read aloud from the card.
     say = headline if entry.type in INDEXED or entry.type == "Grammar" else ""
-    return {"kind": entry.type, "headline": headline, "headline_class": css, "say": say,
+    recording = local_audio(entry.value("Audio")) if entry.type in INDEXED else ""
+    return {"kind": entry.type, "headline": headline, "headline_class": css, "say": say, "audio": recording,
             "translation": entry.translation, "badges": badges, "facts": facts, "links": links,
             "unverified": unverified, "hint_attr": hint}
 

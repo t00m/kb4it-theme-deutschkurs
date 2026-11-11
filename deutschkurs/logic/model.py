@@ -24,10 +24,11 @@ NO_LEVEL = ("Situation", "Photo", "Gap", "Inbox")
 COMMON = ("Type", "Level", "Topic", "Situation", "Translation", "Checked", "Source", "Date", "Tag")
 
 PROPERTIES: dict[str, tuple[str, ...]] = {
-    "Word": COMMON + ("Article", "Plural", "PluralOnly", "PartOfSpeech", "Forms", "Stress", "Regional", "Family"),
+    "Word": COMMON + ("Article", "Plural", "PluralOnly", "PartOfSpeech", "Forms", "Stress", "Regional", "Family",
+                      "Audio"),
     "Verb": COMMON + ("Present", "Preterite", "Participle", "Auxiliary", "Irregular", "Separable", "Prefix",
-                      "Reflexive", "Government", "Preposition", "KonjunktivII", "Stress"),
-    "Chunk": COMMON + ("Register",),
+                      "Reflexive", "Government", "Preposition", "KonjunktivII", "Stress", "Audio"),
+    "Chunk": COMMON + ("Register", "Audio"),
     "Grammar": COMMON + ("Area", "Case", "Tense", "Pattern", "Marker"),
     "Text": COMMON + ("Genre", "Received", "Deadline", "Reply"),
     "Conversation": COMMON + ("Kind", "Me", "Register"),
