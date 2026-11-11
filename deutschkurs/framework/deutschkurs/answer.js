@@ -4,9 +4,12 @@
   var dk = (root.Deutschkurs = root.Deutschkurs || {});
   var RANK = { again: 0, hard: 1, good: 2 };
 
-  // Umlauts and ß as ae, oe, ue, ss; one space between words; no final . ! ?
+  // Composed letters (NFC); one kind of apostrophe and no quote marks; umlauts and ß as ae, oe, ue, ss;
+  // one space between words; no final . ! ?
   function normalise(text) {
-    return String(text || "")
+    return String(text || "").normalize("NFC")
+      .replace(/[\u2018\u2019\u201A\u02BC`´]/g, "'")
+      .replace(/["\u201C\u201D\u201E\u00AB\u00BB\u2039\u203A]/g, "")
       .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
       .replace(/Ä/g, "Ae").replace(/Ö/g, "Oe").replace(/Ü/g, "Ue").replace(/ß/g, "ss")
       .replace(/\s+/g, " ").trim()

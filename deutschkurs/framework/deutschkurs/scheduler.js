@@ -5,7 +5,7 @@
   var MIN_EASE = 1.3;
 
   function fresh() {
-    return { due: "", interval: 0, ease: 2.5, reps: 0, lapses: 0, last: "", goods: 0 };
+    return { due: "", interval: 0, ease: 2.5, reps: 0, lapses: 0, last: "", goods: 0, first: "" };
   }
 
   function two(n) { return (n < 10 ? "0" : "") + n; }
@@ -43,6 +43,8 @@
       s.goods += 1;
     }
     if (kind === "mistake" && s.goods < 3) s.interval = 1;
+    // The day a card was started counts it against daily_new (spec 7.4).
+    s.first = base.last ? base.first || "" : today;
     s.last = today;
     s.due = addDays(today, s.interval);
     return s;

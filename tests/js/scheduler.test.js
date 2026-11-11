@@ -13,7 +13,7 @@ const DAY = "2026-11-11";
 
 test("a fresh card", () => {
   assert.deepStrictEqual(JSON.parse(JSON.stringify(fresh())),
-    { due: "", interval: 0, ease: 2.5, reps: 0, lapses: 0, last: "", goods: 0 });
+    { due: "", interval: 0, ease: 2.5, reps: 0, lapses: 0, last: "", goods: 0, first: "" });
 });
 
 test("good gives 1 then 3 then interval times ease", () => {
@@ -84,4 +84,12 @@ test("addDays crosses month and year", () => {
   assert.strictEqual(addDays("2026-11-30", 1), "2026-12-01");
   assert.strictEqual(addDays("2026-12-31", 1), "2027-01-01");
   assert.strictEqual(addDays("2028-02-28", 1), "2028-02-29");
+});
+
+test("the first rating records the day the card was started", () => {
+  const s = rate(fresh(), "good", DAY);
+  assert.strictEqual(s.first, DAY);
+  assert.strictEqual(rate(s, "good", "2026-11-12").first, DAY);
+  const old = { due: DAY, interval: 3, ease: 2.5, reps: 2, lapses: 0, last: "2026-11-08", goods: 2 };
+  assert.strictEqual(rate(old, "good", DAY).first, "");
 });

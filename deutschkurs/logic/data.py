@@ -70,12 +70,20 @@ def _sentences(course: Course) -> list[tuple[str, str, str, str]]:
     return found
 
 
+def _utf16(text: str, index: int) -> int:
+    """A code point index as a UTF-16 index, the unit JavaScript strings count in."""
+    return len(text[:index].encode("utf-16-le")) // 2
+
+
 def _rows(course: Course, sentences) -> tuple[list[dict], dict[str, list[dict]]]:
-    """Cloze rows, one per glossary span, and the sentences where a separable verb is split."""
+    """Cloze rows, one per glossary span, and the sentences where a separable verb is split.
+
+    Offsets are UTF-16 indexes, so the browser can slice the sentence with them."""
     rows, split = [], {}
     for doc_id, anchor, german, translation in sentences:
         brackets: dict[str, list[list[int]]] = {}
-        for start, end, entry_id, css in find_spans(german, course.glossary):
+        for found_start, found_end, entry_id, css in find_spans(german, course.glossary):
+            start, end = _utf16(german, found_start), _utf16(german, found_end)
             if css == "dk-bracket":
                 brackets.setdefault(entry_id, []).append([start, end])
                 continue

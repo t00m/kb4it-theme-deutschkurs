@@ -67,3 +67,14 @@ test("empty answer is again", () => {
   assert.strictEqual(check("", "Termin").result, "again");
   assert.strictEqual(check("   ", "Termin").result, "again");
 });
+
+test("curly apostrophes and German quote marks are ignored", () => {
+  assert.strictEqual(check("Wie geht’s?", "Wie geht's?").result, "good");
+  assert.strictEqual(check("„Hallo“", "Hallo").result, "good");
+  assert.strictEqual(check("«Hallo»", "\"Hallo\"").result, "good");
+});
+
+test("decomposed umlauts match", () => {
+  assert.strictEqual(check("Mädchen", "Mädchen").result, "good");
+  assert.strictEqual(check("Mädchen", "Maedchen").result, "good");
+});

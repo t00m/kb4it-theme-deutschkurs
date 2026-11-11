@@ -237,13 +237,23 @@
     if (kind === "weekly") {
       return unique(reviews.concat([talk], weakMistakes(list, states, data), fresh.slice(0, s.weekly_new || 10)));
     }
-    return unique(reviews.concat([talk], fresh.slice(0, s.daily_new || 5)));
+    return unique(reviews.concat([talk], fresh.slice(0, newLeft(list, states, today, s))));
+  }
+
+  // daily_new is a limit per day: cards started today count against it.
+  function newLeft(list, states, today, settings) {
+    var started = list.filter(function (c) {
+      return c.exercise !== "roleplay" && states[c.id] && states[c.id].first === today;
+    }).length;
+    return Math.max(0, (settings.daily_new || 5) - started);
   }
 
   function counts(list, states, today, data) {
     var s = (data && data.settings) || {};
-    return { due: dueCards(list || [], states || {}, today).length,
-             fresh: Math.min(newCards(list || [], states || {}, data || {}, today).length, s.daily_new || 5) };
+    list = list || [];
+    states = states || {};
+    return { due: dueCards(list, states, today).length,
+             fresh: Math.min(newCards(list, states, data || {}, today).length, newLeft(list, states, today, s)) };
   }
 
   dk.practice = { cards: cards, view: view, session: session, counts: counts, german: german,

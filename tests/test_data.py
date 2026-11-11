@@ -139,3 +139,20 @@ def test_data_file_written_and_parsable(built_site):
     payload = json.loads(text[len("window.DEUTSCHKURS_DATA = "):].rstrip().rstrip(";"))
     assert {"version", "site", "settings", "entries", "sentences", "situations"} <= payload.keys()
     assert any(e["id"] == "termin.md" for e in payload["entries"])
+
+
+def utf16(text, start, end):
+    """The text between two UTF-16 offsets, as JavaScript's slice reads it."""
+    raw = text.encode("utf-16-le")
+    return raw[start * 2:end * 2].decode("utf-16-le")
+
+
+def test_offsets_are_utf16_after_an_emoji():
+    talk = ("talk.md", {"Type": ("Conversation",), "Level": ("A1",), "Kind": ("real",), "Checked": ("assistant",)},
+            "# Chat\n\n- **A:** 😊 Der Termin ist morgen. :: The appointment is tomorrow.\n"
+            "- **B:** 😊 Ich rufe dich an. :: I call you.\n")
+    payload = data([TERMIN, ANRUFEN, talk])
+    row = next(r for r in payload["sentences"] if r["doc"] == "talk.md" and r["entry"] == "termin.md")
+    assert utf16(row["german"], row["start"], row["end"]) == "Termin"
+    split = next(s for s in record(payload, "anrufen.md")["separable"] if "😊" in s["german"])
+    assert [utf16(split["german"], s, e) for s, e in split["parts"]] == ["rufe", "an"]

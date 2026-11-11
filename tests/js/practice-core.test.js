@@ -179,3 +179,15 @@ test("empty data gives empty sessions", () => {
   }
   assert.strictEqual(cards({}).length, 0);
 });
+
+test("daily_new counts the new cards already started today", () => {
+  const states = {
+    "to_native:Termin": { due: "2026-11-12", interval: 1, ease: 2.5, reps: 1, lapses: 0, last: TODAY, goods: 1, first: TODAY },
+    "to_native:Brotdose": { due: "2026-11-12", interval: 1, ease: 2.5, reps: 1, lapses: 0, last: TODAY, goods: 1, first: TODAY },
+  };
+  const list = session("daily", ALL, states, DATA, TODAY, {});
+  assert.strictEqual(list.filter((c) => !states[c.id] && c.exercise !== "roleplay").length, 0);
+  assert.deepStrictEqual(plain(counts(ALL, states, TODAY, DATA)), { due: 0, fresh: 0 });
+  const tomorrow = session("daily", ALL, states, DATA, "2026-11-12", {});
+  assert.strictEqual(tomorrow.filter((c) => !states[c.id] && c.exercise !== "roleplay").length, 2);
+});
