@@ -102,7 +102,8 @@ def test_recorded_turns_play_the_recording(site):
 
 def test_remote_recording_is_not_loaded(site):
     page = site.page("am-telefon.html")
-    assert "example.org" not in page
+    # The source dialog shows the Markdown as text; no element loads or links the address.
+    assert not re.search(r'(src|href)="[^"]*example\.org', page)
     fourth = main(page).split('<li id="t4"', 1)[1].split("</li>", 1)[0]
     assert 'data-say="Ja, gerne."' in fourth
 

@@ -73,6 +73,15 @@
         </dl>
 % endif
     </section>
+    <div class="dk-source-bar uk-flex uk-flex-wrap uk-flex-middle">
+        <a class="dk-show-source uk-button uk-button-text" href="#dk-source" data-uk-toggle>${L['view_source']}</a>
+% if var.get('editor'):
+        <a class="dk-edit uk-button uk-button-text" href="add.html" data-kb-edit="${var['basename_md']}">${L['edit_editor']}</a>
+% endif
+% if var.get('edit_url'):
+        <a class="dk-edit-git uk-button uk-button-text" href="${var['edit_url']}" rel="noopener">${L['edit_git']}</a>
+% endif
+    </div>
 % if x['deadline']:
     <p class="dk-banner dk-deadline uk-alert uk-alert-danger" data-date="${x['deadline']}" data-hide="past">${L['deadline']}: <time datetime="${x['deadline']}">${x['deadline']}</time></p>
 % endif
@@ -137,3 +146,10 @@
 % endif
     </div>
 </main>
+<div id="dk-source" class="uk-modal-container" data-uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" data-uk-close aria-label="${L['close']}"></button>
+        <div class="uk-h4"><code>${var['basename_md']}</code></div>
+        <textarea id="dk-source-text" class="uk-textarea" readonly rows="20" spellcheck="false">${var['source_md']}</textarea>
+    </div>
+</div>
