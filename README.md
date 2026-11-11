@@ -15,7 +15,7 @@ pipx install "git+https://github.com/t00m/KB4IT@0.12.0"
 Download `deutschkurs-X.Y.Z.zip` from the [releases](https://github.com/t00m/kb4it-theme-deutschkurs/releases) and install it:
 
 ```bash
-kb4it install-theme deutschkurs-0.3.1.zip
+kb4it install-theme deutschkurs-0.3.2.zip
 kb4it create deutschkurs default ~/deutschkurs
 kb4it build ~/deutschkurs/config/repo.json
 ```
