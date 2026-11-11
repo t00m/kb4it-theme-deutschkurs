@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.3.1, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.3.2, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -54,6 +54,8 @@ In `config/repo.json`, block `"deutschkurs"`:
 Settings for later versions (`voice_me`, `slow_rate`, `daily_reviews`, `daily_new`, `weekly_new`) are accepted and not used yet.
 
 ## Pages
+
+The pages use UIkit, the same library as the techdoc theme. KB4IT ships it and each build copies it to `target/resources/vendor/uikit/`, so the site needs no Internet connection. The top bar has Home, two menus (Real life and Course) and the Assistant skill; on a phone the links are in a side menu. The search icon, `/` or Ctrl+K open the search box. The labels `menu_life`, `menu_course` and `menu` rename the menus.
 
 Home, Situations, Conversations, Texts, Photos, Mistakes, Inbox, Vocabulary, Verbs, Chunks, Grammar, Assistant skill, search, and facet pages `Level.html`, `Topic.html`, `Register.html`, `ConversationKind.html`, `Genre.html`, `Place.html`, `Pattern.html` with one page per value. Photos is a gallery with filters by place and situation. Mistakes groups mistakes by `Pattern`, newest first. Inbox lists the captures of every inbox file and the gaps to process; it is the only page that shows inbox files, which search leaves out. The home page lists situations coming up, texts with an open deadline and the number of captures to process. Dated blocks are hidden by JavaScript when they are out of range, so a site built last week is still right today.
 

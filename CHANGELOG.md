@@ -4,6 +4,16 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-11
+
+### Changed
+
+- The pages use UIkit, as the techdoc theme does. KB4IT ships the library and the build copies it into the site, so the course still works offline. Your source files need no change.
+- The top bar is a UIkit navbar: Home, the menus "Real life" (situations, conversations, texts, photos, mistakes, inbox) and "Course" (vocabulary, verbs, chunks, grammar), and the Assistant skill. On a phone the links open in a side menu.
+- Search opens in a dialog from the search icon, `/` or Ctrl+K.
+- Page content, entry cards, home tiles, situations and photos are UIkit cards; lists, tables, filters, buttons and banners use UIkit components. The Add page shows one UIkit card per entry type.
+- New labels `menu_life`, `menu_course` and `menu`.
+
 ## [0.3.1] - 2026-11-11
 
 ### Fixed

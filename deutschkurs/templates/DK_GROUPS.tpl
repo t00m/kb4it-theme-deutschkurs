@@ -19,7 +19,7 @@
 % endfor
     </p>
 % endif
-    <ul class="dk-items">
+    <ul class="dk-items uk-list uk-list-divider">
 % for item in items:
         <li>
             <a href="${item['href']}" lang="de">${item['title']}</a>

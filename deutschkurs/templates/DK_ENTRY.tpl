@@ -11,7 +11,7 @@
 % for o in items:
             <li>
                 <span class="dk-de" lang="de">${o['german']}</span>
-                <button type="button" class="dk-listen" data-say="${o['german']}">${L['listen']}</button>
+                <button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="${o['german']}">${L['listen']}</button>
 % if o['translation']:
                 <span class="dk-tr" lang="${dk['native']}">${o['translation']}</span>
 % endif
@@ -23,12 +23,12 @@
 % endfor
         </ul>
 </%def>
-<main class="dk-main dk-entry dk-type-${c['kind'].lower()}">
-    <section class="dk-card">
+<main class="dk-main dk-entry dk-type-${c['kind'].lower()} uk-container uk-container-small">
+    <section class="dk-card uk-card uk-card-default uk-card-body uk-border-rounded">
         <div class="dk-card-head">
             <h1 class="dk-headline ${c['headline_class']}${unverified}" lang="de"${hint | n}>${c['headline']}</h1>
 % if c['say']:
-            <button type="button" class="dk-listen" data-say="${c['say']}">${L['listen']}</button>
+            <button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="${c['say']}">${L['listen']}</button>
 % endif
         </div>
 % if c['translation']:
@@ -64,21 +64,20 @@
 % endif
     </section>
 % if x['deadline']:
-    <p class="dk-banner dk-deadline" data-date="${x['deadline']}" data-hide="past">${L['deadline']}: <time datetime="${x['deadline']}">${x['deadline']}</time></p>
+    <p class="dk-banner dk-deadline uk-alert uk-alert-danger" data-date="${x['deadline']}" data-hide="past">${L['deadline']}: <time datetime="${x['deadline']}">${x['deadline']}</time></p>
 % endif
 % if x['next_time']:
-    <p class="dk-banner dk-coming" data-date="${x['next_time']}" data-days="${var['dk']['prepare_days']}" data-hide="past later">${L['coming_up']}: <time datetime="${x['next_time']}">${x['next_time']}</time></p>
+    <p class="dk-banner dk-coming uk-alert uk-alert-primary" data-date="${x['next_time']}" data-days="${var['dk']['prepare_days']}" data-hide="past later">${L['coming_up']}: <time datetime="${x['next_time']}">${x['next_time']}</time></p>
 % endif
-    <div class="dk-body">
+    <div class="dk-body dk-sheet uk-card uk-card-default uk-card-body uk-border-rounded">
         ${var['source_html'] | n}
-    </div>
 % if x['see_inbox']:
     <p class="dk-see-inbox"><a href="inbox.html">${L['see_inbox']}</a></p>
 % endif
 % for label, items in x['related']:
     <section class="dk-related">
         <h2>${label}</h2>
-        <ul class="dk-items">
+        <ul class="dk-items uk-list uk-list-divider">
 % for title, href, kind in items:
             <li>
                 <a href="${href}">${title}</a>
@@ -123,4 +122,5 @@
 % endif
     </section>
 % endif
+    </div>
 </main>

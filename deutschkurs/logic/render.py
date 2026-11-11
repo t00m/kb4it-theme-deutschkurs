@@ -50,9 +50,13 @@ def plain(fragment: str) -> str:
     return html.unescape(TAGS.sub("", fragment)).strip()
 
 
+# UIkit classes of the small buttons (Listen, show or hide translations).
+BUTTON = "uk-button uk-button-default uk-button-small"
+
+
 def listen_button(text: str, label: str) -> str:
     say = html.escape(text, quote=True)
-    return f'<button type="button" class="dk-listen" data-say="{say}">{html.escape(label)}</button>'
+    return f'<button type="button" class="dk-listen {BUTTON}" data-say="{say}">{html.escape(label)}</button>'
 
 
 def pairs_html(fragment: str, native: str, listen_label: str) -> str:
@@ -234,7 +238,7 @@ def dialogue_html(fragment: str, me: str, native: str, labels: dict[str, str]) -
     button = ""
     if translated:
         show, hide = (html.escape(labels[key], quote=True) for key in ("show_translations", "hide_translations"))
-        button = (f'<button type="button" class="dk-toggle-tr" hidden data-show="{show}" data-hide="{hide}">'
+        button = (f'<button type="button" class="dk-toggle-tr {BUTTON}" hidden data-show="{show}" data-hide="{hide}">'
                   f'{hide}</button>')
     box = f'<div class="dk-dialogue-box">{button}<ol class="dk-dialogue">{turns_html}</ol></div>'
     chunks[0] = chunks[0][:start] + box + chunks[0][end:]

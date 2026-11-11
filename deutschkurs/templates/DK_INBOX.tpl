@@ -2,7 +2,7 @@
     L = var['dk']['labels']
 %>
 <div class="dk-inbox dk-no-link">
-    <ul class="dk-items">
+    <ul class="dk-items uk-list uk-list-divider">
 % for i in var['items']:
         <li>
 % if i['date']:

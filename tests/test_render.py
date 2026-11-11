@@ -107,7 +107,7 @@ def test_only_the_first_list_before_the_sections_is_the_dialogue():
 
 
 def test_toggle_button_is_hidden_until_the_script_shows_it():
-    assert ('<button type="button" class="dk-toggle-tr" hidden data-show="Show translations" '
+    assert ('<button type="button" class="dk-toggle-tr uk-button uk-button-default uk-button-small" hidden data-show="Show translations" '
             'data-hide="Hide translations">') in dialogue()
 
 
@@ -173,7 +173,7 @@ def text():
 def test_paragraphs_get_the_anchor_of_their_unit():
     out = text()
     assert ('<p id="s1" class="dk-sentence"><span class="dk-de" lang="de">Liebe Eltern,</span> '
-            '<button type="button" class="dk-listen" data-say="Liebe Eltern,">Listen</button></p>') in out
+            '<button type="button" class="dk-listen uk-button uk-button-default uk-button-small" data-say="Liebe Eltern,">Listen</button></p>') in out
     assert '<p id="s2" class="dk-sentence"><span class="dk-de" lang="de">am Freitag machen wir einen <em>' in out
     assert 'data-say="am Freitag machen wir einen Ausflug. Bitte geben Sie Ihrem Kind eine Brotdose mit."' in out
 
