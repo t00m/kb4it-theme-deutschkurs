@@ -92,7 +92,8 @@ def test_examples_are_valid():
 
 def test_skeletons_valid():
     listing = json.loads((SKELETONS / "skeletons.json").read_text(encoding="utf-8"))
-    assert [e["id"] for e in listing] == ["situation", "conversation", "text", "word", "verb", "chunk", "grammar"]
+    assert [e["id"] for e in listing] == ["situation", "conversation", "text", "word", "verb", "chunk", "grammar",
+                                            "photo", "mistake", "gap", "inbox"]
     for item in listing:
         text = (SKELETONS / f"{item['id'].upper()}-SKELETON.md").read_text(encoding="utf-8")
         props = props_of(text)
