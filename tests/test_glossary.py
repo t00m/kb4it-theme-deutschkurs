@@ -14,6 +14,7 @@ ENTRIES = [
     make("anrufen", "# anrufen", Type="Verb", Separable="yes", Prefix="an",
          Present="ich rufe an, du rufst an, er ruft an", Participle="angerufen"),
     make("lernen", "# lernen", Type="Verb", Participle="gelernt"),
+    make("gehen", "# gehen", Type="Verb", Participle="gegangen", Auxiliary="sein"),
     make("bescheid-sagen", "# Bescheid sagen", Type="Chunk"),
 ]
 G = build_glossary(ENTRIES)
@@ -120,3 +121,27 @@ def test_find_spans_gives_positions_and_entries():
     assert [(text[a:b], doc) for a, b, doc, _ in find_spans(text, G)] == [
         ("rufe", "anrufen"), ("Kind", "kind"), ("an", "anrufen")]
     assert find_spans("Das Kind.", G, "kind") == []
+
+
+def test_perfekt_bracket():
+    out = link("<p>Ich habe dich gestern angerufen.</p>")
+    assert '<a class="dk-link dk-bracket dk-aux" href="anrufen.html">habe</a>' in out
+    assert '<a class="dk-link dk-bracket dk-part" href="anrufen.html">angerufen</a>' in out
+
+
+def test_perfekt_bracket_needs_the_auxiliary_of_the_verb():
+    assert "dk-aux" not in link("<p>Ich habe gegangen.</p>")
+    out = link("<p>Ich bin gestern nach Hause gegangen.</p>")
+    assert '<a class="dk-link dk-bracket dk-aux" href="gehen.html">bin</a>' in out
+    assert '<a class="dk-link dk-bracket dk-part" href="gehen.html">gegangen</a>' in out
+
+
+def test_perfekt_bracket_stays_in_its_clause():
+    out = link("<p>Er hat Zeit, ich hatte viel gelernt.</p>")
+    assert ">hat</a>" not in out
+    assert '<a class="dk-link dk-bracket dk-aux" href="lernen.html">hatte</a>' in out
+
+
+def test_participle_first_is_no_bracket():
+    out = link("<p>Gelernt habe ich viel.</p>")
+    assert "dk-aux" not in out and "dk-bracket" not in out

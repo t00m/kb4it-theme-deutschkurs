@@ -16,6 +16,11 @@ TAG_NAME = re.compile(r"^<\s*(/)?\s*([a-zA-Z][a-zA-Z0-9]*)")
 ENTITY = re.compile(r"(&#?\w+;)")
 CLAUSE_END = re.compile(r"[.,;:!?]")
 ARTICLE = re.compile(r"^(der|die|das)\s+", re.I)
+# Present and preterite forms of haben and sein: the finite part of Perfekt and Plusquamperfekt.
+AUXILIARY_FORMS = {
+    **dict.fromkeys(("habe", "hast", "hat", "haben", "habt", "hatte", "hattest", "hatten", "hattet"), "haben"),
+    **dict.fromkeys(("bin", "bist", "ist", "sind", "seid", "war", "warst", "waren", "wart"), "sein"),
+}
 
 
 @dataclass
@@ -28,6 +33,8 @@ class Glossary:
     phrases: list[tuple[str, str]] = field(default_factory=list)
     # Finite form of a separable verb, lower-cased, to its (prefix, entry id) pairs.
     separable: dict[str, list[tuple[str, str]]] = field(default_factory=dict)
+    # Participle, lower-cased, to its (entry id, auxiliaries) pairs; no auxiliaries means any.
+    participles: dict[str, list[tuple[str, tuple[str, ...]]]] = field(default_factory=dict)
 
     def lookup(self, token: str) -> tuple[str, str] | None:
         """(entry id, css class) of a token, or None."""
@@ -64,6 +71,8 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
             finite += present_forms(e.values("Preterite"), prefix)
             for form in [e.title, *e.values("Participle")]:
                 g.forms.setdefault(form.strip().lower(), e.id)
+            for participle in e.values("Participle"):
+                g.participles.setdefault(participle.strip().lower(), []).append((e.id, e.values("Auxiliary")))
             for form in finite:
                 if prefix:
                     pairs = g.separable.setdefault(form.lower(), [])
@@ -115,6 +124,22 @@ def find_spans(text: str, g: Glossary, self_id: str = "") -> list[tuple[int, int
             if clause[-1].group() == prefix and doc_id != self_id:
                 take(m.start(), m.end(), doc_id, "dk-bracket")
                 take(clause[-1].start(), clause[-1].end(), doc_id, "dk-bracket")
+                break
+
+    # Perfekt: haben or sein, and the participle of a known verb as the last word of the clause.
+    for i, m in enumerate(words):
+        auxiliary = AUXILIARY_FORMS.get(m.group().lower())
+        if not auxiliary or not free(m.start(), m.end()):
+            continue
+        end = CLAUSE_END.search(text, m.end())
+        limit = end.start() if end else len(text)
+        clause = [w for w in words[i + 1:] if w.end() <= limit]
+        if not clause or not free(clause[-1].start(), clause[-1].end()):
+            continue
+        for doc_id, auxiliaries in g.participles.get(clause[-1].group().lower(), []):
+            if doc_id != self_id and (not auxiliaries or auxiliary in auxiliaries):
+                take(m.start(), m.end(), doc_id, "dk-bracket dk-aux")
+                take(clause[-1].start(), clause[-1].end(), doc_id, "dk-bracket dk-part")
                 break
 
     for m in words:

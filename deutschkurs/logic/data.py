@@ -87,6 +87,9 @@ def _rows(course: Course, sentences) -> tuple[list[dict], dict[str, list[dict]]]
             if css == "dk-bracket":
                 brackets.setdefault(entry_id, []).append([start, end])
                 continue
+            # The auxiliary of a Perfekt bracket is no form of the verb to fill in.
+            if "dk-aux" in css.split():
+                continue
             rows.append({"entry": entry_id, "doc": doc_id, "anchor": anchor, "german": german,
                          "translation": translation, "start": start, "end": end})
         for entry_id, parts in brackets.items():
