@@ -78,3 +78,10 @@ def test_practice_strings_come_from_labels(tmp_path):
 def test_no_practice_link_in_top_bar(built_site):
     top = re.search(r'<header class="dk-top.*?</header>', built_site.page("index.html"), re.S).group()
     assert "practice.html" not in top
+
+
+def test_practice_page_has_storage_full_and_other_progress_blocks(built_site):
+    page = built_site.page("practice.html")
+    assert re.search(r'<p id="dk-storage-full" class="uk-alert uk-alert-danger" hidden>The browser storage is full', page)
+    other = re.search(r'<div id="dk-other-progress" class="uk-alert uk-alert-primary" hidden>.*?</div>', page, re.S).group()
+    assert 'id="dk-use-other"' in other and "another title" in other

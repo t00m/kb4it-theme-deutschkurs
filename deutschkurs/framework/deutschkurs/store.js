@@ -17,6 +17,49 @@
     return value !== null && typeof value === "object" && !Array.isArray(value);
   }
 
+  var DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+  function count(value) {
+    return typeof value === "number" && value >= 0 && Math.floor(value) === value;
+  }
+
+  // A card state as the scheduler writes it; anything else would keep a card from ever coming due.
+  function validState(state) {
+    if (!isObject(state)) return false;
+    if (typeof state.due !== "string" || !DAY.test(state.due)) return false;
+    if (typeof state.interval !== "number" || !isFinite(state.interval) || state.interval < 0) return false;
+    if (typeof state.ease !== "number" || !isFinite(state.ease) || state.ease <= 0) return false;
+    if (!count(state.reps) || !count(state.lapses)) return false;
+    if (state.goods !== undefined && !count(state.goods)) return false;
+    if (state.last !== undefined && state.last !== "" && (typeof state.last !== "string" || !DAY.test(state.last))) return false;
+    if (state.first !== undefined && state.first !== "" && (typeof state.first !== "string" || !DAY.test(state.first))) return false;
+    return true;
+  }
+
+  function validCards(found) {
+    var cards = {};
+    for (var key in found) if (validState(found[key])) cards[key] = found[key];
+    return cards;
+  }
+
+  // Other courses with saved cards in this storage, most cards first: progress kept under an old course title.
+  function others(storage, site) {
+    var found = [];
+    if (!storage) return found;
+    try {
+      for (var i = 0; i < storage.length; i++) {
+        var match = /^deutschkurs\.(.+)\.cards$/.exec(storage.key(i) || "");
+        if (!match || match[1] === site) continue;
+        var cards = parse(storage.getItem(match[0]), {});
+        var n = isObject(cards) ? Object.keys(validCards(cards)).length : 0;
+        if (n) found.push({ site: match[1], cards: n });
+      }
+    } catch (e) {
+      return [];
+    }
+    return found.sort(function (a, b) { return b.cards - a.cards || (a.site < b.site ? -1 : 1); });
+  }
+
   // A store for one course. Storage that throws or is missing gives a store in memory with ok false.
   function open(storage, site) {
     var prefix = "deutschkurs." + site + ".";
@@ -28,7 +71,7 @@
         storage.removeItem(prefix + "probe");
         var storedCards = parse(storage.getItem(prefix + "cards"), {});
         var storedDays = parse(storage.getItem(prefix + "days"), []);
-        cards = isObject(storedCards) ? storedCards : {};
+        cards = isObject(storedCards) ? validCards(storedCards) : {};
         days = Array.isArray(storedDays) ? storedDays : [];
       } catch (e) {
         ok = false;
@@ -50,7 +93,8 @@
       ok: ok,
       cards: function () { return cards; },
       days: function () { return days; },
-      save: function (id, state) { cards[id] = state; write(); },
+      // False when the browser did not keep it (storage full or blocked); the card stays in memory.
+      save: function (id, state) { cards[id] = state; write(); return store.ok; },
       studied: function (day) {
         if (days.indexOf(day) < 0) { days.push(day); days.sort(); }
         write();
@@ -76,7 +120,7 @@
     var merged = 0, skipped = 0;
     for (key in file.cards) {
       var state = file.cards[key];
-      if ((known || []).indexOf(key) < 0 || !isObject(state)) { skipped += 1; continue; }
+      if ((known || []).indexOf(key) < 0 || !validState(state)) { skipped += 1; continue; }
       if (!cards[key] || String(state.last || "") > String(cards[key].last || "")) {
         cards[key] = state;
         merged += 1;
@@ -89,5 +133,5 @@
     return { cards: cards, days: days, merged: merged, skipped: skipped, error: "" };
   }
 
-  dk.store = { open: open, exportJson: exportJson, merge: merge, FORMAT: FORMAT };
+  dk.store = { open: open, exportJson: exportJson, merge: merge, validState: validState, others: others, FORMAT: FORMAT };
 })(typeof window !== "undefined" ? window : this);

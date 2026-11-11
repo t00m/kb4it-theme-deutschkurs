@@ -5,6 +5,11 @@
     <noscript><p class="uk-alert uk-alert-warning">${L['needs_js']}</p></noscript>
     <p id="dk-storage-off" class="uk-alert uk-alert-warning" hidden>${L['storage_off']}</p>
     <p id="dk-no-data" class="uk-alert uk-alert-danger" hidden>${L['no_data']}</p>
+    <p id="dk-storage-full" class="uk-alert uk-alert-danger" hidden>${L['storage_full']}</p>
+    <div id="dk-other-progress" class="uk-alert uk-alert-primary" hidden>
+        <p id="dk-other-text">${L['other_progress']}</p>
+        <button type="button" id="dk-use-other" class="uk-button uk-button-primary uk-button-small">${L['use_other']}</button>
+    </div>
     <div id="dk-sessions" class="uk-grid-small uk-child-width-1-2@s" data-uk-grid>
 % for kind in ('daily', 'short', 'weekly'):
         <div>

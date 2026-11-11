@@ -73,7 +73,7 @@ Exercises: der, die or das; plural; German to your language; your language to Ge
 
 Only entries that are ready give new cards: not `Checked: unchecked`, and for a Word at least one example sentence. `progress.html` lists the others, the words you understand and can say per level, what you can do per situation, your real-life wins from `## Log`, mistake patterns and the days you studied.
 
-Progress lives in the browser (`localStorage`), per course title. Export it as `deutschkurs-progress-YYYY-MM-DD.json` and import it on another device; per card the newer state wins. A private window does not keep progress, and the page says so.
+Progress lives in the browser (`localStorage`), per course title. Export it as `deutschkurs-progress-YYYY-MM-DD.json` and import it on another device; per card the newer state wins. An import skips cards of entries this course does not have and broken card data, and says how many. A private window does not keep progress, and the page says so; when the storage fills up during a session, the page says that too. If you rename the course, the Practice page finds the progress saved under the old title and offers to use it.
 
 ## Privacy
 

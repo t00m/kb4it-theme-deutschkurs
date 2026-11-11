@@ -76,6 +76,24 @@
     block.querySelector(".dk-today-start").setAttribute("href", "practice.html#session=daily");
   }
 
+  // Progress saved under another course title (the course was renamed): offer to merge it into this course.
+  function offerOtherProgress(ctx) {
+    var box = doc.getElementById("dk-other-progress");
+    if (!box || !ctx.store.ok || Object.keys(ctx.store.cards()).length) return;
+    var found = dk.store.others(storage(), ctx.data.site);
+    if (!found.length) return;
+    doc.getElementById("dk-other-text").textContent = fill(ctx.L.other_progress, { n: found[0].cards });
+    box.hidden = false;
+    doc.getElementById("dk-use-other").addEventListener("click", function () {
+      var old = dk.store.open(storage(), found[0].site);
+      var known = ctx.cards.map(function (c) { return c.id; });
+      var local = { cards: ctx.store.cards(), days: ctx.store.days() };
+      var result = dk.store.merge(local, dk.store.exportJson(old, found[0].site, ctx.today), known);
+      ctx.store.replace(result.cards, result.days);
+      box.textContent = fill(ctx.L.imported, { merged: result.merged, skipped: result.skipped });
+    });
+  }
+
   function initPractice(ctx) {
     var area = doc.getElementById("dk-practice-card");
     if (!area) return;
@@ -84,7 +102,9 @@
       return;
     }
     var L = ctx.L;
-    if (!ctx.store.ok) doc.getElementById("dk-storage-off").hidden = false;
+    var storageOff = !ctx.store.ok;
+    if (storageOff) doc.getElementById("dk-storage-off").hidden = false;
+    offerOtherProgress(ctx);
     var queue = [], position = 0, done = 0;
 
     function filters() {
@@ -107,8 +127,10 @@
     function finish(card, rating) {
       var states = ctx.store.cards();
       var next = dk.scheduler.rate(states[card.id], rating, ctx.today, card.kind);
-      ctx.store.save(card.id, next);
+      var kept = ctx.store.save(card.id, next);
       ctx.store.studied(ctx.today);
+      // Storage that worked at the start and failed now is full: say so while the session goes on in memory.
+      if (!kept && !storageOff) doc.getElementById("dk-storage-full").hidden = false;
       done += 1;
       position += 1;
       show();
