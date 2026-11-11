@@ -8,7 +8,9 @@
     var needle = (text || "").trim().toLowerCase();
     if (needle && cells.join(" ").toLowerCase().indexOf(needle) < 0) return false;
     for (var key in columns) {
-      if (columns[key] && cells[key] !== columns[key]) return false;
+      // A cell may hold several values joined by ", " (a noun with two topics); one of them must match.
+      if (columns[key] && cells[key] !== columns[key] &&
+          String(cells[key]).split(",").map(function (v) { return v.trim(); }).indexOf(columns[key]) < 0) return false;
     }
     return true;
   }

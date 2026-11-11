@@ -12,7 +12,7 @@
 % for column in var['filters']:
         <select class="dk-filter-select uk-select uk-form-small uk-form-width-small" data-table="${tid}" data-column="${column}" aria-label="${var['columns'][column]}">
             <option value="">${var['columns'][column]}: ${L['all']}</option>
-% for value in sorted({row[column]['text'] for row in var['rows'] if row[column]['text']}):
+% for value in sorted({v.strip() for row in var['rows'] for v in row[column]['text'].split(',') if v.strip()}):
             <option value="${value}">${value}</option>
 % endfor
         </select>

@@ -91,3 +91,25 @@ def test_articles_not_linked_in_sentences(built_site):
 def test_article_pages_not_in_search(built_site):
     index = (built_site.target / "search-index.js").read_text(encoding="utf-8")
     assert "Article_der" not in index
+
+
+TWO_TOPICS = """---
+Article: das
+Checked: assistant
+Level: A1
+PartOfSpeech: noun
+Plural: die Kinder
+Topic: Familie, Schule
+Translation: child
+Type: Word
+---
+
+# Kind
+"""
+
+
+def test_topic_filter_lists_single_topics(tmp_path):
+    site = build_site(tmp_path, {"kind.md": TWO_TOPICS}, starter=False)
+    html = main(site.page("Article_das.html"))
+    topic = re.search(r'<select[^>]*data-column="4".*?</select>', html, re.S).group()
+    assert re.findall(r'<option value="([^"]*)">', topic) == ["", "Familie", "Schule"]
