@@ -17,7 +17,7 @@ from .model import TYPES
 from .pages import write_pages
 from .privacy import has_gps, image_path, photo_files, scan
 from .skill import PUBLISHED, publish, skill_html
-from .render import (ARTICLE_KEY, FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, mistake_html,
+from .render import (AUDIO_FILE, ARTICLE_KEY, FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, mistake_html,
                      pairs_html, photo_html, text_html)
 
 # File names of the facet pages, without their extension.
@@ -126,7 +126,8 @@ class Theme(BaseTheme):
             reasons = []
             for src in filter(None, recordings):
                 path = image_path(source, src)
-                reason = "remote" if path is None else "" if path.is_file() else "missing"
+                reason = ("remote" if path is None else "type" if not AUDIO_FILE.search(src.strip())
+                          else "" if path.is_file() else "missing")
                 if reason and reason not in reasons:
                     reasons.append(reason)
             for reason in reasons:
