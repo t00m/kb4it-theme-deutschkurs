@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.4.0, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.5.0, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -44,6 +44,8 @@ In `config/repo.json`, block `"deutschkurs"`:
 | `speech` | `true` | Listen buttons |
 | `speech_lang` | `de-DE` | Preferred voice language |
 | `voice` | none | Name of a preferred voice |
+| `voice_me` | none | Voice of your own turns in conversations and roleplay |
+| `slow_rate` | `0.75` | Speed of the Slow button; a number above 0 and at most 2 |
 | `accent` | `#c0392b` | Accent colour |
 | `gender_colors` | `{"m": "#1f6feb", "f": "#cf222e", "n": "#1a7f37", "pl": "#d4760a"}` | Colours of der, die, das and plural |
 | `topics` | none | When set, the only allowed `Topic` values |
@@ -51,7 +53,7 @@ In `config/repo.json`, block `"deutschkurs"`:
 | `known_words` | `[]` | Words you know without an entry; coverage counts them as known |
 | `privacy_allow` | `[]` | Exact texts the privacy check accepts, such as the public address of an office |
 
-`daily_reviews` (40), `daily_new` (5) and `weekly_new` (10) set the size of practice sessions. `voice_me` is the voice of your own turns in roleplay. `slow_rate` is accepted and not used yet.
+`daily_reviews` (40), `daily_new` (5) and `weekly_new` (10) set the size of practice sessions.
 
 ## Pages
 
@@ -75,11 +77,28 @@ Progress lives in the browser (`localStorage`), per course title. Export it as `
 
 ## Privacy
 
-Each build reads every source file and warns with `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` when a line looks like an IBAN, an e-mail address, a phone number or an address. Images under `source/resources/photos/` with GPS data give `PHOTO_GPS`; an image that cannot be opened gives `PHOTO_UNREADABLE`. A Photo whose image is missing or is a web address gives `PHOTO_MISSING`. These checks catch the obvious cases; they do not find names. With `strict`, privacy hits and photos with GPS data stop the build. An entry of `privacy_allow` drops every hit inside that text, so one entry covers a whole address.
+Each build reads every source file and warns with `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` when a line looks like an IBAN, an e-mail address, a phone number or an address. Images under `source/resources/photos/` with GPS data give `PHOTO_GPS`; an image that cannot be opened gives `PHOTO_UNREADABLE`. A Photo whose image is missing or is a web address gives `PHOTO_MISSING`, and a recording that is missing or a web address gives `AUDIO_MISSING`. These checks catch the obvious cases; they do not find names. With `strict`, privacy hits and photos with GPS data stop the build. An entry of `privacy_allow` drops every hit inside that text, so one entry covers a whole address.
 
-## German voice
+## Seeing and hearing
 
-Listen buttons use the voices of your device. Without a German voice the buttons are hidden and the page says so.
+Nouns have the colour of their gender, and a small `m`, `f`, `n` or `pl` after them for readers who do not see colours: in linked text, on word cards, in the vocabulary and article tables and in practice. Plural forms have the plural colour.
+
+A verb in two parts is underlined twice in both parts: a split separable verb (*Ich **rufe** dich morgen **an***) and haben or sein with the participle of a verb in the course (*Ich **habe** dich gestern **angerufen***). The auxiliary must be the one the verb's `Auxiliary` names.
+
+Every Listen button has a Slow button next to it (`slow_rate`). Conversations and texts have a Play all button that reads every turn or sentence in order; your own turns use `voice_me` when it is set. Before speaking, times, prices, dates and a few abbreviations are written out: `8:30 Uhr` is read as *acht Uhr dreißig*, `5,50 €` as *fünf Euro fünfzig*, `am 3.11.` as *am dritten November*, `z. B.` as *zum Beispiel*.
+
+### Recordings
+
+A real recording replaces the device voice. Put the file under `source/resources/audio/` (`.m4a`, `.mp3`, `.ogg`, `.oga`, `.opus`, `.wav` or `.webm`) and point to it:
+
+- Word, Verb or Chunk: the property `Audio: resources/audio/termin.m4a`.
+- A turn of a conversation: a link at the end, `- **Lehrerin:** Guten Morgen! :: Good morning! [audio](resources/audio/guten-morgen.m4a)`.
+
+The page shows a player and the badge `real`; Play all and roleplay play the recording. A file that does not exist, or a web address, gives `AUDIO_MISSING`; a web address is never loaded. Record only your own voice or a person who agreed to it.
+
+### German voice
+
+Listen buttons use the voices of your device. Without a German voice the Listen, Slow and Play all buttons are hidden and the page says so; recordings still play.
 
 - Android: Settings, System, Languages, Text-to-speech output; install German in the speech engine.
 - iOS: Settings, Accessibility, Spoken Content, Voices, German.

@@ -25,7 +25,11 @@ a.dk-link.dk-f::after, .dk-cued.dk-f::after { content: "f"; }
 a.dk-link.dk-n::after, .dk-cued.dk-n::after { content: "n"; }
 a.dk-link.dk-pl::after, .dk-cued.dk-pl::after { content: "pl"; }
 a.dk-link::after, .dk-cued::after { font-size: .6em; vertical-align: super; margin-left: .1em; }
-.dk-bracket { border-bottom-style: double; }
+/* Both parts of a verb in two parts share a double underline. */
+.dk-bracket, a.dk-link.dk-bracket { border-bottom: 3px double currentColor; }
+/* A recording player fits its card or turn, also on a phone. */
+.dk-audio { display: block; width: 100%; max-width: 22rem; height: 2.5rem; margin: .35rem 0 .25rem; }
+.dk-real { display: inline-block; }
 .dk-card-head { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
 .dk-headline { margin: 0; font-size: 1.75rem; }
 .dk-translation { font-size: 1.125rem; margin: .25rem 0; }

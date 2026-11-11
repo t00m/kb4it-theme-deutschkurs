@@ -4,6 +4,23 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-11
+
+### Added
+
+- Slow button next to every Listen button, at `slow_rate` (default 0.75). A `slow_rate` that is not above 0 and at most 2 logs `SETTING_INVALID key=slow_rate` and uses 0.75.
+- Play all on conversations and texts: every turn or sentence in order.
+- Two voices on pages: Listen buttons of your own turns use `voice_me`.
+- Recordings: the property `Audio` on Word, Verb and Chunk, and `[audio](resources/audio/x.m4a)` at the end of a turn. The page shows a player and the badge `real`; roleplay plays the recording. `AUDIO_MISSING doc=<file> reason=missing|remote` when the file does not exist or is a web address.
+- Speech normalisation before speaking: times (`8:30 Uhr`), prices (`5,50 €`, `5 EUR`, `€ 5`), dates (`3.11.`, `3.11.2026`, `3. November`) and the abbreviations `z. B.`, `d. h.`, `usw.`, `bzw.`, `ca.`, `Nr.`, `Str.`, `Tel.`.
+- Verb bracket for haben or sein with the participle of a verb in the course, in the same clause; the auxiliary must match the verb's `Auxiliary`.
+- The gender cue `m`, `f`, `n`, `pl` on word cards, article badges, the vocabulary and article tables and the article buttons of practice; plural forms in the plural colour.
+- Skill: `Audio` and recorded turns in `entry-types.md`, `AUDIO_MISSING` in `checks.md`, a Recordings section in `privacy.md`.
+
+### Fixed
+
+- Roleplay speaks every turn of the other speaker when there are two or more in a row; before, only the last one was heard.
+
 ## [0.4.0] - 2026-11-11
 
 ### Added
