@@ -86,6 +86,7 @@ def item(entry, course: Course, url) -> dict:
     """One line of a grouped list."""
     found = course.coverage.get(entry.id)
     return {"title": entry.title, "href": url(entry.id), "level": entry.level, "kind": entry.value("Kind"),
+            "topics": "|".join(entry.values("Topic")),
             "coverage": f"{found.percent} %" if found is not None and found.total else "",
             "deadline": day(entry.value("Deadline")) if entry.type == "Text" else ""}
 
@@ -99,7 +100,17 @@ def situation_card(entry, course: Course, labels, url) -> dict:
     if entry.value("NextTime"):
         facts.append((labels["next_time"], plain_date(entry.value("NextTime"))))
     facts += [(labels[label], sum(1 for e in inside if e.type == kind)) for label, kind in IN_SITUATION]
-    return {"title": entry.title, "href": url(entry.id), "facts": facts}
+    return {"title": entry.title, "href": url(entry.id), "facts": facts, "topics": "|".join(entry.values("Topic"))}
+
+
+def list_filters(entries, keys, labels) -> list[tuple]:
+    """(key, label, values) of the filters of a list page, for the properties that have values."""
+    found = []
+    for key, prop in keys:
+        values = sorted({v for e in entries for v in e.values(prop)}, key=sort_key)
+        if values:
+            found.append((key, labels[key], values))
+    return found
 
 
 def by_situation(course: Course, labels, url) -> list[tuple]:
@@ -291,7 +302,11 @@ def write_pages(theme, site, course: Course) -> None:
         site.page(name, L[name], theme.render("DK_GROUPS", dk=dk, heading=L[name], groups=found), listing=True)
 
     grouped("grammar", ordered)
-    grouped("conversations", by_situation(course, L, url))
+    talks = course.by_type("Conversation")
+    talk_filters = list_filters(talks, (("topic", "Topic"), ("level", "Level"), ("kind", "Kind")), L)
+    site.page("conversations", L["conversations"],
+              theme.render("DK_GROUPS", dk=dk, heading=L["conversations"], groups=by_situation(course, L, url),
+                           filters_html=theme.render("DK_LIST_FILTERS", dk=dk, filters=talk_filters)), listing=True)
     grouped("texts", by_genre(course, url))
     grouped("mistakes", by_pattern(course, L))
     photos = gallery(course)
@@ -302,8 +317,10 @@ def write_pages(theme, site, course: Course) -> None:
     site.page(INBOX, L["inbox"], theme.render("DK_INBOX", dk=dk, heading=L["inbox"], items=inbox_items(course)),
               listing=True)
     situations = [situation_card(e, course, L, url) for e in course.by_type("Situation")]
+    place_filters = list_filters(course.by_type("Situation"), (("topic", "Topic"),), L)
     site.page("situations", L["situations"],
-              theme.render("DK_SITUATIONS", dk=dk, heading=L["situations"], situations=situations), listing=True)
+              theme.render("DK_SITUATIONS", dk=dk, heading=L["situations"], situations=situations,
+                           filters_html=theme.render("DK_LIST_FILTERS", dk=dk, filters=place_filters)), listing=True)
 
     columns = [L["word"], L["type"], L["translation"], L["level"]]
     for key in FACET_KEYS:

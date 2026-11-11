@@ -233,7 +233,7 @@ def talk(tmp_path_factory):
 
 
 def cards(html):
-    return re.findall(r'<li class="dk-situation">.*?</li>', html, re.S)
+    return re.findall(r'<li class="dk-situation[ "][^>]*>.*?</li>', html, re.S)
 
 
 def test_situations_page_has_a_card_per_situation(talk):
@@ -258,7 +258,7 @@ def test_conversations_are_grouped_by_situation(talk):
     html = main(talk.page("conversations.html"))
     assert html.index('<h2><a href="am-schultor.html" lang="de">Am Schultor</a></h2>') < html.index('href="gruss.html"')
     assert html.index('href="gruss.html"') < html.index("<h2>No situation</h2>") < html.index('href="beim-arzt.html"')
-    gruss = re.search(r'<li>(?:(?!</li>).)*href="gruss.html".*?</li>', html, re.S).group()
+    gruss = re.search(r'<li[ >](?:(?!</li>).)*href="gruss.html".*?</li>', html, re.S).group()
     assert 'class="dk-badge dk-kind dk-kind-model">model<' in gruss
     assert 'class="dk-badge dk-level">A1<' in gruss
     assert "70 %" in gruss

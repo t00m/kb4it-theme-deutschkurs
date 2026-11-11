@@ -2,11 +2,13 @@
     L = var['dk']['labels']
 %>
 <div class="dk-list dk-no-link">
+${var.get('filters_html', '') | n}
 % for found in var['groups']:
 <%
     group, href, items = found[:3]
     points = found[3] if len(found) > 3 else []
 %>
+    <section class="dk-group">
 % if href:
     <h2><a href="${href}" lang="de">${group}</a></h2>
 % else:
@@ -21,7 +23,11 @@
 % endif
     <ul class="dk-items uk-list uk-list-divider">
 % for item in items:
+% if var.get('filters_html'):
+        <li class="dk-filterable" data-topic="${item['topics']}" data-level="${item['level']}" data-kind="${item['kind']}">
+% else:
         <li>
+% endif
             <a href="${item['href']}" lang="de">${item['title']}</a>
 % if item['kind']:
             <span class="dk-badge dk-kind dk-kind-${item['kind']}">${item['kind']}</span>
@@ -41,5 +47,6 @@
         </li>
 % endfor
     </ul>
+    </section>
 % endfor
 </div>

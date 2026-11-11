@@ -132,6 +132,41 @@
     filters.hidden = false;
   }
 
+  // True when the item has every chosen value; item maps a key to its values, an empty choice matches all.
+  function listMatch(item, choices) {
+    for (var key in choices) {
+      if (choices[key] && (item[key] || []).indexOf(choices[key]) < 0) return false;
+    }
+    return true;
+  }
+
+  // Filters of the Situations and Conversations pages; a group whose items are all hidden is hidden too.
+  function initListFilters(doc) {
+    var bar = doc.querySelector(".dk-list-filters");
+    if (!bar) return;
+    var selects = bar.querySelectorAll(".dk-list-filter");
+    function values(node, key) {
+      var text = node.getAttribute("data-" + key) || "";
+      return text ? text.split("|") : [];
+    }
+    function apply() {
+      var choices = {};
+      Array.prototype.forEach.call(selects, function (s) { choices[s.getAttribute("data-key")] = s.value; });
+      Array.prototype.forEach.call(doc.querySelectorAll(".dk-filterable"), function (node) {
+        var item = {};
+        for (var key in choices) item[key] = values(node, key);
+        node.hidden = !listMatch(item, choices);
+      });
+      Array.prototype.forEach.call(doc.querySelectorAll(".dk-group"), function (group) {
+        group.hidden = !group.querySelector(".dk-filterable:not([hidden])");
+      });
+    }
+    Array.prototype.forEach.call(selects, function (s) { s.addEventListener("change", apply); });
+    bar.hidden = false;
+  }
+
+  dk.listMatch = listMatch;
+  dk.initListFilters = initListFilters;
   dk.rowMatches = rowMatches;
   dk.galleryMatch = galleryMatch;
   dk.initGallery = initGallery;
@@ -146,6 +181,7 @@
       initDates(root.document);
       initDialogues(root.document);
       initGallery(root.document);
+      initListFilters(root.document);
     });
   }
 })(typeof window !== "undefined" ? window : this);

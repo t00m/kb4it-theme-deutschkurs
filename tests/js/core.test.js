@@ -140,3 +140,14 @@ test("a column filter matches one of several values in a cell", () => {
   assert.ok(!rowMatches(row, "", { 4: "Arbeit" }));
   assert.ok(!rowMatches(row, "", { 4: "Fam" }));
 });
+
+test("listMatch needs every chosen value among the item's values", () => {
+  const { listMatch } = context.Deutschkurs;
+  const item = { topic: ["Schule", "Alltag"], level: ["A1"], kind: ["model"] };
+  assert.strictEqual(listMatch(item, {}), true);
+  assert.strictEqual(listMatch(item, { topic: "", level: "" }), true);
+  assert.strictEqual(listMatch(item, { topic: "Alltag" }), true);
+  assert.strictEqual(listMatch(item, { topic: "Arzt" }), false);
+  assert.strictEqual(listMatch(item, { topic: "Schule", level: "A2" }), false);
+  assert.strictEqual(listMatch({ topic: [] }, { topic: "Schule" }), false);
+});

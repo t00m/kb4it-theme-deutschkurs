@@ -106,7 +106,7 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-photo, .dk-photo:hover { color: inherit; text-decoration: none; }
 .dk-photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--dk-muted); }
 .dk-photo-title.uk-card-body { padding: .5rem .75rem; font-size: .9rem; }
-.dk-filter-bar, .dk-gallery-filters > div { gap: .5rem 1rem; }
+.dk-filter-bar, .dk-gallery-filters > div, .dk-list-filters > div { gap: .5rem 1rem; }
 .dk-table th { text-transform: none; }
 .dk-articles { display: flex; gap: .5rem; }
 .dk-article-head { font-size: 1.5rem; font-weight: 700; }
