@@ -5,8 +5,8 @@
 - Lower case, words joined by hyphens, ending in `.md`: `termin.md`, `bescheid-sagen.md`, `perfekt-haben-sein.md`.
 - Umlauts and ß spelled out: `ä` as `ae`, `ö` as `oe`, `ü` as `ue`, `ß` as `ss` (`maedchen.md`, `strasse.md`).
 - A Situation that has the name of a word gets the prefix `situation-`: `elternabend.md` is the Word, `situation-elternabend.md` the Situation. Both keep the title `Elternabend`.
-- These names are taken by the theme's own pages and are refused: `vocabulary`, `verbs`, `chunks`, `grammar`, `texts`, `conversations`, `situations`, `photos`, `mistakes`, `inbox`, `practice`, `progress`, `skill`, `search`, `404`, `Level`, `Topic`, `Register`, `ConversationKind`, `Genre`, and `add` while the editor is on.
-- Names that start with `Level_`, `Topic_`, `Register_`, `ConversationKind_` or `Genre_`, in any case, clash with the theme's facet pages: the build warns, and the file must be renamed.
+- These names are taken by the theme's own pages and are refused: `vocabulary`, `verbs`, `chunks`, `grammar`, `texts`, `conversations`, `situations`, `photos`, `mistakes`, `inbox`, `practice`, `progress`, `skill`, `search`, `404`, `Level`, `Topic`, `Register`, `ConversationKind`, `Genre`, `Place`, `Pattern`, and `add` while the editor is on.
+- Names that start with `Level_`, `Topic_`, `Register_`, `ConversationKind_`, `Genre_`, `Place_` or `Pattern_`, in any case, clash with the theme's facet pages: the build warns, and the file must be renamed.
 - `index.md`, when present, replaces the theme's home page.
 
 ## Frontmatter

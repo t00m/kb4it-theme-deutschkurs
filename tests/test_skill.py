@@ -58,7 +58,7 @@ def test_properties_documented():
 
 
 @pytest.mark.parametrize("name", ["LEVELS", "CHECKED", "REGISTERS", "PARTS_OF_SPEECH", "AREAS", "GOVERNMENTS",
-                                  "AUXILIARIES", "ARTICLES"])
+                                  "AUXILIARIES", "ARTICLES", "KINDS", "GENRES", "PLACES"])
 def test_values_documented(name):
     text = entry_types()
     for value in getattr(model, name):
@@ -252,3 +252,56 @@ def test_site_appendix_has_no_sentence_of_a_conversation_or_a_text(built_site):
     site_md = (built_site.target / "skills" / "deutschkurs" / "reference" / "site.md").read_text(encoding="utf-8")
     assert "Liebe Eltern" not in site_md and "wie geht" not in site_md
     assert "Ich kann" not in site_md
+
+
+def test_skill_no_longer_defers_real_life_types():
+    text = skill_text()
+    assert "Do not create files of those types yet" not in text
+    assert "A Mistake entry type comes in a later version" not in text
+
+
+def test_skill_has_inbox_and_letter_workflows():
+    text = skill_text()
+    assert "### Process the inbox" in text and "### Answer a letter" in text
+    letter = text.split("### Answer a letter")[1].split("### ")[0]
+    assert "`Reply: yes`" in letter and "never send" in letter.lower()
+    inbox = text.split("### Process the inbox")[1].split("### ")[0]
+    assert "## In German" in inbox
+
+
+def test_debrief_and_correct_write_gaps_and_mistakes():
+    text = skill_text()
+    debrief = text.split("### Debrief")[1].split("### ")[0]
+    assert "`Type: Gap`" in debrief and "`Type: Mistake`" in debrief
+    correct = text.split("### Correct my German")[1].split("### ")[0]
+    assert "`Type: Mistake`" in correct
+
+
+def test_capture_writes_a_photo_without_location_data():
+    capture = skill_text().split("### Capture")[1].split("### ")[0]
+    assert "`Type: Photo`" in capture and "location" in capture
+
+
+def test_privacy_reference_names_every_reason():
+    text = (REFERENCE / "privacy.md").read_text(encoding="utf-8")
+    for word in ("`iban`", "`email`", "`phone`", "`address`", "`PRIVACY_SUSPECT", "`PHOTO_GPS", "`privacy_allow`"):
+        assert word in text, word
+
+
+def test_checks_reference_names_build_codes():
+    text = (REFERENCE / "checks.md").read_text(encoding="utf-8")
+    for code in ("`PRIVACY_SUSPECT", "`PHOTO_GPS", "`PHOTO_MISSING"):
+        assert code in text, code
+
+
+def test_skill_stays_short():
+    assert len(skill_text().splitlines()) < 300
+
+
+def test_site_appendix_lists_photos_mistakes_and_gaps(built_site):
+    site_md = (built_site.target / "skills" / "deutschkurs" / "reference" / "site.md").read_text(encoding="utf-8")
+    assert "- `photo-baustelle.md`: Baustelle betreten verboten (Street)" in site_md
+    assert "- `mistake-ich-habe-40-jahre.md`: Ich habe 40 Jahre (A1, es-tener-haben)" in site_md
+    assert "- `gap-krankmeldung.md`: Mein Kind ist krank (to process)" in site_md
+    assert "## Pattern values in use" in site_md and "- es-tener-haben" in site_md
+    assert "Pfand" not in site_md

@@ -6,8 +6,8 @@ One file per entry, in the course's `source/` folder. Each file has YAML frontma
 
 | Property | Values | Rule |
 |---|---|---|
-| `Type` | `Word`, `Verb`, `Chunk`, `Grammar`, `Text`, `Conversation`, `Situation` | Required |
-| `Level` | `A1`, `A2`, `B1`, `B2`, `C1`, `C2` | Required, except for a Situation |
+| `Type` | `Word`, `Verb`, `Chunk`, `Grammar`, `Text`, `Conversation`, `Situation`, `Photo`, `Mistake`, `Gap`, `Inbox` | Required |
+| `Level` | `A1`, `A2`, `B1`, `B2`, `C1`, `C2` | Required, except for a Situation, a Photo, a Gap and an Inbox |
 | `Translation` | Text in the `native` language | Required for Word, Verb and Chunk |
 | `Checked` | `unchecked`, `assistant`, `reference`, `native`, `attested` | Optional, default `unchecked`; see `conventions.md` |
 | `Topic` | Free, or one of the `topics` setting | Optional, several allowed |
@@ -159,7 +159,7 @@ One grammar point, explained briefly.
 | `Area` | `Verbs`, `Nouns`, `Cases`, `Word order`, `Sentences`, `Other` | Required |
 | `Case` | `Akkusativ`, `Dativ`, `Genitiv`, `Nominativ` | Optional; the page lists verbs whose `Government` is this case |
 | `Tense` | `Präsens`, `Perfekt`, `Präteritum`, `Futur` | Optional |
-| `Pattern` | A short slug such as `es-tener-haben` | Optional; used by Mistake entries in a later version |
+| `Pattern` | A short slug such as `es-tener-haben` | Optional; Mistake entries with the same `Pattern` show this entry as their grammar point |
 | `Marker` | Words that signal the point, such as `weil, dass` | Optional; the page lists the sentences of texts and conversations that contain one of them, as candidates |
 
 Sections:
@@ -326,4 +326,130 @@ Type: Situation
 ## Log
 
 - 2026-11-10 Ich habe eine Frage gestellt und alles verstanden.
+```
+
+## Photo
+
+A photo of German text the learner met: a sign, a poster, a note on a door. The `#` title is the main text of the photo.
+
+| Property | Values | Rule |
+|---|---|---|
+| `Place` | `Street`, `Supermarket`, `Station`, `School`, `Doctor`, `Office`, `Home`, `Shop`, `Playground`, `Other` | Optional |
+
+Body, before any `##` heading: one image, `![what it shows](resources/photos/<file>)`. The image lives in `source/resources/photos/`, named `YYYY-MM-DD-name.webp` or `.jpg`, without location data and without people. The learner adds the image file; you never write one.
+
+Sections:
+
+- `## Transcription`: the German text of the photo, one paragraph per line of the sign. Each paragraph is a sentence unit (`#p1`, `#p2`...) and shows on the pages of the words it uses.
+- `## Meaning`: what it means, in the `native` language.
+
+```markdown
+---
+Checked: assistant
+Date: 2026-11-09
+Place: Street
+Type: Photo
+---
+
+# Baustelle betreten verboten
+
+![A yellow sign at a building site](resources/photos/2026-11-09-baustelle.webp)
+
+## Transcription
+
+Baustelle betreten verboten!
+
+Eltern haften für ihre Kinder.
+
+## Meaning
+
+Do not enter the building site. Parents are responsible for their children.
+```
+
+## Mistake
+
+Something the learner said or wrote wrong, worth practising. One mistake per file.
+
+| Property | Values | Rule |
+|---|---|---|
+| `Pattern` | A short name in lower case with hyphens, such as `es-tener-haben` | Optional; groups mistakes of one kind. A Grammar entry with the same `Pattern` is shown as their grammar point |
+
+Sections:
+
+- `## Wrong`: the sentence as the learner said or wrote it. Required.
+- `## Right`: the correct sentence. Required.
+- `## Why`: one or two lines on the reason.
+
+```markdown
+---
+Checked: assistant
+Date: 2026-11-05
+Level: A1
+Pattern: es-tener-haben
+Situation: Am Schultor
+Type: Mistake
+---
+
+# Ich habe 40 Jahre
+
+## Wrong
+
+Ich habe 40 Jahre.
+
+## Right
+
+Ich bin 40 Jahre alt.
+
+## Why
+
+Age goes with *sein*: you say how old you *are*.
+```
+
+## Gap
+
+Something the learner wanted to say and could not. The `#` title says it in a few words.
+
+No properties of its own; `Date` and `Situation` help to find it again.
+
+Sections:
+
+- `## I wanted to say`: the sentence in the `native` language.
+- `## In German`: empty until the gap is processed. While it is empty, the Inbox page lists the gap as "to process".
+
+```markdown
+---
+Checked: assistant
+Date: 2026-11-10
+Situation: Elternbrief
+Type: Gap
+---
+
+# Mein Kind ist krank
+
+## I wanted to say
+
+My daughter is sick and stays at home today.
+
+## In German
+
+Meine Tochter ist krank und bleibt heute zu Hause.
+```
+
+## Inbox
+
+Quick captures of one month, to process later. One file per month, named `inbox-YYYY-MM.md`. It needs no `Level` and no `Checked`.
+
+Body: one list item per capture. An item starts with its day, then free text; parts can be separated with `|`. An item may hold an image of `resources/photos/`. When the first word of an item is already in the course, the Inbox page says so.
+
+Inbox files are listed only on the Inbox page: they are not searched and not practised.
+
+```markdown
+---
+Type: Inbox
+---
+
+# Inbox November 2026
+
+- 2026-11-09 Pfand | Flaschen zum Supermarkt zurückbringen
+- 2026-11-10 Elternabend am Donnerstag | Lehrerin hat gefragt, wer kommt
 ```
