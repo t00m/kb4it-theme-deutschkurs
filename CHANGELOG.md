@@ -4,6 +4,18 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-11
+
+### Fixed
+
+- An image written `![...](<resources/photos/mein foto.webp>)`, with spaces inside `<...>`, is found; before, the Photo got `PHOTO_MISSING reason=none` and was left out of the gallery.
+- An image path written with backslashes (`resources\photos\a.jpg`) is found.
+- A web image in an inbox capture is no longer loaded by the Inbox page, and the build reports `PHOTO_MISSING reason=remote` for that inbox file.
+- A five-digit number before a counted noun (`50000 Einwohner`, `10000 Dollar`, `30000 Kilometern`, `12345 Personen`) is no longer reported as an address.
+- An image under `resources/photos/` that cannot be opened gives `PHOTO_UNREADABLE` instead of being skipped without a word.
+- An inbox capture with an impossible date (`2026-13-45`) shows that date on the Inbox page, so the typo can be seen and fixed.
+- The privacy reference says that customer and file numbers starting with `0` can be reported as phone numbers; that warning stays, because such numbers are often personal.
+
 ## [0.3.0] - 2026-11-11
 
 ### Added
