@@ -93,6 +93,7 @@ class Theme(BaseTheme):
             try:
                 gps = has_gps(path)
             except OSError:
+                self.log.warning(f"[DEUTSCHKURS] PHOTO_UNREADABLE doc={path.relative_to(source).as_posix()}")
                 continue
             if gps is None:
                 self.log.info("[DEUTSCHKURS] Pillow is not installed: photos are not checked for GPS data")
@@ -113,6 +114,9 @@ class Theme(BaseTheme):
                 reason = "remote" if path is None else "" if path.is_file() else "missing"
             if reason:
                 problems.append(Problem("PHOTO_MISSING", entry.id, f"reason={reason}", label="doc"))
+        for entry in self.course.by_type("Inbox"):
+            if any(image_path(source, c.image) is None for c in entry.inbox if c.image):
+                problems.append(Problem("PHOTO_MISSING", entry.id, "reason=remote", label="doc"))
         return problems
 
     def dk_var(self, entry=None):

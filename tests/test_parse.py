@@ -232,3 +232,9 @@ def test_inbox_items_with_and_without_date():
 def test_inbox_item_image_split_from_text():
     item = inbox_items(INBOX_DOC)[3]
     assert item == InboxItem("2026-11-10", "Pfandautomat", "resources/photos/2026-11-09-pfand.webp", 10)
+
+
+def test_image_with_spaces_in_angle_brackets():
+    assert image('# T\n\n![x](<resources/photos/mein foto.webp>)\n') == "resources/photos/mein foto.webp"
+    assert image('# T\n\n![x](<resources/photos/mein foto.webp> "Titel")\n') == "resources/photos/mein foto.webp"
+    assert image('# T\n\n![x](resources/photos/a.webp "Titel")\n') == "resources/photos/a.webp"

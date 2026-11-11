@@ -51,7 +51,8 @@ Only `kb4it build` reports these: they read the text of the files and the images
 | `PHOTO_GPS doc=<image>` | The image under `resources/photos/` holds GPS data: where it was taken. With `strict`, it stops the build | Remove the location data: save the image again without metadata, or turn off location in the camera app |
 | `PHOTO_MISSING doc=<file> reason=missing` | The Photo names an image file that does not exist | Correct the path, or add the image under `source/resources/photos/` |
 | `PHOTO_MISSING doc=<file> reason=none` | The Photo has no image before its first section | Add `![what it shows](resources/photos/<file>)` under the title |
-| `PHOTO_MISSING doc=<file> reason=remote` | The image is a web address | Save the image under `source/resources/photos/`; pages never load anything from the internet |
+| `PHOTO_UNREADABLE doc=<image>` | An image under `resources/photos/` cannot be opened, so it was not checked for GPS data | Save the image again as JPEG or WebP, or remove the broken file |
+| `PHOTO_MISSING doc=<file> reason=remote` | The image of a Photo, or of an inbox capture, is a web address; the Inbox page leaves such an image out | Save the image under `source/resources/photos/`; pages never load anything from the internet |
 
 ## KB4IT messages
 

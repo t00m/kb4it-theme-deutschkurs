@@ -12,7 +12,8 @@ VARIATION = re.compile(r"^(\d+)\s+(.*)$")
 TASK = re.compile(r"^\s*[-*+]\s+\[([ xX])\]\s")
 MARKUP = re.compile(r"[*_`]")
 IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
-IMAGE_SRC = re.compile(r"!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
+# The src of an image: inside <...> it may hold spaces, otherwise it ends at the first space.
+IMAGE_SRC = re.compile(r"!\[[^\]]*\]\(\s*(?:<([^>]+)>|([^)\s]+))(?:\s+\"[^\"]*\")?\s*\)")
 LEADING_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:\s+|$)")
 LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 HTML_TAG = re.compile(r"<[^>]+>")
@@ -232,7 +233,7 @@ def image(markdown: str) -> str:
             break
         match = IMAGE_SRC.search(line)
         if match:
-            return match.group(1)
+            return match.group(1) or match.group(2)
     return ""
 
 
@@ -249,7 +250,7 @@ def inbox_items(markdown: str) -> list[InboxItem]:
         if dated:
             date, text = dated.group(1), text[dated.end():]
         found = IMAGE_SRC.search(text)
-        src = found.group(1) if found else ""
+        src = (found.group(1) or found.group(2)) if found else ""
         text = " ".join(IMAGE.sub("", text).split())
         items.append(InboxItem(date, text, src, n))
     return items

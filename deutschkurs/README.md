@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.3.0, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.3.1, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -61,7 +61,7 @@ These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chun
 
 ## Privacy
 
-Each build reads every source file and warns with `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` when a line looks like an IBAN, an e-mail address, a phone number or an address. Images under `source/resources/photos/` with GPS data give `PHOTO_GPS`. A Photo whose image is missing or is a web address gives `PHOTO_MISSING`. These checks catch the obvious cases; they do not find names. With `strict`, privacy hits and photos with GPS data stop the build. An entry of `privacy_allow` drops every hit inside that text, so one entry covers a whole address.
+Each build reads every source file and warns with `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` when a line looks like an IBAN, an e-mail address, a phone number or an address. Images under `source/resources/photos/` with GPS data give `PHOTO_GPS`; an image that cannot be opened gives `PHOTO_UNREADABLE`. A Photo whose image is missing or is a web address gives `PHOTO_MISSING`. These checks catch the obvious cases; they do not find names. With `strict`, privacy hits and photos with GPS data stop the build. An entry of `privacy_allow` drops every hit inside that text, so one entry covers a whole address.
 
 ## German voice
 

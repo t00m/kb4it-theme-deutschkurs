@@ -7,7 +7,10 @@ from typing import Optional, Sequence
 from urllib.parse import unquote
 
 # Capitalised words after five digits that name an amount, not a town.
-UNITS = ("Euro", "EUR", "Cent", "Stück", "Meter", "Kilometer", "Jahre", "Tage", "Stunden", "Minuten")
+UNITS = ("Euro", "EUR", "Cent", "Dollar", "Franken", "Prozent", "Stück", "Meter", "Metern", "Kilometer",
+         "Kilometern", "Kilo", "Kilogramm", "Gramm", "Liter", "Litern", "Jahre", "Jahren", "Tage", "Tagen", "Wochen",
+         "Monate", "Monaten", "Stunden", "Minuten", "Sekunden", "Einwohner", "Einwohnern", "Menschen", "Personen",
+         "Leute", "Kinder", "Schüler", "Mal", "Punkte")
 STREETS = r"(?:straße|strasse|str\.|weg|platz|gasse|allee|ring|damm|ufer)"
 # Words that end like a street but name a seat, a place or a way of going: "Sitzplatz 45", "Heimweg 20 Minuten".
 NOT_STREETS = frozenset(("sitzplatz", "parkplatz", "arbeitsplatz", "spielplatz", "stellplatz", "bahnsteig",
@@ -62,7 +65,8 @@ def image_path(source_dir: Path, src: str) -> Optional[Path]:
     """The file an image src points to inside the source folder, or None for a remote image."""
     if src.startswith(("http://", "https://", "//")):
         return None
-    return source_dir / unquote(src)
+    # A path written with Windows backslashes points to the same file.
+    return source_dir / unquote(src).replace("\\", "/")
 
 
 def has_gps(path: Path) -> Optional[bool]:
