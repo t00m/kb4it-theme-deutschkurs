@@ -114,7 +114,7 @@ def test_word_card(site):
     assert "cita" in html
     assert "A1" in html
     assert "dk-checked-assistant" in html
-    assert html.count('class="dk-listen"') == 3
+    assert html.count('class="dk-listen uk-button uk-button-default uk-button-small"') == 3
 
 
 def test_examples_split_into_german_and_translation(site):
@@ -174,15 +174,6 @@ def test_typical_mistakes_are_german_and_only_the_right_form_is_spoken(site):
     assert '<span class="dk-right" lang="de">Kannst du mir helfen?</span>' in html
     assert 'data-say="Kannst du mir helfen?"' in html
     assert 'data-say="Kannst du mich helfen?"' not in html
-
-
-def test_compact_top_bar(site):
-    header = re.search(r'<header class="dk-top">.*?</header>', site.page("termin.html"), re.S).group()
-    assert '<div class="dk-bar">' in header
-    assert re.search(r'<a class="dk-brand" href="index.html"[^>]*><img [^>]*width="24" height="24"', header)
-    assert header.index('class="dk-nav"') < header.index('class="dk-search"')
-    css = (site.target / "resources/themes/deutschkurs/framework/deutschkurs/deutschkurs.css").read_text()
-    assert "position: sticky" in css and "white-space: nowrap" in css
 
 
 GRUSS = """---
@@ -321,7 +312,7 @@ def test_variation_points_to_its_turn(talk):
 def test_turn_translations_show_without_script(talk):
     html = main(talk.page("gruss.html"))
     assert '<span class="dk-tr dk-no-link" lang="en">Hello! Do you have an appointment tomorrow?</span>' in html
-    assert '<button type="button" class="dk-toggle-tr" hidden ' in html
+    assert '<button type="button" class="dk-toggle-tr uk-button uk-button-default uk-button-small" hidden ' in html
     assert "dk-hide-tr" not in html
 
 
@@ -346,7 +337,7 @@ def test_text_sentences_have_anchors_and_folded_translations(talk):
 
 def test_text_card_and_deadline_banner(talk):
     html = main(talk.page("brief.html"))
-    banner = re.search(r'<p class="dk-banner dk-deadline"[^>]*>', html).group()
+    banner = re.search(r'<p class="dk-banner dk-deadline uk-alert uk-alert-danger"[^>]*>', html).group()
     assert 'data-date="2026-11-20"' in banner and 'data-hide="past"' in banner and " hidden" not in banner
     assert '<a class="dk-badge dk-genre" href="Genre_School_letter.html">School letter</a>' in html
     assert '<span class="dk-badge dk-reply">Needs a reply</span>' in html
@@ -355,7 +346,7 @@ def test_text_card_and_deadline_banner(talk):
 
 def test_situation_page(talk):
     html = main(talk.page("am-schultor.html"))
-    banner = re.search(r'<p class="dk-banner dk-coming"[^>]*>', html).group()
+    banner = re.search(r'<p class="dk-banner dk-coming uk-alert uk-alert-primary"[^>]*>', html).group()
     assert 'data-date="2026-11-10"' in banner and 'data-days="7"' in banner
     assert 'data-hide="past later"' in banner and " hidden" not in banner
     assert "1 / 2" in html

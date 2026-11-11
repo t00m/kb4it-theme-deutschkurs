@@ -3,18 +3,19 @@
 %>
 <div class="dk-list dk-no-link">
 % if var['rows']:
-    <p class="dk-filter-bar">
-        <input type="search" class="dk-filter" data-table="dk-table" placeholder="${L['filter_placeholder']}" aria-label="${L['filter']}">
+    <div class="dk-filter-bar uk-flex uk-flex-wrap uk-margin">
+        <input type="search" class="dk-filter uk-input uk-form-small uk-form-width-medium" data-table="dk-table" placeholder="${L['filter_placeholder']}" aria-label="${L['filter']}">
 % for column in var['filters']:
-        <select class="dk-filter-select" data-table="dk-table" data-column="${column}" aria-label="${var['columns'][column]}">
+        <select class="dk-filter-select uk-select uk-form-small uk-form-width-small" data-table="dk-table" data-column="${column}" aria-label="${var['columns'][column]}">
             <option value="">${var['columns'][column]}: ${L['all']}</option>
 % for value in sorted({row[column]['text'] for row in var['rows'] if row[column]['text']}):
             <option value="${value}">${value}</option>
 % endfor
         </select>
 % endfor
-    </p>
-    <table id="dk-table" class="dk-table">
+    </div>
+    <div class="uk-overflow-auto">
+    <table id="dk-table" class="dk-table uk-table uk-table-divider uk-table-small uk-table-hover">
         <thead><tr>
 % for column in var['columns']:
             <th>${column}</th>
@@ -36,5 +37,6 @@
 % endfor
         </tbody>
     </table>
+    </div>
 % endif
 </div>

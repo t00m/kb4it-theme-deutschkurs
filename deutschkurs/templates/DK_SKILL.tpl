@@ -2,7 +2,7 @@
     L = var['dk']['labels']
 %>
 <div class="dk-skill dk-no-link">
-    <section class="dk-card">
+    <section class="dk-card uk-card uk-card-default uk-card-small uk-card-body uk-border-rounded">
         <p>${L['skill_intro']}</p>
         <ul>
             <li>${L['skill_claude']}</li>

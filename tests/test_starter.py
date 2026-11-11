@@ -50,7 +50,7 @@ def test_verify_clean(tmp_path):
 
 def test_examples_link_to_other_entries(built_site):
     page = built_site.page("elternabend.html")
-    body = page.split('<div class="dk-body">', 1)[1]
+    body = page.split('<div class="dk-body ', 1)[1]
     assert 'class="dk-link' in body
 
 

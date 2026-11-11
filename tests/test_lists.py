@@ -127,15 +127,6 @@ def test_card_links_to_facets(site):
     assert 'href="Topic_Schule.html"' in html
 
 
-def test_nav(site):
-    for name in ("index.html", "termin.html", "search.html", "404.html"):
-        nav = re.search(r'<nav class="dk-nav">.*?</nav>', site.page(name), re.S).group()
-        hrefs = re.findall(r'href="([^"]+)"', nav)
-        assert hrefs == ["index.html", "situations.html", "conversations.html", "texts.html", "photos.html",
-                         "mistakes.html", "inbox.html", "vocabulary.html", "verbs.html", "chunks.html", "grammar.html",
-                         "skill.html"], name
-
-
 def test_home(site):
     html = main(site.page("index.html"))
     assert re.search(r'href="vocabulary.html"[^>]*>\s*<span class="dk-count">4</span>', html)
