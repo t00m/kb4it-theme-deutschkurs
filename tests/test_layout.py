@@ -6,9 +6,9 @@ import re
 from conftest import THEME
 
 PAGES = ("index.html", "termin.html", "search.html", "404.html", "add.html", "vocabulary.html", "photos.html")
-LINKS = ["index.html", "situations.html", "conversations.html", "texts.html", "photos.html", "mistakes.html",
-         "inbox.html", "vocabulary.html", "Article.html", "verbs.html", "chunks.html", "grammar.html", "progress.html",
-         "skill.html"]
+# No Home link (the logo links index.html); Mistakes and Inbox are reached from the home page and Progress.
+LINKS = ["situations.html", "conversations.html", "texts.html", "photos.html", "vocabulary.html", "Article.html",
+         "verbs.html", "chunks.html", "grammar.html", "progress.html", "skill.html"]
 
 
 def header(page):

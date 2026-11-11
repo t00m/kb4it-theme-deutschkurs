@@ -232,7 +232,10 @@ def test_list_translation_marked_unverified(life):
     assert re.search(r'<td class="[^"]*dk-unverified[^"]*"[^>]*>cita</td>', html)
 
 
-def test_nav_links_new_pages(life):
+def test_nav_links_photos_and_home_links_mistakes_and_inbox(life):
     page = life.page("termin.html")
-    for name in ("photos.html", "mistakes.html", "inbox.html"):
-        assert f'<a href="{name}">' in page
+    assert '<a href="photos.html">' in page
+    for name in ("mistakes.html", "inbox.html"):
+        assert f'href="{name}"' not in page
+    home = life.page("index.html")
+    assert 'href="mistakes.html"' in home
