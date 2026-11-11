@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.6.0, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.6.1, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -93,8 +93,9 @@ A real recording replaces the device voice. Put the file under `source/resources
 
 - Word, Verb or Chunk: the property `Audio: resources/audio/termin.m4a`.
 - A turn of a conversation: a link at the end, `- **Lehrerin:** Guten Morgen! :: Good morning! [audio](resources/audio/guten-morgen.m4a)`.
+- A paragraph of a text: the same link at the end of the paragraph.
 
-The page shows a player and the badge `real`; Play all and roleplay play the recording. A file that does not exist, or a web address, gives `AUDIO_MISSING`; a web address is never loaded. Record only your own voice or a person who agreed to it.
+The page shows a player and the badge `real`; Play all and roleplay play the recording. A file that does not exist, a web address or a file that is no recording gives `AUDIO_MISSING`; a web address is never loaded. Listen buttons and page players stop each other, so two sounds never overlap. Record only your own voice or a person who agreed to it.
 
 ### German voice
 
