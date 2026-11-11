@@ -16,11 +16,11 @@ from .model import TYPES
 from .pages import write_pages
 from .privacy import has_gps, image_path, photo_files, scan
 from .skill import PUBLISHED, publish, skill_html
-from .render import (FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, mistake_html,
+from .render import (ARTICLE_KEY, FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, mistake_html,
                      pairs_html, photo_html, text_html)
 
 # File names of the facet pages, without their extension.
-FACET_NAMES = tuple(facet_page(key)[:-len(".html")] for key in FACET_KEYS)
+FACET_NAMES = tuple(facet_page(key)[:-len(".html")] for key in FACET_KEYS) + (ARTICLE_KEY,)
 # Types whose sentences other pages show, so a change in their text relinks every page.
 SENTENCE_TYPES = ("Text", "Conversation", "Photo")
 

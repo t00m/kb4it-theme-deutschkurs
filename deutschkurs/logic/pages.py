@@ -5,7 +5,7 @@ from .course import Course
 from .german import sort_key
 from .glossary import find_spans
 from .model import AREAS, GENRES
-from .render import FACET_KEYS, GENDER, UNVERIFIED, day, facet_page, perfekt, plain_date
+from .render import ARTICLE_KEY, FACET_KEYS, GENDER, UNVERIFIED, day, facet_page, perfekt, plain_date
 
 LISTS = (("situations", "Situation"), ("conversations", "Conversation"), ("texts", "Text"), ("vocabulary", "Word"),
          ("verbs", "Verb"), ("chunks", "Chunk"), ("grammar", "Grammar"), ("photos", "Photo"), ("mistakes", "Mistake"))
@@ -28,7 +28,8 @@ def word_row(entry, url):
     article = "die" if plural_only else entry.value("Article")
     css = "dk-pl" if plural_only else GENDER.get(article, "")
     plural = entry.value("Plural")
-    return [cell(article, css=css), cell(entry.title, url(entry.id), css),
+    href = facet_page(ARTICLE_KEY, article) if entry.is_noun and article in GENDER else ""
+    return [cell(article, href, css), cell(entry.title, url(entry.id), css),
             cell("" if plural in ("none", "-") else plural), translation(entry), cell(entry.level),
             cell(entry.value("PartOfSpeech"))]
 
@@ -46,6 +47,25 @@ def chunk_row(entry, url):
 
 def any_row(entry, url):
     return [cell(entry.title, url(entry.id)), cell(entry.type), translation(entry), cell(entry.level)]
+
+
+def by_article(course: Course) -> dict[str, list]:
+    """Nouns by the article they are said with: der, die, das, and pl for plural-only nouns, sorted by lemma."""
+    found = {"der": [], "die": [], "das": [], "pl": []}
+    for entry in course.by_type("Word"):
+        if not entry.is_noun:
+            continue
+        key = "pl" if entry.value("PluralOnly") == "yes" else entry.value("Article")
+        if key in found:
+            found[key].append(entry)
+    return {key: sorted(entries, key=lambda e: sort_key(e.title)) for key, entries in found.items()}
+
+
+def article_row(entry, url):
+    css = "dk-pl" if entry.value("PluralOnly") == "yes" else GENDER.get(entry.value("Article"), "")
+    plural = entry.value("Plural")
+    return [cell(entry.title, url(entry.id), css), cell("" if plural in ("none", "-") else plural), translation(entry),
+            cell(entry.level), cell(", ".join(entry.values("Topic")))]
 
 
 def item(entry, course: Course, url) -> dict:
@@ -158,18 +178,44 @@ def inbox_count(course: Course) -> int:
     return sum(len(e.inbox) for e in course.by_type("Inbox")) + sum(1 for e in course.by_type("Gap") if e.open_gap)
 
 
+def write_articles(theme, site, course: Course, table_html) -> None:
+    """Article.html and one page per article (spec 4.2, Article pages)."""
+    L, url, dk = theme.labels, course.url, theme.dk_var()
+    nouns = by_article(course)
+    columns = [L["word"], L["plural"], L["translation"], L["level"], L["topic"]]
+    counts = {article: len(nouns[article]) + (len(nouns["pl"]) if article == "die" else 0) for article in GENDER}
+    values = [(article, facet_page(ARTICLE_KEY, article), counts[article]) for article in GENDER]
+    site.page(ARTICLE_KEY, L["articles"], theme.render("DK_FACET", dk=dk, values=values), listing=True)
+    for article, css in GENDER.items():
+        groups = [("", nouns[article], "dk-table")]
+        if article == "die":
+            groups = [(L["feminine"], nouns["die"], "dk-table"), (L["plural_only"], nouns["pl"], "dk-table-pl")]
+        parts = [theme.render("DK_ARTICLE_HEAD", dk=dk, article=article, css=css, count=counts[article])]
+        for heading, entries, table_id in groups:
+            if heading:
+                parts.append(theme.render("DK_ARTICLE_GROUP", dk=dk, heading=heading, count=len(entries)))
+            parts.append(table_html(columns, [article_row(e, url) for e in entries], (3, 4), table_id))
+        site.page(facet_page(ARTICLE_KEY, article), article, "".join(parts), listing=True)
+
+
 def write_pages(theme, site, course: Course) -> None:
     """Write every list, facet and home page."""
     L, url, dk = theme.labels, course.url, theme.dk_var()
 
-    def table(name, title, columns, rows, filters=()):
-        html = theme.render("DK_TABLE", dk=dk, heading=title, columns=columns, rows=rows, filters=filters)
-        site.page(name, title, html, listing=True)
+    def table_html(columns, rows, filters=(), table_id="dk-table", intro=""):
+        return theme.render("DK_TABLE", dk=dk, columns=columns, rows=rows, filters=filters, table_id=table_id,
+                            intro=intro)
+
+    def table(name, title, columns, rows, filters=(), intro=""):
+        site.page(name, title, table_html(columns, rows, filters, intro=intro), listing=True)
 
     words = course.by_type("Word")
+    links = [(article, facet_page(ARTICLE_KEY, article), GENDER[article]) for article in GENDER]
     table("vocabulary", L["vocabulary"],
           [L["article"], L["word"], L["plural"], L["translation"], L["level"], L["part_of_speech"]],
-          [word_row(e, url) for e in words], filters=(4, 5))
+          [word_row(e, url) for e in words], filters=(4, 5),
+          intro=theme.render("DK_ARTICLE_LINKS", dk=dk, links=links))
+    write_articles(theme, site, course, table_html)
     table("verbs", L["verbs"], [L["verb"], L["perfekt"], L["separable"], L["translation"], L["level"]],
           [verb_row(e, url) for e in course.by_type("Verb")], filters=(4,))
     table("chunks", L["chunks"], [L["chunk"], L["register"], L["translation"], L["level"]],

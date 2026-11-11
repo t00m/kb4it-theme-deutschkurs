@@ -99,3 +99,6 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-photo-title.uk-card-body { padding: .5rem .75rem; font-size: .9rem; }
 .dk-filter-bar, .dk-gallery-filters > div { gap: .5rem 1rem; }
 .dk-table th { text-transform: none; }
+.dk-articles { display: flex; gap: .5rem; }
+.dk-article-head { font-size: 1.5rem; font-weight: 700; }
+.dk-article-head .dk-count { font-size: 1rem; }
