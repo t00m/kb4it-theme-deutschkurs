@@ -23,7 +23,7 @@
 % endif
 </head>
 % if cfg:
-<body data-speech="${'true' if cfg.speech else 'false'}" data-speech-lang="${cfg.speech_lang}" data-voice="${cfg.voice or ''}">
+<body data-speech="${'true' if cfg.speech else 'false'}" data-speech-lang="${cfg.speech_lang}" data-voice="${cfg.voice or ''}" data-voice-me="${cfg.voice_me or ''}">
 % else:
 <body>
 % endif

@@ -1,5 +1,7 @@
 """The theme's own pages: home, lists by type and facet pages."""
 
+import json
+
 from .checks import real_date
 from .course import Course
 from .german import sort_key
@@ -198,9 +200,35 @@ def write_articles(theme, site, course: Course, table_html) -> None:
         site.page(facet_page(ARTICLE_KEY, article), article, "".join(parts), listing=True)
 
 
+# Types the Free practice filter offers, in the order of the entry types.
+PRACTICE_TYPES = ("Word", "Verb", "Chunk", "Conversation", "Mistake", "Gap")
+
+
+def scripts(theme, extra=()) -> str:
+    """The script tags of a page that reads the practice data, with the labels as JSON."""
+    labels_json = json.dumps(theme.labels, ensure_ascii=False).replace("</", "<\\/")
+    return theme.render("DK_SCRIPTS", dk=theme.dk_var(), labels_json=labels_json, extra=tuple(extra))
+
+
+def practice_filters(course: Course, labels) -> list[tuple]:
+    """(key, label, [(value, text)]) of the Free practice filters."""
+    practised = [e for e in course.entries.values() if e.type in PRACTICE_TYPES]
+    levels = sorted({e.level for e in practised if e.level})
+    situations = sorted(course.situations, key=sort_key)
+    topics = sorted({t for e in practised for t in e.values("Topic")}, key=sort_key)
+    kinds = [t for t in PRACTICE_TYPES if any(e.type == t for e in practised)]
+    return [("level", labels["level"], [(v, v) for v in levels]),
+            ("situation", labels["situation"], [(v, v) for v in situations]),
+            ("topic", labels["topic"], [(v, v) for v in topics]),
+            ("type", labels["type"], [(v, v) for v in kinds])]
+
+
 def write_pages(theme, site, course: Course) -> None:
     """Write every list, facet and home page."""
     L, url, dk = theme.labels, course.url, theme.dk_var()
+    site.page("practice", L["practice"],
+              theme.render("DK_PRACTICE", dk=dk, filters=practice_filters(course, L),
+                           scripts=scripts(theme, ("practice.js",))))
 
     def table_html(columns, rows, filters=(), table_id="dk-table", intro=""):
         return theme.render("DK_TABLE", dk=dk, columns=columns, rows=rows, filters=filters, table_id=table_id,
@@ -265,5 +293,6 @@ def write_pages(theme, site, course: Course) -> None:
                         deadlines=dated(course.by_type("Text"), "Deadline", url),
                         latest=[(e.title, url(e.id), e.type) for e in latest],
                         others=[(e.title, url(e.id)) for e in others],
-                        inbox=L["inbox_count"].replace("{n}", str(inbox_count(course))) if inbox_count(course) else "")
+                        inbox=L["inbox_count"].replace("{n}", str(inbox_count(course))) if inbox_count(course) else "",
+                        scripts=scripts(theme, ("practice.js",)))
     site.page("index", L["home"], home)

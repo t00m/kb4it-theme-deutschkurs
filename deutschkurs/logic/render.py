@@ -2,6 +2,7 @@
 
 import html
 import re
+from urllib.parse import quote
 from typing import Callable, Sequence
 
 from kb4it.theme import page_name
@@ -481,6 +482,7 @@ def extras(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[
     return {
         "deadline": day(entry.value("Deadline")) if entry.type == "Text" else "",
         "next_time": day(entry.value("NextTime")) if entry.type == "Situation" else "",
+        "prepare": f"practice.html#situation={quote(entry.title, safe='')}" if entry.type == "Situation" else "",
         "related": related,
         "occurrences": sentences(found),
         "more": max(0, len(found) - MAX_SENTENCES),

@@ -83,3 +83,10 @@ test("init with speech off hides buttons without the no-voice note", () => {
   assert.ok(doc.classes.has("dk-speech-off"));
   assert.ok(!doc.classes.has("dk-no-voice"));
 });
+
+test("my turns use voice_me, other turns the main voice", () => {
+  const { pickFor } = load().Deutschkurs.speech;
+  assert.strictEqual(pickFor(VOICES, "de-DE", "Markus", "Anna", true).name, "Anna");
+  assert.strictEqual(pickFor(VOICES, "de-DE", "Markus", "Anna", false).name, "Markus");
+  assert.strictEqual(pickFor(VOICES, "de-DE", "Markus", "", true).name, "Markus");
+});
