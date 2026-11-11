@@ -99,3 +99,32 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-photo-title.uk-card-body { padding: .5rem .75rem; font-size: .9rem; }
 .dk-filter-bar, .dk-gallery-filters > div { gap: .5rem 1rem; }
 .dk-table th { text-transform: none; }
+.dk-articles { display: flex; gap: .5rem; }
+.dk-article-head { font-size: 1.5rem; font-weight: 700; }
+.dk-article-head .dk-count { font-size: 1rem; }
+/* Practice */
+.dk-free-filters { gap: .5rem; }
+.dk-prompt { font-size: 1.5rem; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.dk-answer-form { gap: .5rem; }
+.dk-choices, .dk-ratings { display: flex; gap: .5rem; flex-wrap: wrap; }
+.dk-choices .uk-button { text-transform: none; font-weight: 700; }
+.dk-ratings .uk-button { text-transform: none; }
+.dk-verdict { margin-top: 1rem; padding: .75rem 1rem; border-radius: 6px; border-left: 4px solid; }
+.dk-verdict-good { border-color: #1a7f37; background: #dafbe1; }
+.dk-verdict-hard { border-color: #d4760a; background: #fff8c5; }
+.dk-verdict-again { border-color: #cf222e; background: #ffebe9; }
+.dk-verdict-word { font-weight: 700; margin: 0 0 .25rem; }
+.dk-diff ins { text-decoration: none; background: #aceebb; }
+.dk-diff del { background: #ffcecb; }
+.dk-revealed { font-size: 1.25rem; display: flex; align-items: center; gap: .75rem; }
+.dk-today-counts { font-weight: 700; }
+.dk-prepare-bar { margin: 0 0 1rem; }
+.dk-practice .uk-button, .dk-today .uk-button, .dk-prepare-bar .uk-button { text-transform: none; }
+/* Progress */
+.dk-section-title { margin-top: 1.5rem; }
+.dk-cando .uk-progress { margin: .25rem 0 0; height: 8px; }
+.dk-calendar-grid { display: flex; gap: 3px; }
+.dk-week { display: flex; flex-direction: column; gap: 3px; }
+.dk-day { width: 14px; height: 14px; border-radius: 3px; background: #eaeef2; }
+.dk-day.dk-studied { background: var(--dk-n); }
+.dk-day.dk-future { background: transparent; }

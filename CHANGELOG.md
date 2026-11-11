@@ -4,6 +4,27 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-11
+
+### Added
+
+- Article pages: `Article.html` and `Article_der.html`, `Article_die.html`, `Article_das.html` list every noun said with that article. The `die` page has feminine nouns first, then plural-only nouns. Word cards, the vocabulary table and the Course menu link to them.
+- Practice in the browser. Each build writes `deutschkurs-data.js`; `practice.html` has the sessions Daily, Short, Weekly and Free, with ten exercises: der/die/das, plural, German to your language, your language to German, Perfekt, separable verbs, fill the gap, roleplay, fix a mistake and say a gap in German.
+- Typing rules: `ae oe ue ss` count as `ä ö ü ß`; a capital first letter, extra spaces and final punctuation are ignored; the article must be exact; a lowercase noun or a small typo rates as hard; a wrong answer shows which letters differ.
+- A simplified SM-2 scheduler; mistakes stay at one day until three good answers in a row.
+- Progress in `localStorage`, per course title, with export to `deutschkurs-progress-YYYY-MM-DD.json` and import that keeps the newer state of each card.
+- `progress.html`: words you understand and can say per level, can-do per situation, real-life wins from `## Log`, mistake patterns, study days and the entries not ready to practise.
+- The home page shows the cards due and new today. Situation pages have a Prepare button that opens Free practice for that situation.
+- The settings `daily_reviews`, `daily_new`, `weekly_new` and `voice_me` are now used.
+- Starter course: a processed gap, so every exercise has a card.
+- Skill rule "Ready to practise".
+
+### Changed
+
+- `Article.md` is now a reserved source file name, and names starting with `Article_` get `PAGE_NAME_TAKEN`. Rename such a file if your course has one.
+- The Course menu has Articles (after Vocabulary) and Progress (at the end).
+- Only entries that are ready give practice cards: not `Checked: unchecked`, and a Word needs one example sentence.
+
 ## [0.3.2] - 2026-11-11
 
 ### Changed

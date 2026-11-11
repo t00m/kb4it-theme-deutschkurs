@@ -132,3 +132,11 @@ test("galleryMatch filters by place and situation", () => {
   assert.strictEqual(galleryMatch(item, "", "Am Schultor"), true);
   assert.strictEqual(galleryMatch(item, "Street", "Elternabend"), false);
 });
+
+test("a column filter matches one of several values in a cell", () => {
+  const row = ["Kind", "die Kinder", "child", "A1", "Familie, Schule"];
+  assert.ok(rowMatches(row, "", { 4: "Schule" }));
+  assert.ok(rowMatches(row, "", { 4: "Familie" }));
+  assert.ok(!rowMatches(row, "", { 4: "Arbeit" }));
+  assert.ok(!rowMatches(row, "", { 4: "Fam" }));
+});

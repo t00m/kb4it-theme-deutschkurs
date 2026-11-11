@@ -15,6 +15,11 @@
     return null;
   }
 
+  // The voice of a turn: voice_me for the learner's own turns when it is set.
+  function pickFor(voices, lang, name, meName, me) {
+    return pickVoice(voices, lang, me && meName ? meName : name);
+  }
+
   function init(doc) {
     var body = doc.body;
     var data = body.dataset || {};
@@ -36,18 +41,27 @@
     apply();
     if (synth && synth.addEventListener) synth.addEventListener("voiceschanged", apply);
 
-    doc.addEventListener("click", function (event) {
-      var button = event.target && event.target.closest ? event.target.closest(".dk-listen") : null;
-      if (!button || !voice) return;
-      var utterance = new root.SpeechSynthesisUtterance(button.getAttribute("data-say"));
-      utterance.voice = voice;
-      utterance.lang = voice.lang;
+    // Speak a text; me picks voice_me. Returns false when there is no German voice.
+    function say(text, me) {
+      if (!voice || !text) return false;
+      var chosen = pickFor(synth.getVoices(), data.speechLang || "de-DE", data.voice || null, data.voiceMe || "", me) || voice;
+      var utterance = new root.SpeechSynthesisUtterance(text);
+      utterance.voice = chosen;
+      utterance.lang = chosen.lang;
       synth.cancel();
       synth.speak(utterance);
+      return true;
+    }
+    dk.speech.say = say;
+
+    doc.addEventListener("click", function (event) {
+      var button = event.target && event.target.closest ? event.target.closest(".dk-listen") : null;
+      if (!button) return;
+      say(button.getAttribute("data-say"), button.getAttribute("data-me") === "true");
     });
   }
 
-  dk.speech = { pickVoice: pickVoice, init: init };
+  dk.speech = { pickVoice: pickVoice, pickFor: pickFor, init: init, say: function () { return false; } };
 
   if (root.document && root.document.addEventListener) {
     root.document.addEventListener("DOMContentLoaded", function () { init(root.document); });

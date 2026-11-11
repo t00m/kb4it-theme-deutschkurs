@@ -66,6 +66,9 @@
 % if x['deadline']:
     <p class="dk-banner dk-deadline uk-alert uk-alert-danger" data-date="${x['deadline']}" data-hide="past">${L['deadline']}: <time datetime="${x['deadline']}">${x['deadline']}</time></p>
 % endif
+% if x['prepare']:
+    <p class="dk-prepare-bar"><a class="dk-prepare uk-button uk-button-primary" href="${x['prepare']}">${L['prepare']}</a></p>
+% endif
 % if x['next_time']:
     <p class="dk-banner dk-coming uk-alert uk-alert-primary" data-date="${x['next_time']}" data-days="${var['dk']['prepare_days']}" data-hide="past later">${L['coming_up']}: <time datetime="${x['next_time']}">${x['next_time']}</time></p>
 % endif

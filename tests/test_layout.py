@@ -7,7 +7,8 @@ from conftest import THEME
 
 PAGES = ("index.html", "termin.html", "search.html", "404.html", "add.html", "vocabulary.html", "photos.html")
 LINKS = ["index.html", "situations.html", "conversations.html", "texts.html", "photos.html", "mistakes.html",
-         "inbox.html", "vocabulary.html", "verbs.html", "chunks.html", "grammar.html", "skill.html"]
+         "inbox.html", "vocabulary.html", "Article.html", "verbs.html", "chunks.html", "grammar.html", "progress.html",
+         "skill.html"]
 
 
 def header(page):

@@ -81,7 +81,7 @@ def test_vocabulary_table(site):
     html = main(site.page("vocabulary.html"))
     found = rows(html)
     assert len(found) == 4
-    titles = [re.search(r'href="[^"]+"[^>]*>([^<]+)</a>', r).group(1) for r in found]
+    titles = [re.search(r'href="(?!Article_)[^"]+"[^>]*>([^<]+)</a>', r).group(1) for r in found]
     assert titles == ["Ärger", "Butterbrot", "Kind", "Termin"]
     kind = found[2]
     assert "das" in kind and "die Kinder" in kind and "niño" in kind and "A1" in kind

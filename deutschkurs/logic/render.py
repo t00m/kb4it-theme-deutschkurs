@@ -2,6 +2,7 @@
 
 import html
 import re
+from urllib.parse import quote
 from typing import Callable, Sequence
 
 from kb4it.theme import page_name
@@ -17,6 +18,8 @@ from .parse import Unit
 GENDER = {"der": "dk-m", "die": "dk-f", "das": "dk-n"}
 PERFEKT = {"haben": "hat", "sein": "ist"}
 FACET_KEYS = ("Level", "Topic", "Register", "Kind", "Genre", "Place", "Pattern")
+# The article pages Article.html and Article_<article>.html.
+ARTICLE_KEY = "Article"
 # Kind.html and the Word page kind.html are one file where file names ignore case.
 FACET_PAGES = {"Kind": "ConversationKind"}
 # Lists a Situation page shows, in order: label and entry type.
@@ -421,6 +424,11 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
         links.append((labels["topic"], [(t, facet_page("Topic", t)) for t in entry.values("Topic")]))
 
     badges = []
+    if entry.is_noun:
+        said = "die" if entry.value("PluralOnly") == "yes" else entry.value("Article")
+        if said in GENDER:
+            css_article = "dk-pl" if entry.value("PluralOnly") == "yes" else GENDER[said]
+            badges.append((f"dk-badge dk-article {css_article}", said, facet_page(ARTICLE_KEY, said)))
     kind, genre = entry.value("Kind"), entry.value("Genre")
     if entry.type == "Conversation" and kind:
         css_kind = f" dk-kind-{kind}" if kind in KINDS else ""
@@ -474,6 +482,7 @@ def extras(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[
     return {
         "deadline": day(entry.value("Deadline")) if entry.type == "Text" else "",
         "next_time": day(entry.value("NextTime")) if entry.type == "Situation" else "",
+        "prepare": f"practice.html#situation={quote(entry.title, safe='')}" if entry.type == "Situation" else "",
         "related": related,
         "occurrences": sentences(found),
         "more": max(0, len(found) - MAX_SENTENCES),

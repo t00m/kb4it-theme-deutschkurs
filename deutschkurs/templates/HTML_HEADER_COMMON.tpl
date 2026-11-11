@@ -15,15 +15,15 @@
     L = dk['labels'] if dk else None
     life = (('situations', 'situations.html'), ('conversations', 'conversations.html'), ('texts', 'texts.html'),
             ('photos', 'photos.html'), ('mistakes', 'mistakes.html'), ('inbox', 'inbox.html'))
-    course = (('vocabulary', 'vocabulary.html'), ('verbs', 'verbs.html'), ('chunks', 'chunks.html'),
-              ('grammar', 'grammar.html'))
+    course = (('vocabulary', 'vocabulary.html'), ('articles', 'Article.html'), ('verbs', 'verbs.html'), ('chunks', 'chunks.html'),
+              ('grammar', 'grammar.html'), ('progress', 'progress.html'))
 %>
 % if cfg:
     <style>:root { --dk-accent: ${cfg.accent}; --dk-m: ${cfg.gender_colors.get('m', '#1f6feb')}; --dk-f: ${cfg.gender_colors.get('f', '#cf222e')}; --dk-n: ${cfg.gender_colors.get('n', '#1a7f37')}; --dk-pl: ${cfg.gender_colors.get('pl', '#d4760a')}; }</style>
 % endif
 </head>
 % if cfg:
-<body data-speech="${'true' if cfg.speech else 'false'}" data-speech-lang="${cfg.speech_lang}" data-voice="${cfg.voice or ''}">
+<body data-speech="${'true' if cfg.speech else 'false'}" data-speech-lang="${cfg.speech_lang}" data-voice="${cfg.voice or ''}" data-voice-me="${cfg.voice_me or ''}">
 % else:
 <body>
 % endif

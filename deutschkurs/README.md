@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.3.2, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.4.0, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -51,7 +51,7 @@ In `config/repo.json`, block `"deutschkurs"`:
 | `known_words` | `[]` | Words you know without an entry; coverage counts them as known |
 | `privacy_allow` | `[]` | Exact texts the privacy check accepts, such as the public address of an office |
 
-Settings for later versions (`voice_me`, `slow_rate`, `daily_reviews`, `daily_new`, `weekly_new`) are accepted and not used yet.
+`daily_reviews` (40), `daily_new` (5) and `weekly_new` (10) set the size of practice sessions. `voice_me` is the voice of your own turns in roleplay. `slow_rate` is accepted and not used yet.
 
 ## Pages
 
@@ -60,6 +60,18 @@ The pages use UIkit, the same library as the techdoc theme. KB4IT ships it and e
 Home, Situations, Conversations, Texts, Photos, Mistakes, Inbox, Vocabulary, Verbs, Chunks, Grammar, Assistant skill, search, and facet pages `Level.html`, `Topic.html`, `Register.html`, `ConversationKind.html`, `Genre.html`, `Place.html`, `Pattern.html` with one page per value. Photos is a gallery with filters by place and situation. Mistakes groups mistakes by `Pattern`, newest first. Inbox lists the captures of every inbox file and the gaps to process; it is the only page that shows inbox files, which search leaves out. The home page lists situations coming up, texts with an open deadline and the number of captures to process. Dated blocks are hidden by JavaScript when they are out of range, so a site built last week is still right today.
 
 These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chunks.md`, `grammar.md`, `texts.md`, `conversations.md`, `situations.md`, `skill.md`, `Level.md`, `Topic.md`, `Register.md`, `Genre.md`, `Place.md`, `Pattern.md` (and the others in `logic/theme.py`) is refused. A file whose name starts with a facet name and `_`, such as `Level_` or `Genre_`, gets a `PAGE_NAME_TAKEN` warning. Your own `index.md` replaces the home page.
+
+Article pages: `Article.html` and one page per article, `Article_der.html`, `Article_die.html` and `Article_das.html`, list every noun said with that article. The `die` page shows feminine nouns first, then plural-only nouns. The word cards, the vocabulary table and the Course menu link to them.
+
+## Practice
+
+Each build writes `deutschkurs-data.js`, the data the browser needs to practise. The home page shows how many cards are due and new today. `practice.html` has four sessions: Daily (due cards, the conversation of the day and a few new cards), Short (up to 15 due cards), Weekly (due cards, a conversation and the mistakes you repeat most) and Free (any card, by level, situation, topic or type). A situation page has a Prepare button that opens Free practice for that situation.
+
+Exercises: der, die or das; plural; German to your language; your language to German; Perfekt; separable verbs in a sentence; fill the gap; roleplay of your turns in a conversation; fix a mistake; say a gap in German. Typed answers accept `ae oe ue ss` for `ä ö ü ß`, ignore a capital first letter, extra spaces and final punctuation, and need the exact article. A small typo rates as hard. Speaking exercises have no speech recognition: say the line aloud or type it, then show the answer and rate yourself.
+
+Only entries that are ready give new cards: not `Checked: unchecked`, and for a Word at least one example sentence. `progress.html` lists the others, the words you understand and can say per level, what you can do per situation, your real-life wins from `## Log`, mistake patterns and the days you studied.
+
+Progress lives in the browser (`localStorage`), per course title. Export it as `deutschkurs-progress-YYYY-MM-DD.json` and import it on another device; per card the newer state wins. A private window does not keep progress, and the page says so.
 
 ## Privacy
 
