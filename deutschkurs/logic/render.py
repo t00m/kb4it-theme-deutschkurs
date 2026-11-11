@@ -46,6 +46,16 @@ RENDERED_AUDIO = re.compile(rf'\s*<a href="([^"]+{AUDIO_EXTENSIONS})"[^>]*>audio
 REMOTE = ("http://", "https://", "//")
 
 
+def cued(css: str) -> str:
+    """A gender class with the cue that names the gender in letters (spec 6.1), or '' without a gender."""
+    return f"{css} dk-cued" if css else ""
+
+
+def has_plural(value: str) -> bool:
+    """True for a Plural value that names a plural form."""
+    return bool(value) and value not in ("none", "-")
+
+
 def facet_page(key: str, value: str | None = None) -> str:
     """File name of the page of a facet or of one of its values."""
     return page_name(FACET_PAGES.get(key, key), value)
@@ -393,6 +403,8 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     """Everything the entry template shows above the body."""
     headline, css = entry.title, ""
     facts: list[tuple[str, str]] = []
+    # Classes of single facts, by label: the plural in its colour.
+    fact_css: dict[str, str] = {}
     links: list[tuple[str, list[tuple[str, str]]]] = []
 
     def fact(label: str, value: str) -> None:
@@ -407,7 +419,9 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
             article = entry.value("Article")
             headline, css = f"{article} {entry.title}".strip(), GENDER.get(article, "")
             plural = entry.value("Plural")
-            fact("plural", labels["no_plural"] if plural in ("none", "-") else plural)
+            fact("plural", plural if has_plural(plural) else labels["no_plural"])
+            if has_plural(plural):
+                fact_css[labels["plural"]] = cued("dk-pl")
     if entry.type == "Word":
         fact("part_of_speech", entry.value("PartOfSpeech"))
         fact("forms", ", ".join(entry.values("Forms")))
@@ -469,7 +483,7 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
         said = "die" if entry.value("PluralOnly") == "yes" else entry.value("Article")
         if said in GENDER:
             css_article = "dk-pl" if entry.value("PluralOnly") == "yes" else GENDER[said]
-            badges.append((f"dk-badge dk-article {css_article}", said, facet_page(ARTICLE_KEY, said)))
+            badges.append((f"dk-badge dk-article {cued(css_article)}", said, facet_page(ARTICLE_KEY, said)))
     kind, genre = entry.value("Kind"), entry.value("Genre")
     if entry.type == "Conversation" and kind:
         css_kind = f" dk-kind-{kind}" if kind in KINDS else ""
@@ -489,8 +503,8 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     # Only a German word, verb or chunk is read aloud from the card.
     say = headline if entry.type in INDEXED or entry.type == "Grammar" else ""
     recording = local_audio(entry.value("Audio")) if entry.type in INDEXED else ""
-    return {"kind": entry.type, "headline": headline, "headline_class": css, "say": say, "audio": recording,
-            "translation": entry.translation, "badges": badges, "facts": facts, "links": links,
+    return {"kind": entry.type, "headline": headline, "headline_class": cued(css), "say": say, "audio": recording,
+            "translation": entry.translation, "badges": badges, "facts": facts, "fact_css": fact_css, "links": links,
             "unverified": unverified, "hint_attr": hint}
 
 

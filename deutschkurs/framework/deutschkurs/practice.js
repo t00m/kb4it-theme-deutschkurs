@@ -170,7 +170,7 @@
 
     function choice(card, body) {
       var row = el("p", { className: "dk-choices" }, card.choices.map(function (option) {
-        var css = { der: "dk-m", die: "dk-f", das: "dk-n" }[option] || "";
+        var css = { der: "dk-m dk-cued", die: "dk-f dk-cued", das: "dk-n dk-cued" }[option] || "";
         var button = el("button", { type: "button", className: "uk-button uk-button-default uk-button-large " + css,
                                     text: option });
         button.addEventListener("click", function () {
