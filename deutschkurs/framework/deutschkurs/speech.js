@@ -1,7 +1,88 @@
-// deutschkurs: Listen buttons with the browser's speech synthesis.
+// deutschkurs: Listen buttons with the browser's speech synthesis, and recordings.
 (function (root) {
   "use strict";
   var dk = (root.Deutschkurs = root.Deutschkurs || {});
+
+  var UNITS = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf",
+               "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn"];
+  var TENS = ["", "", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"];
+  var MONTHS = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober",
+                "November", "Dezember"];
+  var ABBREVIATIONS = [
+    [/\bz\.\s?B\./g, "zum Beispiel"], [/\bd\.\s?h\./g, "das heißt"], [/\busw\./g, "und so weiter"],
+    [/\bbzw\./g, "beziehungsweise"], [/\bca\./g, "circa"], [/\bNr\./g, "Nummer"], [/\bStr\./g, "Straße"],
+    [/\bTel\./g, "Telefon"],
+  ];
+  // Words before a date that take the dative ending: am dritten, bis zum ersten.
+  var DATIVE = ["am", "vom", "zum", "dem"];
+  var DEFAULT_SLOW = 0.75;
+
+  // A whole number from 0 to 9999 in German words; other numbers stay digits.
+  function numberWords(n) {
+    if (n < 0 || n > 9999 || n !== Math.floor(n)) return String(n);
+    if (n < 20) return UNITS[n];
+    if (n < 100) {
+      var one = n % 10;
+      return (one ? (one === 1 ? "ein" : UNITS[one]) + "und" : "") + TENS[Math.floor(n / 10)];
+    }
+    var big = n < 1000 ? 100 : 1000;
+    var head = Math.floor(n / big);
+    var rest = n % big;
+    var name = big === 100 ? "hundert" : "tausend";
+    var lead = head === 1 ? "" : numberWords(head).replace(/eins$/, "ein");
+    return lead + name + (rest ? numberWords(rest) : "");
+  }
+
+  // The ordinal of a day of the month: erste, dritte, zwanzigste; dative adds n.
+  function ordinal(n, dative) {
+    var word;
+    if (n === 1) word = "erste";
+    else if (n === 3) word = "dritte";
+    else if (n === 7) word = "siebte";
+    else if (n === 8) word = "achte";
+    else if (n < 20) word = numberWords(n) + "te";
+    else word = numberWords(n) + "ste";
+    return dative ? word + "n" : word;
+  }
+
+  function dativeBefore(text, offset) {
+    var before = text.slice(0, offset).trim().split(/\s+/);
+    return DATIVE.indexOf(String(before[before.length - 1] || "").toLowerCase()) >= 0;
+  }
+
+  function euros(whole, cents) {
+    var euro = whole === "1" ? "ein" : numberWords(Number(whole));
+    var tail = cents && Number(cents) ? " " + numberWords(Number(cents)) : "";
+    return euro + " Euro" + tail;
+  }
+
+  // Text as a German voice should read it: times, amounts, abbreviations and dates in words.
+  function normalise(text) {
+    var out = String(text || "");
+    for (var i = 0; i < ABBREVIATIONS.length; i++) out = out.replace(ABBREVIATIONS[i][0], ABBREVIATIONS[i][1]);
+    out = out.replace(/\b(\d{1,2}):(\d{2})\s*Uhr\b/g, function (all, h, m) {
+      var hour = Number(h) === 1 ? "ein" : numberWords(Number(h));
+      return hour + " Uhr" + (Number(m) ? " " + numberWords(Number(m)) : "");
+    });
+    out = out.replace(/\b(\d+)(?:,(\d{2}))?\s*(?:€|EUR\b)/g, function (all, whole, cents) {
+      return euros(whole, cents);
+    });
+    out = out.replace(/€\s*(\d+)(?:,(\d{2}))?\b/g, function (all, whole, cents) {
+      return euros(whole, cents);
+    });
+    out = out.replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4}\b)?/g, function (all, d, m, year, offset, whole) {
+      var day = Number(d), month = Number(m);
+      if (day < 1 || day > 31 || month < 1 || month > 12) return all;
+      return ordinal(day, dativeBefore(whole, offset)) + " " + MONTHS[month - 1] + (year ? " " + year : "");
+    });
+    out = out.replace(new RegExp("\\b(\\d{1,2})\\.\\s+(" + MONTHS.join("|") + ")", "g"),
+      function (all, d, month, offset, whole) {
+        var day = Number(d);
+        if (day < 1 || day > 31) return all;
+        return ordinal(day, dativeBefore(whole, offset)) + " " + month;
+      });
+    return out;
+  }
 
   // Named voice first, then the exact language, then any German voice.
   function pickVoice(voices, lang, name) {
@@ -20,11 +101,20 @@
     return pickVoice(voices, lang, me && meName ? meName : name);
   }
 
+  function slowRate(value) {
+    var rate = parseFloat(value);
+    return rate > 0 && rate <= 2 ? rate : DEFAULT_SLOW;
+  }
+
   function init(doc) {
     var body = doc.body;
     var data = body.dataset || {};
     var synth = root.speechSynthesis;
     var voice = null;
+    var slow = slowRate(data.slowRate);
+    // Each say or sayAll gets a new token; a queue whose token is old stops.
+    var token = 0;
+    var audio = null;
 
     // Speech switched off in the settings: hide the buttons, no note about voices.
     if (data.speech === "false") {
@@ -41,27 +131,90 @@
     apply();
     if (synth && synth.addEventListener) synth.addEventListener("voiceschanged", apply);
 
-    // Speak a text; me picks voice_me. Returns false when there is no German voice.
-    function say(text, me) {
-      if (!voice || !text) return false;
-      var chosen = pickFor(synth.getVoices(), data.speechLang || "de-DE", data.voice || null, data.voiceMe || "", me) || voice;
-      var utterance = new root.SpeechSynthesisUtterance(text);
+    function stop() {
+      token += 1;
+      if (synth && synth.cancel) synth.cancel();
+      if (audio && audio.pause) audio.pause();
+    }
+
+    // Play one item {text, me, slow} or {audio}; call done when it ends. False when it cannot play.
+    function play(item, done) {
+      if (item.audio) {
+        if (!root.Audio) return false;
+        audio = new root.Audio(item.audio);
+        audio.onended = done;
+        audio.onerror = done;
+        var started = audio.play();
+        if (started && started.catch) started.catch(function () {});
+        return true;
+      }
+      if (!voice || !item.text) return false;
+      var chosen = pickFor(synth.getVoices(), data.speechLang || "de-DE", data.voice || null, data.voiceMe || "",
+                           item.me) || voice;
+      var utterance = new root.SpeechSynthesisUtterance(normalise(item.text));
       utterance.voice = chosen;
       utterance.lang = chosen.lang;
-      synth.cancel();
+      utterance.rate = item.slow ? slow : 1;
+      utterance.onend = done;
+      utterance.onerror = done;
       synth.speak(utterance);
       return true;
     }
+
+    // Speak a text now, stopping what plays; me picks voice_me. False when there is no German voice.
+    function say(text, me, slowly) {
+      stop();
+      return play({ text: text, me: me, slow: slowly }, function () {});
+    }
+
+    // Play items one after another; a new say or sayAll stops the queue.
+    function sayAll(items) {
+      stop();
+      var mine = token;
+      var i = 0;
+      function next() {
+        while (mine === token && i < items.length) {
+          if (play(items[i++], next)) return;
+        }
+      }
+      next();
+    }
+
     dk.speech.say = say;
+    dk.speech.sayAll = sayAll;
+    dk.speech.lastAudio = function () { return audio; };
 
     doc.addEventListener("click", function (event) {
-      var button = event.target && event.target.closest ? event.target.closest(".dk-listen") : null;
+      var target = event.target;
+      var button = target && target.closest ? target.closest(".dk-listen, .dk-play-all") : null;
       if (!button) return;
-      say(button.getAttribute("data-say"), button.getAttribute("data-me") === "true");
+      if (button.classList.contains("dk-play-all")) {
+        sayAll(itemsIn(doc.querySelectorAll(button.getAttribute("data-play"))));
+        return;
+      }
+      if (button.getAttribute("data-audio")) {
+        sayAll([{ audio: button.getAttribute("data-audio") }]);
+        return;
+      }
+      say(button.getAttribute("data-say"), button.getAttribute("data-me") === "true",
+          button.getAttribute("data-rate") === "slow");
     });
   }
 
-  dk.speech = { pickVoice: pickVoice, pickFor: pickFor, init: init, say: function () { return false; } };
+  // What Play all plays for each element: its recording, else the text of its first Listen button.
+  function itemsIn(elements) {
+    var items = [];
+    for (var i = 0; i < elements.length; i++) {
+      var recording = elements[i].querySelector("audio[src]");
+      var button = elements[i].querySelector(".dk-listen[data-say]");
+      if (recording) items.push({ audio: recording.getAttribute("src") });
+      else if (button) items.push({ text: button.getAttribute("data-say"), me: button.getAttribute("data-me") === "true" });
+    }
+    return items;
+  }
+
+  dk.speech = { pickVoice: pickVoice, pickFor: pickFor, init: init, normalise: normalise, numberWords: numberWords,
+                itemsIn: itemsIn, say: function () { return false; }, sayAll: function () {} };
 
   if (root.document && root.document.addEventListener) {
     root.document.addEventListener("DOMContentLoaded", function () { init(root.document); });
