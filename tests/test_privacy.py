@@ -32,6 +32,12 @@ CLEAN = [
     "Wir brauchen 12345 Stück.",
     "Ich habe 40 Jahre gearbeitet.",
     "Bitte geben Sie den Zettel bei Frau A. ab: [Adresse], [IBAN].",
+    "Wagen 12, Sitzplatz 45",
+    "Der Parkplatz 3 ist frei.",
+    "Mein Arbeitsplatz 2 ist im Keller.",
+    "Der Heimweg 20 Minuten dauert lange.",
+    "Der Fußweg 2 Minuten.",
+    "Der Gehweg 3 ist gesperrt.",
 ]
 
 
@@ -134,5 +140,18 @@ def test_privacy_allow_setting(tmp_path):
 def test_strict_privacy_stops_the_build(tmp_path):
     text = "---\nType: Text\nLevel: A1\n---\n\n# Brief\n\nHauptstraße 12\n"
     config = prepare_site(tmp_path, {"brief.md": text}, {"strict": True}, starter=False)
+    run = subprocess.run([KB4IT, "build", str(config)], capture_output=True, text=True)
+    assert run.returncode != 0
+
+
+def test_allow_with_a_full_address_silences_its_parts():
+    line = "Bürgeramt, Musterstraße 1, 10115 Berlin"
+    assert len(scan(line)) == 2
+    assert scan(line, allow=["Musterstraße 1, 10115 Berlin"]) == []
+
+
+def test_strict_stops_the_build_on_gps(tmp_path):
+    config = prepare_site(tmp_path, {"schild.md": PHOTO.format(name="schild.webp")}, {"strict": True}, starter=False)
+    write_image(config.parent.parent / "source" / "resources" / "photos" / "schild.webp", gps=True)
     run = subprocess.run([KB4IT, "build", str(config)], capture_output=True, text=True)
     assert run.returncode != 0

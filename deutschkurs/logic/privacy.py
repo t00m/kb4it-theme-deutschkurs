@@ -9,6 +9,10 @@ from urllib.parse import unquote
 # Capitalised words after five digits that name an amount, not a town.
 UNITS = ("Euro", "EUR", "Cent", "Stück", "Meter", "Kilometer", "Jahre", "Tage", "Stunden", "Minuten")
 STREETS = r"(?:straße|strasse|str\.|weg|platz|gasse|allee|ring|damm|ufer)"
+# Words that end like a street but name a seat, a place or a way of going: "Sitzplatz 45", "Heimweg 20 Minuten".
+NOT_STREETS = frozenset(("sitzplatz", "parkplatz", "arbeitsplatz", "spielplatz", "stellplatz", "bahnsteig",
+                         "abstellplatz", "liegeplatz", "zeltplatz", "heimweg", "schulweg", "fußweg", "fussweg",
+                         "gehweg", "radweg", "rückweg", "hinweg", "arbeitsweg", "umweg", "ausweg"))
 
 PATTERNS = (
     ("iban", re.compile(r"\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){2,7}(?: ?[A-Z0-9]{1,4})?\b")),
@@ -34,6 +38,8 @@ def scan(text: str, allow: Sequence[str] = ()) -> list[Hit]:
     """Suspected personal data, one Hit per match, lines counted from 1; hits containing an allowed string are dropped."""
     hits = []
     for n, line in enumerate(text.splitlines(), start=1):
+        # Hits inside an allowed text are dropped, so a whole allowed address silences each of its parts.
+        allowed = [(m.start(), m.end()) for a in allow if a for m in re.finditer(re.escape(a), line)]
         # A span already claimed by an earlier pattern (a phone number inside an IBAN) is not a second hit.
         taken: list[tuple[int, int]] = []
         for reason, pattern in PATTERNS:
@@ -44,7 +50,10 @@ def scan(text: str, allow: Sequence[str] = ()) -> list[Hit]:
                 if any(match.start() < end and start < match.end() for start, end in taken):
                     continue
                 taken.append(match.span())
-                if not any(a and a in found for a in allow):
+                if reason == "address" and found.split()[0].lower() in NOT_STREETS:
+                    continue
+                inside = any(start <= match.start() and match.end() <= end for start, end in allowed)
+                if not inside and not any(a and a in found for a in allow):
                     hits.append(Hit(reason, n, found))
     return hits
 

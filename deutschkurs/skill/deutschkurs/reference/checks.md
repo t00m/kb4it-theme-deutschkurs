@@ -47,8 +47,8 @@ Only `kb4it build` reports these: they read the text of the files and the images
 
 | Message | Cause | Fix |
 |---|---|---|
-| `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` | That line looks like personal data: an IBAN, an e-mail address, a phone number or an address | Replace it with a placeholder from `privacy.md`. When it is not personal (the address of a public office), the learner may add the text to `privacy_allow` |
-| `PHOTO_GPS doc=<image>` | The image under `resources/photos/` holds GPS data: where it was taken | Remove the location data: save the image again without metadata, or turn off location in the camera app |
+| `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` | That line looks like personal data: an IBAN, an e-mail address, a phone number or an address | Replace it with a placeholder from `privacy.md`. When it is not personal (a seat number, the address of a public office), leave the text and let the learner add it to `privacy_allow` |
+| `PHOTO_GPS doc=<image>` | The image under `resources/photos/` holds GPS data: where it was taken. With `strict`, it stops the build | Remove the location data: save the image again without metadata, or turn off location in the camera app |
 | `PHOTO_MISSING doc=<file> reason=missing` | The Photo names an image file that does not exist | Correct the path, or add the image under `source/resources/photos/` |
 | `PHOTO_MISSING doc=<file> reason=none` | The Photo has no image before its first section | Add `![what it shows](resources/photos/<file>)` under the title |
 | `PHOTO_MISSING doc=<file> reason=remote` | The image is a web address | Save the image under `source/resources/photos/`; pages never load anything from the internet |

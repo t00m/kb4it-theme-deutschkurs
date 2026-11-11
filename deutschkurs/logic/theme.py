@@ -81,7 +81,7 @@ class Theme(BaseTheme):
             raise ThemeError(f"{len(self.course.problems)} metadata problems, {hits} privacy hits and strict is on")
 
     def _privacy(self, site) -> int:
-        """Log suspected personal data in the sources and GPS data in photos; return the number of text hits."""
+        """Log suspected personal data in the sources and GPS data in photos; return the number of hits."""
         allow = [str(a) for a in (self.config.privacy_allow or [])]
         count = 0
         for doc in site.documents:
@@ -98,6 +98,7 @@ class Theme(BaseTheme):
                 self.log.info("[DEUTSCHKURS] Pillow is not installed: photos are not checked for GPS data")
                 break
             if gps:
+                count += 1
                 self.log.warning(f"[DEUTSCHKURS] PHOTO_GPS doc={path.relative_to(source).as_posix()}")
         return count
 

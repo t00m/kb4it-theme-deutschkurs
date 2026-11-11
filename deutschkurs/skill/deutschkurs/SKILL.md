@@ -124,7 +124,7 @@ Input: the output of `kb4it build` or `kb4it verify`.
 
 1. Read `reference/checks.md`.
 2. For each `META_INVALID doc=<file> key=<key> reason=<reason>` line, open the file and apply the fix for that reason.
-3. For `PRIVACY_SUSPECT`, `PHOTO_GPS` and `PHOTO_MISSING`, and for KB4IT's own messages (`DOC_INVALID`, `DOC_NAME_RESERVED`), apply the fixes in the same file. A privacy hit is fixed with a placeholder, never by adding private data to `privacy_allow`.
+3. For `PRIVACY_SUSPECT`, `PHOTO_GPS` and `PHOTO_MISSING`, and for KB4IT's own messages (`DOC_INVALID`, `DOC_NAME_RESERVED`), apply the fixes in the same file. Fix a privacy hit that is personal data with a placeholder, never by adding it to `privacy_allow`. When a hit is not personal (a seat number, a public office), leave the text as it is and tell the learner they may add it to `privacy_allow`.
 4. Run `kb4it verify` again until it reports no problems. `verify` reads properties only; run `kb4it build` too, which also checks sections such as `## Explanation`, the turns of a conversation and the `Situation` names.
 
 ### Convert lingua files
