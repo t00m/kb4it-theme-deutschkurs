@@ -8,7 +8,9 @@
 .dk-sheet { margin-bottom: 1rem; }
 .dk-footer { margin: 1.5rem auto 0; padding-bottom: 1.5rem; }
 .dk-listen.uk-button, .dk-toggle-tr.uk-button { text-transform: none; }
-#dk-search .kb4it-search-input { width: 100%; }
+#dk-search .kb4it-search { display: block; }
+#dk-search .kb4it-search .kb4it-search-input { width: 100%; font-size: 1.1rem; padding: 8px 10px; }
+#dk-search .kb4it-search .kb4it-search-dropdown { left: 0; right: 0; width: auto; max-width: none; }
 :root { --dk-accent: #c0392b; --dk-m: #1f6feb; --dk-f: #cf222e; --dk-n: #1a7f37; --dk-pl: #d4760a; --dk-muted: #57606a; }
 .dk-m { color: var(--dk-m); }
 .dk-f { color: var(--dk-f); }
