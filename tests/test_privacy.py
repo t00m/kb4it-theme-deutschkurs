@@ -38,6 +38,10 @@ CLEAN = [
     "Der Heimweg 20 Minuten dauert lange.",
     "Der Fußweg 2 Minuten.",
     "Der Gehweg 3 ist gesperrt.",
+    "Die Stadt hat 50000 Einwohner.",
+    "Das kostet 10000 Dollar.",
+    "Nach 30000 Kilometern braucht das Auto neue Reifen.",
+    "Es kamen 12345 Personen.",
 ]
 
 
@@ -155,3 +159,45 @@ def test_strict_stops_the_build_on_gps(tmp_path):
     write_image(config.parent.parent / "source" / "resources" / "photos" / "schild.webp", gps=True)
     run = subprocess.run([KB4IT, "build", str(config)], capture_output=True, text=True)
     assert run.returncode != 0
+
+
+def test_image_path_with_backslashes(tmp_path):
+    assert image_path(tmp_path, "resources\\photos\\a.JPG") == tmp_path / "resources" / "photos" / "a.JPG"
+
+
+def test_reference_number_starting_with_zero_still_warns():
+    # Customer and file numbers are often personal: a warning is wanted, and privacy.md explains it.
+    assert [h.reason for h in scan("Kunden-Nr. 0123456789")] == ["phone"]
+    assert "can look like a phone number" in (Path(__file__).resolve().parent.parent / "deutschkurs" / "skill" /
+                                              "deutschkurs" / "reference" / "privacy.md").read_text(encoding="utf-8")
+
+
+def test_build_reports_unreadable_photo(tmp_path):
+    config = prepare_site(tmp_path, {"schild.md": PHOTO.format(name="schild.webp")}, starter=False)
+    photos = config.parent.parent / "source" / "resources" / "photos"
+    write_image(photos / "schild.webp", gps=False)
+    (photos / "kaputt.jpg").write_bytes(b"not an image")
+    log = run_build(config)
+    assert any("PHOTO_UNREADABLE doc=resources/photos/kaputt.jpg" in w for w in warnings(log))
+
+
+INBOX_REMOTE = """---
+Type: Inbox
+---
+
+# Inbox
+
+- 2026-11-09 ![](https://example.org/pfand.webp) Pfandautomat
+- 2026-13-45 Pfand am Automaten
+"""
+
+
+def test_inbox_remote_image_is_not_loaded_and_warns(tmp_path):
+    site = build_site(tmp_path, {"inbox-2026-11.md": INBOX_REMOTE}, starter=False)
+    assert "https://example.org" not in site.page("inbox.html")
+    assert any("PHOTO_MISSING" in w and "inbox-2026-11.md" in w and "reason=remote" in w for w in warnings(site.log))
+
+
+def test_inbox_keeps_an_impossible_date_visible(tmp_path):
+    site = build_site(tmp_path, {"inbox-2026-11.md": INBOX_REMOTE}, starter=False)
+    assert "2026-13-45 Pfand am Automaten" in site.page("inbox.html")

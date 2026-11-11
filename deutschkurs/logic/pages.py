@@ -137,8 +137,13 @@ def inbox_items(course: Course) -> list[dict]:
     for entry in course.by_type("Inbox"):
         for capture in entry.inbox:
             known = _known(capture.text, course)
-            found.append({"date": capture.date if real_date(capture.date) else "", "text": capture.text,
-                          "image": capture.image, "href": "", "known": course.url(known) if known else "",
+            # An impossible date stays in the text, so the learner sees the typo.
+            date = capture.date if real_date(capture.date) else ""
+            text = capture.text if date or not capture.date else f"{capture.date} {capture.text}"
+            # Pages never load anything from the internet.
+            image = "" if capture.image.startswith(("http://", "https://", "//")) else capture.image
+            found.append({"date": date, "text": text,
+                          "image": image, "href": "", "known": course.url(known) if known else "",
                           "known_title": course.entries[known].title if known else ""})
     for entry in course.by_type("Gap"):
         if entry.open_gap:
