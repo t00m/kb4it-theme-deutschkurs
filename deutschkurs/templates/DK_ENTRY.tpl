@@ -3,6 +3,8 @@
     c = dk['card']
     x = dk['extras']
     L = dk['labels']
+    unverified = ' dk-unverified' if c['unverified'] else ''
+    hint = c['hint_attr']
 %>
 <%def name="sentences(items)">
         <ul class="dk-occurrences">
@@ -24,13 +26,13 @@
 <main class="dk-main dk-entry dk-type-${c['kind'].lower()}">
     <section class="dk-card">
         <div class="dk-card-head">
-            <h1 class="dk-headline ${c['headline_class']}" lang="de">${c['headline']}</h1>
+            <h1 class="dk-headline ${c['headline_class']}${unverified}" lang="de"${hint | n}>${c['headline']}</h1>
 % if c['say']:
             <button type="button" class="dk-listen" data-say="${c['say']}">${L['listen']}</button>
 % endif
         </div>
 % if c['translation']:
-        <p class="dk-translation" lang="${dk['native']}">${c['translation']}</p>
+        <p class="dk-translation${unverified}" lang="${dk['native']}"${hint | n}>${c['translation']}</p>
 % endif
         <p class="dk-badges">
 % for css, text, href in c['badges']:
@@ -70,6 +72,9 @@
     <div class="dk-body">
         ${var['source_html'] | n}
     </div>
+% if x['see_inbox']:
+    <p class="dk-see-inbox"><a href="inbox.html">${L['see_inbox']}</a></p>
+% endif
 % for label, items in x['related']:
     <section class="dk-related">
         <h2>${label}</h2>

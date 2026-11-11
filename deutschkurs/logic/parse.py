@@ -12,6 +12,8 @@ VARIATION = re.compile(r"^(\d+)\s+(.*)$")
 TASK = re.compile(r"^\s*[-*+]\s+\[([ xX])\]\s")
 MARKUP = re.compile(r"[*_`]")
 IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+IMAGE_SRC = re.compile(r"!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
+LEADING_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:\s+|$)")
 LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 HTML_TAG = re.compile(r"<[^>]+>")
 INLINE_TAGS = "a|abbr|b|br|code|em|i|img|kbd|mark|s|small|span|strong|sub|sup|u"
@@ -35,6 +37,15 @@ class Unit:
     speaker: str = ""
     line: int = 0
     replaces: int = 0
+
+
+@dataclass(frozen=True)
+class InboxItem:
+    """One capture of an Inbox document: its date as written, its text and the src of an image in it."""
+    date: str
+    text: str
+    image: str = ""
+    line: int = 0
 
 
 def body(markdown: str) -> str:
@@ -171,7 +182,7 @@ def turns(markdown: str) -> tuple[list[Unit], list[Unit], list[int]]:
     return found, variations, bad
 
 
-def paragraphs(markdown: str) -> list[Unit]:
+def paragraphs(markdown: str, prefix: str = "s") -> list[Unit]:
     """German paragraphs of a text before its first section, each with the blockquote that follows it."""
     blocks: list[tuple[int, list[str]]] = []
     current: list[str] = []
@@ -202,7 +213,7 @@ def paragraphs(markdown: str) -> list[Unit]:
         translation = ""
         if i + 1 < len(blocks) and blocks[i + 1][1][0].startswith(">"):
             translation = " ".join(l.lstrip(">").strip() for l in blocks[i + 1][1]).strip()
-        units.append(Unit(f"s{len(units) + 1}", german, translation, "", n))
+        units.append(Unit(f"{prefix}{len(units) + 1}", german, translation, "", n))
     return units
 
 
@@ -210,3 +221,35 @@ def tasks(text: str) -> tuple[int, int]:
     """(ticked, total) task list items of a section."""
     marks = [m.group(1) for m in map(TASK.match, text.splitlines()) if m]
     return sum(1 for mark in marks if mark in "xX"), len(marks)
+
+
+def image(markdown: str) -> str:
+    """The src of the first image before the first section, or ''."""
+    for _, line, in_code in _numbered_body(markdown):
+        if in_code:
+            continue
+        if SECTION.match(line):
+            break
+        match = IMAGE_SRC.search(line)
+        if match:
+            return match.group(1)
+    return ""
+
+
+def inbox_items(markdown: str) -> list[InboxItem]:
+    """Top-level list items of an Inbox document, one capture each."""
+    items = []
+    for n, line, in_code in _numbered_body(markdown):
+        match = None if in_code else TOP_ITEM.match(line)
+        if not match:
+            continue
+        text = match.group(1).strip()
+        date = ""
+        dated = LEADING_DATE.match(text)
+        if dated:
+            date, text = dated.group(1), text[dated.end():]
+        found = IMAGE_SRC.search(text)
+        src = found.group(1) if found else ""
+        text = " ".join(IMAGE.sub("", text).split())
+        items.append(InboxItem(date, text, src, n))
+    return items

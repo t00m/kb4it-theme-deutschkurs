@@ -24,7 +24,8 @@ def course():
 def test_counts():
     c = course()
     assert {kind: len(c.by_type(kind)) for kind in TYPES} == \
-        {"Word": 10, "Verb": 5, "Chunk": 4, "Grammar": 2, "Text": 1, "Conversation": 1, "Situation": 3}
+        {"Word": 10, "Verb": 5, "Chunk": 4, "Grammar": 2, "Text": 1, "Conversation": 1, "Situation": 3,
+         "Photo": 1, "Mistake": 1, "Gap": 1, "Inbox": 1}
     assert c.problems == []
 
 
@@ -36,7 +37,8 @@ def test_every_word_and_verb_has_two_examples():
 
 
 def test_checked_by_assistant():
-    assert {e.checked for e in course().typed()} == {"assistant"}
+    # Inbox captures are raw notes of the learner: nobody checks them.
+    assert {e.checked for e in course().typed() if e.type != "Inbox"} == {"assistant"}
 
 
 def test_verify_clean(tmp_path):
@@ -114,3 +116,54 @@ def test_starter_sentences_show_on_word_pages(built_site):
     page = built_site.page("elternabend.html")
     assert 'href="gruss-am-schultor.html#t3"' in page
     assert 'href="elternbrief-ausflug.html#' in built_site.page("brotdose.html")
+
+
+PHOTO = SOURCE / "resources" / "photos" / "2026-11-09-baustelle.webp"
+
+
+def test_starter_photo_is_self_made_without_gps(tmp_path):
+    from deutschkurs.logic.privacy import has_gps
+    from PIL import Image
+    assert PHOTO.is_file() and has_gps(PHOTO) is False
+    script = Path(__file__).resolve().parent.parent / "scripts" / "make_starter_photo.py"
+    out = tmp_path / "made.webp"
+    run = subprocess.run(["python3", str(script), str(out)], capture_output=True, text=True)
+    assert run.returncode == 0, run.stderr
+    with Image.open(out) as made, Image.open(PHOTO) as shipped:
+        assert made.size == shipped.size
+
+
+def test_starter_photo_points_to_its_image():
+    photo = course().entries["photo-baustelle.md"]
+    assert photo.image == "resources/photos/2026-11-09-baustelle.webp"
+    assert len(photo.units) >= 1
+
+
+def test_starter_mistake_and_gap():
+    c = course()
+    mistake = c.entries["mistake-ich-habe-40-jahre.md"]
+    assert mistake.value("Pattern") == "es-tener-haben" and mistake.values("Situation") == ("Am Schultor",)
+    assert c.entries["gap-krankmeldung.md"].open_gap
+
+
+def test_starter_inbox_has_three_captures():
+    inbox = course().entries["inbox-2026-11.md"]
+    assert len(inbox.inbox) == 3
+    assert sum(1 for item in inbox.inbox if item.image) == 1
+
+
+def test_starter_gallery_image_resolves(built_site):
+    import re
+    html = built_site.page("photos.html")
+    srcs = re.findall(r'<img loading="lazy" src="([^"]+)"', html)
+    assert srcs == ["resources/photos/2026-11-09-baustelle.webp"]
+    assert (built_site.target / srcs[0]).is_file()
+
+
+def test_starter_inbox_marks_a_known_word(built_site):
+    assert "already in the course" in built_site.page("inbox.html")
+
+
+def test_starter_has_no_privacy_or_photo_warning(built_site):
+    for code in ("PRIVACY_SUSPECT", "PHOTO_GPS", "PHOTO_MISSING"):
+        assert code not in built_site.log

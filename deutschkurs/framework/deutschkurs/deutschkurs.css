@@ -101,3 +101,15 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-cover { color: var(--dk-muted); font-size: .85rem; }
 .dk-items .dk-deadline { font-weight: 400; }
 .dk-dated time { color: var(--dk-muted); font-size: .85rem; }
+.dk-mistake-wrong .sectionbody p { text-decoration: line-through; color: var(--dk-muted); }
+.dk-mistake-right .sectionbody p::before { content: "\2192\00a0"; color: var(--dk-accent); }
+.dk-unverified { text-decoration: underline dotted; text-underline-offset: 0.2em; }
+.dk-see-inbox { margin-top: 1rem; }
+.dk-gallery-filters { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+.dk-photos { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 1rem; }
+.dk-photo { display: block; text-decoration: none; color: inherit; }
+.dk-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; background: var(--dk-muted); }
+.dk-photo-title { display: block; font-size: 0.9rem; margin-top: 0.25rem; }
+.dk-inbox-image { vertical-align: middle; border-radius: 4px; }
+.dk-known { color: var(--dk-muted); font-size: 0.9rem; }
+.dk-inbox-count { font-weight: bold; }

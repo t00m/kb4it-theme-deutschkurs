@@ -26,7 +26,8 @@ Cuando prometes informar a alguien más tarde.
 
 
 def test_types():
-    assert TYPES == ("Word", "Verb", "Chunk", "Grammar", "Text", "Conversation", "Situation")
+    assert TYPES == ("Word", "Verb", "Chunk", "Grammar", "Text", "Conversation", "Situation", "Photo", "Mistake",
+                     "Gap", "Inbox")
 
 
 def test_word_entry():
@@ -62,7 +63,7 @@ def test_translation_with_comma_joined():
 
 
 def test_new_types_and_their_sections():
-    assert TYPES[4:] == ("Text", "Conversation", "Situation")
+    assert TYPES[4:7] == ("Text", "Conversation", "Situation")
     assert SECTIONS["Conversation"] == ("Variations", "Notes")
     assert SECTIONS["Situation"] == ("I can", "Log")
 
@@ -88,3 +89,31 @@ def test_situation_entry_counts_can_do():
 
 def test_word_entry_has_no_units():
     assert entry_from("x.md", {"Type": ("Word",)}, "# Termin\n\nEin Absatz.\n").units == ()
+
+
+def test_photo_units_are_transcription_paragraphs():
+    from test_parse import PHOTO_DOC
+    entry = entry_from("p.md", {"Type": ("Photo",)}, PHOTO_DOC)
+    assert [(u.anchor, u.german) for u in entry.units] == [
+        ("p1", "Baustelle betreten verboten! Eltern haften für ihre Kinder."), ("p2", "Zweiter Satz.")]
+    assert entry.image == "resources/photos/2026-11-09-baustelle.webp"
+
+
+def test_gap_with_blank_in_german_is_open():
+    gap = "# Krank melden\n\n## I wanted to say\n\nMy son is sick.\n\n## In German\n\n   \n\n"
+    assert entry_from("g.md", {"Type": ("Gap",)}, gap).open_gap
+    done = gap.replace("   \n", "Mein Sohn ist krank.\n")
+    assert not entry_from("g.md", {"Type": ("Gap",)}, done).open_gap
+    assert not entry_from("w.md", {"Type": ("Word",)}, gap).open_gap
+
+
+def test_inbox_entry_has_items():
+    from test_parse import INBOX_DOC
+    entry = entry_from("inbox-2026-11.md", {"Type": ("Inbox",)}, INBOX_DOC)
+    assert len(entry.inbox) == 4
+
+
+def test_new_types_and_sections():
+    assert {"Photo", "Mistake", "Gap", "Inbox"} <= set(TYPES)
+    assert SECTIONS["Mistake"] == ("Wrong", "Right", "Why")
+    assert SECTIONS["Gap"] == ("I wanted to say", "In German")

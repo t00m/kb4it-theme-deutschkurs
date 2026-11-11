@@ -105,7 +105,34 @@
     label();
   }
 
+  // True when a photo has the chosen place and situation; an empty choice matches every photo.
+  function galleryMatch(item, place, situation) {
+    if (place && item.place !== place) return false;
+    if (situation && item.situations.indexOf(situation) < 0) return false;
+    return true;
+  }
+
+  function initGallery(doc) {
+    var filters = doc.querySelector(".dk-gallery-filters");
+    if (!filters) return;
+    var place = filters.querySelector(".dk-gallery-place");
+    var situation = filters.querySelector(".dk-gallery-situation");
+    function apply() {
+      Array.prototype.forEach.call(doc.querySelectorAll(".dk-photo-item"), function (li) {
+        var item = { place: li.getAttribute("data-place") || "",
+                     situations: (li.getAttribute("data-situation") || "").split("|") };
+        li.hidden = !galleryMatch(item, place ? place.value : "", situation ? situation.value : "");
+      });
+    }
+    [place, situation].forEach(function (select) {
+      if (select) select.addEventListener("change", apply);
+    });
+    filters.hidden = false;
+  }
+
   dk.rowMatches = rowMatches;
+  dk.galleryMatch = galleryMatch;
+  dk.initGallery = initGallery;
   dk.initFilters = initFilters;
   dk.dateState = dateState;
   dk.initDates = initDates;
@@ -116,6 +143,7 @@
       initFilters(root.document);
       initDates(root.document);
       initDialogues(root.document);
+      initGallery(root.document);
     });
   }
 })(typeof window !== "undefined" ? window : this);

@@ -4,6 +4,27 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-11
+
+### Added
+
+- Entry types Photo, Mistake, Gap and Inbox. A Photo has an image under `source/resources/photos/`, a `## Transcription` and a `## Meaning`. A Mistake has `## Wrong`, `## Right` and `## Why`, grouped by `Pattern`. A Gap holds what you wanted to say and, once processed, the German. An Inbox file `inbox-YYYY-MM.md` collects quick captures of one month.
+- Problems `place_invalid` and `mistake_incomplete`.
+- Privacy check on every build: `PRIVACY_SUSPECT` for text that looks like an IBAN, an e-mail address, a phone number or an address; `PHOTO_GPS` for images with location data; `PHOTO_MISSING` for a Photo whose image is missing or is a web address. The setting `privacy_allow` is now used; with `strict`, privacy hits stop the build.
+- Pages Photos (a gallery with filters by place and situation), Mistakes (by pattern, newest first) and Inbox (captures and gaps to process, newest first; captures whose first word is in the course are marked). The home page shows how many captures wait.
+- Facet pages by `Place` and `Pattern`, and three new links in the top bar.
+- Photo transcriptions show in "Where it appears" on word pages, after texts and before conversations.
+- A Mistake page links the Grammar entries with the same `Pattern`.
+- Facts with `Checked: unchecked` or `assistant` get a dotted underline on their page and in lists.
+- Starter course: a photo of a building site sign (drawn by `scripts/make_starter_photo.py`), a mistake, a gap and an inbox file. Add page skeletons for the four new types.
+- Skill: workflows "Process the inbox" and "Answer a letter"; Capture writes a Photo, Debrief writes Gaps and Mistakes, Correct my German writes Mistakes; the privacy reference explains the new checks; the site appendix lists photos, mistakes, gaps and patterns.
+
+### Changed
+
+- `Place.md` and `Pattern.md` are now reserved source file names, and names starting with `Place_` or `Pattern_` get `PAGE_NAME_TAKEN`. Rename such a file if your course has one.
+- A Gap needs no `Level`; Photo and Inbox need none either.
+- A Grammar `Pattern` now links the grammar point to the mistakes with that pattern.
+
 ## [0.2.0] - 2026-11-10
 
 ### Added

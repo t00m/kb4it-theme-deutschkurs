@@ -9,9 +9,9 @@ from .glossary import Glossary, find_spans
 from .model import Entry
 from .parse import Unit
 
-SOURCES = ("Text", "Conversation")
+SOURCES = ("Text", "Photo", "Conversation")
 # Real sources first, model conversations last.
-RANK = {"real": 0, "reconstructed": 1}
+RANK = {"Text": 0, "Photo": 1, "real": 2, "reconstructed": 3}
 PLACEHOLDER = re.compile(r"\[[^\]]*\]")
 SENTENCE_END = re.compile(r"(^|[.!?:])[\s\"'„“”»«()*-]*$")
 TITLES = ("Herr", "Frau")
@@ -42,7 +42,7 @@ class Coverage:
 
 def _sources(entries: Iterable[Entry]) -> list[Entry]:
     def rank(entry: Entry) -> int:
-        return 0 if entry.type == "Text" else RANK.get(entry.value("Kind"), 2)
+        return RANK.get(entry.type, RANK.get(entry.value("Kind"), 4))
     found = [e for e in entries if e.type in SOURCES]
     return sorted(found, key=lambda e: (rank(e), sort_key(e.title), e.id))
 

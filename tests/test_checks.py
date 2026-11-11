@@ -25,7 +25,7 @@ def change(base, **kw):
 
 ROWS = [
     ({"Level": ("A1",)}, None, ("Type", "type_missing")),
-    (change(WORD, Type="Photo"), None, ("Type", "type_unknown")),
+    (change(WORD, Type="Poster"), None, ("Type", "type_unknown")),
     (change(WORD, Level=None), None, ("Level", "level_missing")),
     (change(WORD, Level="A3"), None, ("Level", "level_invalid")),
     (change(WORD, Translation=None), None, ("Translation", "translation_missing")),
@@ -41,6 +41,7 @@ ROWS = [
     (change(WORD, Topic="Kino"), ["Schule"], ("Topic", "topic_unknown")),
     (change(VERB, Separable="Yes", Prefix="an"), None, ("Separable", "flag_invalid")),
     (change(WORD, PluralOnly="true"), None, ("PluralOnly", "flag_invalid")),
+    ({"Type": ("Photo",), "Place": ("Moon",)}, None, ("Place", "place_invalid")),
 ]
 
 
@@ -86,7 +87,7 @@ def test_plural_only_noun_needs_no_article():
 def test_reasons_complete():
     # Reasons outside ROWS have their own tests below.
     other = {"explanation_missing", "kind_missing", "kind_invalid", "genre_invalid", "situation_unknown",
-             "turn_invalid"}
+             "turn_invalid", "mistake_incomplete"}
     assert set(REASONS) == {r[2][1] for r in ROWS} | other
 
 
@@ -155,3 +156,45 @@ def test_unknown_situation_is_a_problem():
 def test_new_reasons_listed():
     for reason in ("kind_missing", "kind_invalid", "genre_invalid", "situation_unknown", "turn_invalid"):
         assert reason in REASONS
+
+
+PHOTO = {"Type": ("Photo",), "Place": ("Street",)}
+MISTAKE = {"Type": ("Mistake",), "Level": ("A1",), "Pattern": ("es-tener-haben",)}
+
+
+def test_photo_needs_no_level():
+    assert check_properties("p.md", PHOTO, None) == []
+
+
+def test_gap_needs_no_level():
+    assert check_properties("g.md", {"Type": ("Gap",)}, None) == []
+    assert check_properties("i.md", {"Type": ("Inbox",)}, None) == []
+
+
+def test_mistake_needs_level():
+    problems = check_properties("m.md", change(MISTAKE, Level=None), None)
+    assert [(p.key, p.reason) for p in problems] == [("Level", "level_missing")]
+
+
+def test_place_invalid():
+    problems = check_properties("p.md", change(PHOTO, Place="Moon"), None)
+    assert [(p.key, p.reason) for p in problems] == [("Place", "place_invalid")]
+
+
+def test_place_invalid_in_verify():
+    assert verify({}, {"p.md": change(PHOTO, Place="Moon")}) == [
+        "META_INVALID doc=p.md key=Place reason=place_invalid"]
+
+
+def test_mistake_without_right_is_incomplete():
+    entry = entry_from("m.md", MISTAKE, "# Ich habe 40 Jahre\n\n## Wrong\n\nIch habe 40 Jahre.\n\n## Right\n\n\n")
+    assert [(p.key, p.reason) for p in check_body(entry)] == [("Right", "mistake_incomplete")]
+
+
+def test_complete_mistake_is_clean():
+    entry = entry_from("m.md", MISTAKE, "# X\n\n## Wrong\n\nIch habe 40 Jahre.\n\n## Right\n\nIch bin 40.\n")
+    assert check_body(entry) == []
+
+
+def test_reasons_of_0_3_listed():
+    assert "place_invalid" in REASONS and "mistake_incomplete" in REASONS

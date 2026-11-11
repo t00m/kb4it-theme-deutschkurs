@@ -38,3 +38,20 @@ When you are not sure whether something is personal, replace it.
 ## Photos
 
 Do not describe faces or people in photos. If a photo shows a person, a number plate or a house number, say that the learner should crop or blur it before keeping the image.
+
+Phone cameras store where a photo was taken. Tell the learner to remove that location data before the image goes into `source/resources/photos/`. You never write an image file yourself.
+
+## What the build checks
+
+`kb4it build` reads every file and logs `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` for text that looks like personal data. It is a filter that catches the obvious cases, not a proof that a file is clean: names, for example, are not detected.
+
+| Reason | What it looks for |
+|---|---|
+| `iban` | Two letters, two digits and blocks of digits, such as a German IBAN with or without spaces |
+| `email` | An e-mail address |
+| `phone` | A number starting with `+49` or `0` and an area code, such as `030 1234567` |
+| `address` | A five-digit postcode before a town name, or a street name ending in `straße`, `weg`, `platz`, `gasse`, `allee`, `ring`, `damm` or `ufer` with a house number |
+
+A postcode followed by a unit such as `Euro` or `Stück`, and words such as `Sitzplatz 45` or `Heimweg 20`, are not reported. A customer or file number that starts with `0` can look like a phone number. A hit is a question, not a verdict: when the text is not personal data, leave it as it is. For text that is not personal, such as the public address of an office the learner needs, the learner adds the exact text to the `privacy_allow` setting, a list of strings. Every hit inside an allowed text is dropped, so one entry for a whole address covers its street and its postcode. Never add a private address there.
+
+For each image under `source/resources/photos/` that holds GPS data, the build logs `PHOTO_GPS doc=<image>`. With `"strict": true`, privacy hits and photos with GPS data stop the build like metadata problems.

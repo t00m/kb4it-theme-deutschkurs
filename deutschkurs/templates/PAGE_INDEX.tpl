@@ -10,6 +10,9 @@
         </a></li>
 % endfor
     </ul>
+% if var['inbox']:
+    <p class="dk-inbox-count"><a href="inbox.html">${var['inbox']}</a></p>
+% endif
 % if var['coming']:
     <section class="dk-dated dk-coming-up">
         <h2>${L['coming_up']}</h2>

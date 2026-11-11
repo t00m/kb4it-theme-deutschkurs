@@ -97,3 +97,11 @@ def test_marker_hits_whole_words_only():
 def test_marker_hits_without_markers():
     from deutschkurs.logic.index import marker_hits
     assert marker_hits((), ENTRIES) == []
+
+
+def test_photo_sentences_come_after_texts_and_before_real_conversations():
+    from deutschkurs.logic.index import build_index
+    photo = make("schild.md", "# Schild\n\n![x](resources/photos/s.webp)\n\n## Transcription\n\nTermin heute!\n",
+                 Type="Photo")
+    found = build_index([*ENTRIES, photo], build_glossary([*ENTRIES, photo]))["termin.md"]
+    assert [(o.doc, o.anchor) for o in found][:3] == [("brief.md", "s1"), ("schild.md", "p1"), ("real.md", "t1")]

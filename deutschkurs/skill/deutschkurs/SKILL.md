@@ -1,20 +1,24 @@
 ---
 name: deutschkurs
-description: Use when working on a deutschkurs German course (a KB4IT site built with the deutschkurs theme), such as turning a real letter, chat, photo or note into course entries, preparing a conversation the learner will have, writing down one they had, correcting the learner's German, fixing problems reported by kb4it build or kb4it verify, or converting lingua files.
+description: Use when working on a deutschkurs German course (a KB4IT site built with the deutschkurs theme), such as turning a real letter, chat, photo or note into course entries, preparing a conversation the learner will have, writing down one they had, correcting the learner's German, processing the inbox, drafting the answer to a letter, fixing problems reported by kb4it build or kb4it verify, or converting lingua files.
 ---
 
 # deutschkurs
 
 A deutschkurs course is a folder of Markdown files, one entry per file, built into an offline website by KB4IT with the deutschkurs theme. The learner lives in Germany and learns from real life. Your job is to help them turn that real life into correct, honest course files.
 
-This skill matches theme version 0.2. It knows seven entry types:
+This skill matches theme version 0.3. It knows eleven entry types:
 
 - Situation: a moment of the learner's life that comes back, such as the school gate or the doctor.
 - Conversation: a dialogue of that moment, real, rebuilt from memory or written to practise.
 - Text: something the learner read, such as a letter, a notice or a chat.
+- Photo: a photo of German text, such as a sign or a poster, with its transcription.
 - Word, Verb, Chunk and Grammar: what the learner needs to say and understand it.
+- Mistake: something the learner said or wrote wrong, with the right form.
+- Gap: something the learner wanted to say and could not.
+- Inbox: quick captures of one month, to process later.
 
-The course is built around conversations: a Situation collects its conversations, texts, words and chunks, and every word page shows the sentences where the word appears. Photos, mistakes, gaps and the inbox come in later versions. Do not create files of those types yet.
+The course is built around conversations: a Situation collects its conversations, texts, words and chunks, and every word page shows the sentences where the word appears.
 
 ## Before you start
 
@@ -46,14 +50,15 @@ Input: a letter, a chat, a photo of a sign, a note of something heard.
 
 1. Apply rule 1. Show the replacements.
 2. Transcribe the German. For a photo, say what you can and cannot read.
-3. Write the material as a file with `Type: Text`: short paragraphs of one or two sentences, each followed by a blockquote with its translation into the `native` language. Set `Genre`, and `Situation` when one fits. Set `Source` to where it came from, in general terms (`Elternbrief der Schule`, not the school's name). Ask for the day it arrived (`Received`).
-4. When the text asks for something by a day, set `Deadline`. When it needs an answer, set `Reply: yes`. Tell the learner in one line what they have to do and by when.
-5. List the words, verbs and chunks the learner does not have yet (check `reference/site.md`). Mark which ones are worth learning and why.
-6. Propose at most five entries. Wait for the learner to choose.
-7. Write the chosen files. Use sentences from the text as examples. Give them the same `Situation`.
-8. Run `kb4it verify` and `kb4it build`, and fix what they report.
+3. For a photo of a sign, a poster or a note, write a file with `Type: Photo`: the image line under the title, the German under `## Transcription`, one paragraph per line of the sign, and the meaning under `## Meaning`. The learner saves the image in `source/resources/photos/` after removing its location data (see `reference/privacy.md`); you never write an image file. Go on with step 6.
+4. For anything longer, such as a letter, write the material as a file with `Type: Text`: short paragraphs of one or two sentences, each followed by a blockquote with its translation into the `native` language. Set `Genre`, and `Situation` when one fits. Set `Source` to where it came from, in general terms (`Elternbrief der Schule`, not the school's name). Ask for the day it arrived (`Received`).
+5. When the text asks for something by a day, set `Deadline`. When it needs an answer, set `Reply: yes`. Tell the learner in one line what they have to do and by when.
+6. List the words, verbs and chunks the learner does not have yet (check `reference/site.md`). Mark which ones are worth learning and why.
+7. Propose at most five entries. Wait for the learner to choose.
+8. Write the chosen files. Use sentences from the text as examples. Give them the same `Situation`.
+9. Run `kb4it verify` and `kb4it build`, and fix what they report.
 
-A chat the learner took part in can be a Conversation with `Kind: real` instead: one turn per message, speakers as roles. This version keeps no image: write the text of a photo as a Text with `Genre: Notice`.
+A chat the learner took part in can be a Conversation with `Kind: real` instead: one turn per message, speakers as roles.
 
 ### Prepare a situation
 
@@ -75,7 +80,7 @@ Input: the learner's account of a conversation they had, in any language.
 2. Find the Situation, or create it as in "Prepare a situation".
 3. Write the Conversation with `Kind: reconstructed` and the day it happened in `Date`. Use `real` only for a transcript the learner gives you, and never `model` for something that happened.
 4. Write the turns in correct German. In a reconstructed conversation, a turn the learner got wrong holds what they wanted to say, and `## Notes` says what they said instead and why it changes. In a `real` one, keep every word as it was and put the better sentence under `## Variations`.
-5. Under `## Notes`, list what the learner could not say or did not understand. Propose at most five words or chunks for it.
+5. For each thing the learner could not say, write a file with `Type: Gap`: the sentence in the learner's language under `## I wanted to say`, and the German under `## In German`. For each mistake worth practising, write a file with `Type: Mistake` (see "Correct my German"). Under `## Notes`, list what the learner did not understand. Propose at most five words or chunks.
 6. Add a line to `## Log` of the Situation: `- YYYY-MM-DD` and one sentence on how it went, in the learner's words.
 7. Ask which `## I can` items worked. The learner ticks them; tick one only when the learner asks you to.
 8. Update or remove `NextTime` when the day has passed.
@@ -89,8 +94,29 @@ Input: a sentence or text the learner wrote or said.
 2. Give the corrected version first, then each change with a one-line reason.
 3. Say what was already good. Keep it short.
 4. When a mistake comes from the habits of the learner's own language, say so: that helps the learner spot it again.
-5. Offer to add a chunk or a word entry for the correct form when it is reusable. A Mistake entry type comes in a later version; until then, put the wrong and right form under `## Typical mistakes` of the Verb or Grammar entry it belongs to, as `wrong :: right`.
+5. For each mistake worth practising, offer a file with `Type: Mistake`: one sentence under `## Wrong`, one under `## Right`, one or two lines under `## Why`. Give mistakes of one kind the same `Pattern`, and reuse the patterns in `reference/site.md`. When a Grammar entry covers the point, give it the same `Pattern`.
 6. When the text is the learner's side of a conversation that happened, offer the Debrief workflow.
+
+### Process the inbox
+
+Input: the Inbox page, or the `inbox-YYYY-MM.md` files and the Gaps with an empty `## In German`.
+
+1. Apply rule 1 to every capture.
+2. List the captures, newest first. Mark the ones already in the course, and say in one line what each of the others could become: a Word, a Chunk, a Photo, a Text.
+3. The learner chooses. Write the chosen entries with the rules of "Capture", at most five at a time.
+4. For a Gap, write the German under `## In German`: one natural sentence at the learner's level, with `Checked: assistant`. Propose the chunk it needs when it is reusable.
+5. Remove from the inbox file the items that became entries, or that the learner drops. Keep the others.
+6. Run `kb4it verify` and `kb4it build`.
+
+### Answer a letter
+
+Input: a Text with `Reply: yes`, such as a letter from the school or an office.
+
+1. Read the Text and its `Deadline`. Say in one line what the letter asks and by when.
+2. Ask the learner what they want to answer, in any language.
+3. Write a short draft in German at the learner's level, with the right greeting and closing for the sender (`Sehr geehrte Frau A.`, `Mit freundlichen Grüßen`). Use placeholders for every personal datum; the learner fills them in.
+4. Point out the two or three sentences worth keeping as chunks, and offer them.
+5. The draft is for the learner to rewrite and send. Never send it yourself, and do not write it into the course as a Text unless the learner asks.
 
 ### Fix problems
 
@@ -98,7 +124,7 @@ Input: the output of `kb4it build` or `kb4it verify`.
 
 1. Read `reference/checks.md`.
 2. For each `META_INVALID doc=<file> key=<key> reason=<reason>` line, open the file and apply the fix for that reason.
-3. For KB4IT's own messages (`DOC_INVALID`, `DOC_NAME_RESERVED`), apply the fixes in the same file.
+3. For `PRIVACY_SUSPECT`, `PHOTO_GPS` and `PHOTO_MISSING`, and for KB4IT's own messages (`DOC_INVALID`, `DOC_NAME_RESERVED`), apply the fixes in the same file. Fix a privacy hit that is personal data with a placeholder, never by adding it to `privacy_allow`. When a hit is not personal (a seat number, a public office), leave the text as it is and tell the learner they may add it to `privacy_allow`.
 4. Run `kb4it verify` again until it reports no problems. `verify` reads properties only; run `kb4it build` too, which also checks sections such as `## Explanation`, the turns of a conversation and the `Situation` names.
 
 ### Convert lingua files

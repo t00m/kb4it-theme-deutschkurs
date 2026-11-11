@@ -8,9 +8,9 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`. Some e
 
 | Reason | Cause | Fix |
 |---|---|---|
-| `type_missing` | No `Type` property | Add `Type: Word`, `Verb`, `Chunk`, `Grammar`, `Text`, `Conversation` or `Situation` |
-| `type_unknown` | `Type` is not one of the seven | Correct it; Photo, Mistake and other types come in later versions |
-| `level_missing` | No `Level`, on any type but Situation | Add `Level: A1` to `C2` |
+| `type_missing` | No `Type` property | Add `Type: Word`, `Verb`, `Chunk`, `Grammar`, `Text`, `Conversation`, `Situation`, `Photo`, `Mistake`, `Gap` or `Inbox` |
+| `type_unknown` | `Type` is not one of the eleven | Correct it |
+| `level_missing` | No `Level`, on any type but Situation, Photo, Gap and Inbox | Add `Level: A1` to `C2` |
 | `level_invalid` | `Level` is not `A1` to `C2` | Correct it |
 | `translation_missing` | Word, Verb or Chunk without `Translation` | Add the translation in the `native` language |
 | `article_missing` | Noun without `der`, `die` or `das` | Add `Article`, or `PluralOnly: yes` for plural-only nouns |
@@ -29,6 +29,8 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`. Some e
 | `kind_invalid` | `Kind` not `real`, `reconstructed` or `model` | Correct it, lower case |
 | `genre_invalid` | `Genre` of a Text not an allowed value | Use one of the values in `entry-types.md`, or `Other` |
 | `turn_invalid` | An item of the turn list, or of `## Variations`, is not written `**Speaker:** German`; a variation also needs the turn number first | Fix the line the message names. Only `kb4it build` reports this one |
+| `place_invalid` | `Place` of a Photo not an allowed value | Use one of the values in `entry-types.md`, or `Other` |
+| `mistake_incomplete` | A Mistake without text under `## Wrong` or `## Right` | Write one sentence in each. Only `kb4it build` reports this one |
 | `situation_unknown` | A `Situation` value is not the title of a Situation entry | Correct the spelling, or create the Situation entry. Only `kb4it build` reports this one |
 
 ## Other theme messages
@@ -37,7 +39,19 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`. Some e
 |---|---|---|
 | `LABEL_UNKNOWN key=<key>` | A `labels` override names a label that does not exist | Remove or correct that key in the `labels` setting |
 | `COLOR_INVALID key=<key>` | `accent` or a `gender_colors` value is not a CSS colour; the default is used | Use a hex colour such as `#c0392b`, a colour name, or `rgb()` |
-| `PAGE_NAME_TAKEN doc=<file>` | The file name is the name of a facet page, in any case: `Level`, `Topic`, `Register`, `ConversationKind` or `Genre`, alone or followed by `_` | Rename the file, for example `genre.md` to `das-genre.md` |
+| `PAGE_NAME_TAKEN doc=<file>` | The file name is the name of a facet page, in any case: `Level`, `Topic`, `Register`, `ConversationKind`, `Genre`, `Place` or `Pattern`, alone or followed by `_` | Rename the file, for example `genre.md` to `das-genre.md` |
+
+## Privacy and photo messages
+
+Only `kb4it build` reports these: they read the text of the files and the images. Details in `privacy.md`.
+
+| Message | Cause | Fix |
+|---|---|---|
+| `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` | That line looks like personal data: an IBAN, an e-mail address, a phone number or an address | Replace it with a placeholder from `privacy.md`. When it is not personal (a seat number, the address of a public office), leave the text and let the learner add it to `privacy_allow` |
+| `PHOTO_GPS doc=<image>` | The image under `resources/photos/` holds GPS data: where it was taken. With `strict`, it stops the build | Remove the location data: save the image again without metadata, or turn off location in the camera app |
+| `PHOTO_MISSING doc=<file> reason=missing` | The Photo names an image file that does not exist | Correct the path, or add the image under `source/resources/photos/` |
+| `PHOTO_MISSING doc=<file> reason=none` | The Photo has no image before its first section | Add `![what it shows](resources/photos/<file>)` under the title |
+| `PHOTO_MISSING doc=<file> reason=remote` | The image is a web address | Save the image under `source/resources/photos/`; pages never load anything from the internet |
 
 ## KB4IT messages
 

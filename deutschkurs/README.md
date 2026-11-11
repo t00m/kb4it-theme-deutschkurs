@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.2.0, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.3.0, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -15,12 +15,18 @@ One file per entry in `source/`, with YAML frontmatter, one `#` title and option
 | Text | Something you read: a letter, a notice, a chat | `Level`; optional `Genre`, `Received`, `Deadline`, `Reply` |
 | Conversation | A dialogue from your life, one list item per turn | `Level`, `Kind` (`real`, `reconstructed`, `model`); optional `Me`, `Register` |
 | Situation | A moment that comes back, such as the parents' evening | none; optional `NextTime`, sections `## I can` and `## Log` |
+| Photo | A photo of German text, such as a sign | none; an image under the title, optional `Place`, sections `## Transcription` and `## Meaning` |
+| Mistake | Something you said or wrote wrong | `Level`, sections `## Wrong` and `## Right`; optional `Pattern`, `## Why` |
+| Gap | Something you wanted to say and could not | none; sections `## I wanted to say` and `## In German` (empty until processed) |
+| Inbox | Quick captures of one month, in `inbox-YYYY-MM.md` | none; one list item per capture, starting with its day |
 
 Translation pairs are list items: `- German sentence :: translation`. A Conversation turn is `- **Speaker:** German :: translation`. In a Text, a blockquote right after a paragraph is its translation.
 
 Common optional properties: `Checked` (`unchecked`, `assistant`, `reference`, `native`, `attested`), `Topic`, `Situation`, `Source`, `Date`, `Tag`. `Situation` is the `#` title of a Situation entry; the entry is then listed on that situation's page. A value that names no Situation gives `situation_unknown` during the build.
 
-Word, verb and chunk pages show "Where it appears": up to 10 sentences from your texts and conversations that use the entry, each linked to its sentence. A Grammar page with `Marker` values lists sentences that contain those markers, the same way. Text and Conversation pages show coverage: how many of their words your course already knows.
+Word, verb and chunk pages show "Where it appears": up to 10 sentences from your texts, photos and conversations that use the entry, each linked to its sentence. A Grammar page with `Marker` values lists sentences that contain those markers, the same way. Text and Conversation pages show coverage: how many of their words your course already knows.
+
+Images live in `source/resources/photos/`, without location data and without people. A Mistake shows the Grammar entries that have the same `Pattern`. Facts with `Checked: unchecked` or `assistant` get a dotted underline.
 
 KB4IT splits property values on commas, so sentences and explanations go in the body. A noun without plural has `Plural: none`.
 
@@ -34,7 +40,7 @@ In `config/repo.json`, block `"deutschkurs"`:
 | `labels` | `{}` | Overrides of single interface strings |
 | `learner_level` | `A2` | Your level |
 | `german_from` | `B1` | From this level, grammar pages show the simple German version first |
-| `strict` | `false` | Metadata problems stop the build |
+| `strict` | `false` | Metadata problems and privacy hits stop the build |
 | `speech` | `true` | Listen buttons |
 | `speech_lang` | `de-DE` | Preferred voice language |
 | `voice` | none | Name of a preferred voice |
@@ -43,14 +49,19 @@ In `config/repo.json`, block `"deutschkurs"`:
 | `topics` | none | When set, the only allowed `Topic` values |
 | `prepare_days` | `7` | Days before a situation's `NextTime` that the home page and the situation page show it as coming up |
 | `known_words` | `[]` | Words you know without an entry; coverage counts them as known |
+| `privacy_allow` | `[]` | Exact texts the privacy check accepts, such as the public address of an office |
 
-Settings for later versions (`voice_me`, `slow_rate`, `daily_reviews`, `daily_new`, `weekly_new`, `privacy_allow`) are accepted and not used yet.
+Settings for later versions (`voice_me`, `slow_rate`, `daily_reviews`, `daily_new`, `weekly_new`) are accepted and not used yet.
 
 ## Pages
 
-Home, Situations, Conversations, Texts, Vocabulary, Verbs, Chunks, Grammar, Assistant skill, search, and facet pages `Level.html`, `Topic.html`, `Register.html`, `ConversationKind.html`, `Genre.html` with one page per value. The home page lists situations coming up and texts with an open deadline. Dated blocks are hidden by JavaScript when they are out of range, so a site built last week is still right today.
+Home, Situations, Conversations, Texts, Photos, Mistakes, Inbox, Vocabulary, Verbs, Chunks, Grammar, Assistant skill, search, and facet pages `Level.html`, `Topic.html`, `Register.html`, `ConversationKind.html`, `Genre.html`, `Place.html`, `Pattern.html` with one page per value. Photos is a gallery with filters by place and situation. Mistakes groups mistakes by `Pattern`, newest first. Inbox lists the captures of every inbox file and the gaps to process; it is the only page that shows inbox files, which search leaves out. The home page lists situations coming up, texts with an open deadline and the number of captures to process. Dated blocks are hidden by JavaScript when they are out of range, so a site built last week is still right today.
 
-These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chunks.md`, `grammar.md`, `texts.md`, `conversations.md`, `situations.md`, `skill.md`, `Level.md`, `Topic.md`, `Register.md`, `Genre.md` (and the others in `logic/theme.py`) is refused. A file whose name starts with a facet name and `_`, such as `Level_` or `Genre_`, gets a `PAGE_NAME_TAKEN` warning. Your own `index.md` replaces the home page.
+These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chunks.md`, `grammar.md`, `texts.md`, `conversations.md`, `situations.md`, `skill.md`, `Level.md`, `Topic.md`, `Register.md`, `Genre.md`, `Place.md`, `Pattern.md` (and the others in `logic/theme.py`) is refused. A file whose name starts with a facet name and `_`, such as `Level_` or `Genre_`, gets a `PAGE_NAME_TAKEN` warning. Your own `index.md` replaces the home page.
+
+## Privacy
+
+Each build reads every source file and warns with `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` when a line looks like an IBAN, an e-mail address, a phone number or an address. Images under `source/resources/photos/` with GPS data give `PHOTO_GPS`. A Photo whose image is missing or is a web address gives `PHOTO_MISSING`. These checks catch the obvious cases; they do not find names. With `strict`, privacy hits and photos with GPS data stop the build. An entry of `privacy_allow` drops every hit inside that text, so one entry covers a whole address.
 
 ## German voice
 

@@ -5,5 +5,9 @@
   {"id": "word", "name": "Word", "description": "A noun, adjective or other single word, with examples."},
   {"id": "verb", "name": "Verb", "description": "A verb with its Perfekt and present forms."},
   {"id": "chunk", "name": "Chunk", "description": "A fixed phrase you use as one block."},
-  {"id": "grammar", "name": "Grammar", "description": "One grammar point, explained briefly."}
+  {"id": "grammar", "name": "Grammar", "description": "One grammar point, explained briefly."},
+  {"id": "photo", "name": "Photo", "description": "A sign, poster or note you photographed, with its German text."},
+  {"id": "mistake", "name": "Mistake", "description": "Something you said or wrote wrong, and the right form."},
+  {"id": "gap", "name": "Gap", "description": "Something you wanted to say and could not."},
+  {"id": "inbox", "name": "Inbox", "description": "Quick captures of one month, to process later."}
 ]

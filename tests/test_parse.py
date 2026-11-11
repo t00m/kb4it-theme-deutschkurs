@@ -175,3 +175,60 @@ def test_rules_and_boxes_are_not_paragraphs():
     from deutschkurs.logic.parse import paragraphs
     text = "# T\n\nEins.\n\n---\n\n!!! note\n    Im Kasten.\n\n<span>Zwei</span> und mehr.\n\n<div>Block</div>\n"
     assert [u.german for u in paragraphs(text)] == ["Eins.", "Zwei und mehr."]
+
+
+from deutschkurs.logic.parse import InboxItem, image, inbox_items
+
+PHOTO_DOC = """---
+Type: Photo
+---
+
+# Baustelle betreten verboten
+
+![Sign at a building site](resources/photos/2026-11-09-baustelle.webp)
+
+## Transcription
+
+Baustelle betreten verboten!
+Eltern haften für ihre Kinder.
+
+Zweiter Satz.
+
+## Meaning
+
+![later](resources/photos/other.webp)
+"""
+
+
+def test_image_found_before_sections():
+    assert image(PHOTO_DOC) == "resources/photos/2026-11-09-baustelle.webp"
+    assert image("# T\n\n## Meaning\n\n![x](a.webp)\n") == ""
+
+
+INBOX_DOC = """---
+Type: Inbox
+---
+
+# Inbox November
+
+- 2026-11-09 Kaution | Vermieter hat gesagt | Wohnung
+- Pfand
+- 2026-13-45 Pfand am Automaten
+- 2026-11-10 ![](resources/photos/2026-11-09-pfand.webp) Pfandautomat
+"""
+
+
+def test_inbox_items_with_and_without_date():
+    items = inbox_items(INBOX_DOC)
+    assert [(i.date, i.text) for i in items] == [
+        ("2026-11-09", "Kaution | Vermieter hat gesagt | Wohnung"),
+        ("", "Pfand"),
+        ("2026-13-45", "Pfand am Automaten"),
+        ("2026-11-10", "Pfandautomat"),
+    ]
+    assert items[0].line == 7
+
+
+def test_inbox_item_image_split_from_text():
+    item = inbox_items(INBOX_DOC)[3]
+    assert item == InboxItem("2026-11-10", "Pfandautomat", "resources/photos/2026-11-09-pfand.webp", 10)

@@ -28,6 +28,9 @@
             <a href="situations.html">${dk['labels']['situations']}</a>
             <a href="conversations.html">${dk['labels']['conversations']}</a>
             <a href="texts.html">${dk['labels']['texts']}</a>
+            <a href="photos.html">${dk['labels']['photos']}</a>
+            <a href="mistakes.html">${dk['labels']['mistakes']}</a>
+            <a href="inbox.html">${dk['labels']['inbox']}</a>
             <a href="vocabulary.html">${dk['labels']['vocabulary']}</a>
             <a href="verbs.html">${dk['labels']['verbs']}</a>
             <a href="chunks.html">${dk['labels']['chunks']}</a>

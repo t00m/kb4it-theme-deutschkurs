@@ -16,7 +16,7 @@ from .parse import Unit
 
 GENDER = {"der": "dk-m", "die": "dk-f", "das": "dk-n"}
 PERFEKT = {"haben": "hat", "sein": "ist"}
-FACET_KEYS = ("Level", "Topic", "Register", "Kind", "Genre")
+FACET_KEYS = ("Level", "Topic", "Register", "Kind", "Genre", "Place", "Pattern")
 # Kind.html and the Word page kind.html are one file where file names ignore case.
 FACET_PAGES = {"Kind": "ConversationKind"}
 # Lists a Situation page shows, in order: label and entry type.
@@ -24,12 +24,15 @@ RELATED = (("conversations", "Conversation"), ("texts", "Text"), ("vocabulary", 
            ("chunks", "Chunk"), ("grammar", "Grammar"))
 INDEXED = ("Word", "Verb", "Chunk")
 MAX_SENTENCES = 10
+# Checked values whose facts no person or reference has confirmed.
+UNVERIFIED = ("unchecked", "assistant")
+IMG_TAG = re.compile(r"<img\b(?![^>]*\bloading=)")
 LIST_ITEM = re.compile(r'<li( class="task-list-item")?>(.*?)</li>', re.S)
 PARAGRAPH = re.compile(r"^\s*<p>(.*)</p>\s*$", re.S)
 CHECKBOX = re.compile(r"^\s*(<input\b[^>]*>)\s*")
 TAGS = re.compile(r"<[^>]+>")
 SECTION_START = re.compile(r'(?=<div class="kb-sect1">)')
-SECTION_WRAPPER = re.compile(r'^<div class="(kb-sect\d+|sectionbody)"')
+SECTION_WRAPPER = re.compile(r'^<div class="(kb-sect\d+|sectionbody)[" ]')
 VARIATIONS = re.compile(r'<h2\b[^>]*\bid="variations"')
 BLOCK = re.compile(r"<(ul|ol|p|div|blockquote|pre|table|details)\b")
 TURN = re.compile(r"^<(strong|b)>([^<]+?)(?::</\1>|</\1>:)\s*(.*)$", re.S)
@@ -248,7 +251,12 @@ def text_html(fragment: str, units: Sequence[Unit], native: str, labels: dict[st
     A paragraph is matched to a unit by its text, so a paragraph the index left out gets no anchor.
     """
     chunks = SECTION_START.split(fragment)
-    head = chunks[0]
+    chunks[0] = _sentence_paragraphs(chunks[0], units, native, labels)
+    return "".join(chunks)
+
+
+def _sentence_paragraphs(head: str, units: Sequence[Unit], native: str, labels: dict[str, str]) -> str:
+    """Paragraphs of head that match a unit get its anchor and a Listen button; a following quote is folded."""
     keys = [_letters(unit.german) for unit in units]
     lang = html.escape(native, quote=True)
     changes, at, sentence_end = [], 0, -1
@@ -270,7 +278,25 @@ def text_html(fragment: str, units: Sequence[Unit], native: str, labels: dict[st
                                     f'{head[inner_start:inner_end]}</span> '
                                     f'{listen_button(unit.german, labels["listen"])}</p>'))
         sentence_end = end
-    chunks[0] = _replace(head, changes)
+    return _replace(head, changes)
+
+
+def photo_html(fragment: str, units: Sequence[Unit], native: str, labels: dict[str, str]) -> str:
+    """Load images lazily and give the paragraphs of the Transcription section their sentence anchors."""
+    chunks = SECTION_START.split(IMG_TAG.sub('<img loading="lazy"', fragment))
+    for i, chunk in enumerate(chunks):
+        if 'id="transcription"' in chunk:
+            chunks[i] = _sentence_paragraphs(chunk, units, native, labels)
+    return "".join(chunks)
+
+
+def mistake_html(fragment: str) -> str:
+    """Mark the Wrong and Right sections, so the wrong form is struck through and the right one stands out."""
+    chunks = SECTION_START.split(fragment)
+    for i, chunk in enumerate(chunks):
+        for name in ("wrong", "right"):
+            if re.search(rf'<h2\b[^>]*\bid="{name}"', chunk):
+                chunks[i] = chunk.replace('<div class="kb-sect1">', f'<div class="kb-sect1 dk-mistake-{name}">', 1)
     return "".join(chunks)
 
 
@@ -366,6 +392,18 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     if entry.type == "Text":
         fact("received", plain_date(entry.value("Received")))
         fact("deadline", plain_date(entry.value("Deadline")))
+    if entry.type == "Photo" and entry.value("Place"):
+        links.append((labels["place"], [(entry.value("Place"), facet_page("Place", entry.value("Place")))]))
+    if entry.type in ("Mistake", "Gap"):
+        fact("date", plain_date(entry.value("Date")))
+    if entry.type == "Mistake" and entry.value("Pattern"):
+        pattern = entry.value("Pattern")
+        links.append((labels["pattern"], [(pattern, facet_page("Pattern", pattern))]))
+        points = [g for g in course.by_type("Grammar") if pattern in g.values("Pattern")]
+        if points:
+            links.append((labels["grammar_point"], [(g.title, url(g.id)) for g in points]))
+    if entry.type == "Gap":
+        fact("gap_state", labels["to_process"] if entry.open_gap else labels["processed"])
     if entry.type == "Situation":
         ticked, total = entry.cando
         fact("i_can", f"{ticked} / {total}" if total else "")
@@ -391,12 +429,15 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
         badges.append(("dk-badge dk-register", entry.value("Register"), facet_page("Register", entry.value("Register"))))
     if entry.type == "Text" and entry.value("Reply") == "yes":
         badges.append(("dk-badge dk-reply", labels["reply"], ""))
-    if entry.type != "Situation":
+    if entry.type not in ("Situation", "Inbox"):
         badges.append((f"dk-badge dk-checked dk-checked-{entry.checked}", entry.checked, ""))
+    unverified = entry.type not in ("Situation", "Inbox") and entry.checked in UNVERIFIED
+    hint = f' title="{html.escape(labels["unverified_hint"], quote=True)}"' if unverified else ""
     # Only a German word, verb or chunk is read aloud from the card.
     say = headline if entry.type in INDEXED or entry.type == "Grammar" else ""
     return {"kind": entry.type, "headline": headline, "headline_class": css, "say": say,
-            "translation": entry.translation, "badges": badges, "facts": facts, "links": links}
+            "translation": entry.translation, "badges": badges, "facts": facts, "links": links,
+            "unverified": unverified, "hint_attr": hint}
 
 
 def plain_date(value: str) -> str:
@@ -435,6 +476,7 @@ def extras(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[
         "candidates": sentences(hits),
         "more_candidates": max(0, len(hits) - MAX_SENTENCES),
         "coverage": course.coverage.get(entry.id) if entry.type in ("Text", "Conversation") else None,
+        "see_inbox": entry.type == "Inbox",
     }
 
 
