@@ -1,6 +1,6 @@
 # kb4it-theme-deutschkurs
 
-A [KB4IT](https://github.com/t00m/KB4IT) theme for a personal German course. You write what you meet in real life (school letters, chats, conversations at the school gate, street signs) as small Markdown files; KB4IT builds them into an offline website with situations, conversations, texts, linked vocabulary, verbs, phrases and grammar, and Listen buttons.
+A [KB4IT](https://github.com/t00m/KB4IT) theme for a personal German course. You write what you meet in real life (school letters, chats, conversations at the school gate, street signs) as small Markdown files; KB4IT builds them into an offline website with situations, conversations, texts, linked vocabulary, verbs, phrases and grammar, Listen buttons, and practice with spaced repetition in the browser.
 
 The theme also ships an assistant skill that helps you turn real material into correct course files, after removing personal data.
 

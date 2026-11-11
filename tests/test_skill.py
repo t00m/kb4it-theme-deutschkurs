@@ -305,3 +305,9 @@ def test_site_appendix_lists_photos_mistakes_and_gaps(built_site):
     assert "- `gap-krankmeldung.md`: Mein Kind ist krank (to process)" in site_md
     assert "## Pattern values in use" in site_md and "- es-tener-haben" in site_md
     assert "Pfand" not in site_md
+
+
+def test_skill_explains_what_makes_an_entry_ready_to_practise():
+    text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+    rule = text.split("**Ready to practise.**", 1)[1].split("\n", 1)[0]
+    assert "`Checked: unchecked`" in rule and "## Examples" in rule and "## In German" in rule

@@ -25,7 +25,7 @@ def test_counts():
     c = course()
     assert {kind: len(c.by_type(kind)) for kind in TYPES} == \
         {"Word": 10, "Verb": 5, "Chunk": 4, "Grammar": 2, "Text": 1, "Conversation": 1, "Situation": 3,
-         "Photo": 1, "Mistake": 1, "Gap": 1, "Inbox": 1}
+         "Photo": 1, "Mistake": 1, "Gap": 2, "Inbox": 1}
     assert c.problems == []
 
 
@@ -167,3 +167,20 @@ def test_starter_inbox_marks_a_known_word(built_site):
 def test_starter_has_no_privacy_or_photo_warning(built_site):
     for code in ("PRIVACY_SUSPECT", "PHOTO_GPS", "PHOTO_MISSING"):
         assert code not in built_site.log
+
+
+EXERCISES = {"article", "plural", "to_native", "to_target", "perfekt", "separable", "cloze", "roleplay", "mistake",
+             "gap"}
+
+
+def test_starter_has_a_card_for_every_exercise(built_site):
+    import json
+    framework = Path(__file__).resolve().parent.parent / "deutschkurs" / "framework" / "deutschkurs"
+    script = (
+        "const fs=require('fs'),vm=require('vm'),c={};c.window=c;"
+        "for (const f of process.argv.slice(1)) vm.runInNewContext(fs.readFileSync(f,'utf8'),c);"
+        "console.log(JSON.stringify([...new Set(c.Deutschkurs.practice.cards(c.DEUTSCHKURS_DATA).map(x=>x.exercise))]))")
+    run = subprocess.run(["node", "-e", script, str(built_site.target / "deutschkurs-data.js"),
+                          str(framework / "scheduler.js"), str(framework / "practice-core.js")],
+                         capture_output=True, text=True, check=True)
+    assert set(json.loads(run.stdout)) == EXERCISES
