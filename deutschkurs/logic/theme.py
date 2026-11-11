@@ -48,7 +48,7 @@ class Theme(BaseTheme):
         self.labels, _ = labels({})
 
     def _checked_colors(self):
-        """Settings with every invalid colour replaced by its default, each one logged."""
+        """Settings with every invalid colour and slow_rate replaced by its default, each one logged."""
         defaults = DeutschkursConfig()
         accent = self.config.accent
         if not valid_color(accent):
@@ -60,7 +60,11 @@ class Theme(BaseTheme):
                 colors[key] = value
             else:
                 self.log.warning(f"[DEUTSCHKURS] COLOR_INVALID key=gender_colors.{key}")
-        return replace(self.config, accent=accent, gender_colors=colors)
+        rate = self.config.slow_rate
+        if type(rate) not in (int, float) or not 0 < rate <= 2:
+            self.log.warning("[DEUTSCHKURS] SETTING_INVALID key=slow_rate")
+            rate = defaults.slow_rate
+        return replace(self.config, accent=accent, gender_colors=colors, slow_rate=rate)
 
     def prepare(self, site):
         self.config = self._checked_colors()
@@ -115,6 +119,18 @@ class Theme(BaseTheme):
                 reason = "remote" if path is None else "" if path.is_file() else "missing"
             if reason:
                 problems.append(Problem("PHOTO_MISSING", entry.id, f"reason={reason}", label="doc"))
+        for entry in self.course.entries.values():
+            # A recording that is missing or on the web plays nothing (spec 8); one problem per reason.
+            recordings = [entry.value("Audio")] if entry.type in ("Word", "Verb", "Chunk") else []
+            recordings += [u.audio for u in (*entry.units, *entry.variations)]
+            reasons = []
+            for src in filter(None, recordings):
+                path = image_path(source, src)
+                reason = "remote" if path is None else "" if path.is_file() else "missing"
+                if reason and reason not in reasons:
+                    reasons.append(reason)
+            for reason in reasons:
+                problems.append(Problem("AUDIO_MISSING", entry.id, f"reason={reason}", label="doc"))
         for entry in self.course.by_type("Inbox"):
             if any(image_path(source, c.image) is None for c in entry.inbox if c.image):
                 problems.append(Problem("PHOTO_MISSING", entry.id, "reason=remote", label="doc"))
@@ -186,7 +202,7 @@ class Theme(BaseTheme):
             transforms.append(lambda html: photo_html(html, entry.units, config.native, labels_))
         if entry is not None and entry.type == "Mistake":
             transforms.append(mistake_html)
-        transforms.append(lambda html: pairs_html(html, config.native, labels_["listen"]))
+        transforms.append(lambda html: pairs_html(html, config.native, labels_))
         if entry is not None and entry.type == "Grammar":
             shown, folded = grammar_order(entry, config)
             summary = labels_["simple_german"] if folded == "simple-german" else labels_["explanation"]

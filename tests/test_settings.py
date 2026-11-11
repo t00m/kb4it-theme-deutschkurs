@@ -1,5 +1,7 @@
 import subprocess
 
+import pytest
+
 from conftest import KB4IT, build_site, prepare_site, warnings
 from deutschkurs.logic.config import valid_color
 from test_pages import TERMIN
@@ -39,3 +41,16 @@ def test_labels_reach_every_text(tmp_path):
     assert "Stufe: A1" in site.page("Level_A1.html")
     assert "Eine Anleitung." in site.page("skill.html")
     assert not [line for line in warnings(site.log) if "LABEL_UNKNOWN" in line]
+
+
+def test_slow_rate_reaches_the_page(tmp_path):
+    site = build_site(tmp_path, {"termin.md": TERMIN}, {"slow_rate": 0.6}, starter=False)
+    assert 'data-slow-rate="0.6"' in site.page("termin.html")
+    assert not [line for line in warnings(site.log) if "SETTING_INVALID" in line]
+
+
+@pytest.mark.parametrize("rate", [0, -1, 2.5])
+def test_bad_slow_rate_is_replaced_and_warned(tmp_path, rate):
+    site = build_site(tmp_path, {"termin.md": TERMIN}, {"slow_rate": rate}, starter=False)
+    assert 'data-slow-rate="0.75"' in site.page("termin.html")
+    assert [line for line in warnings(site.log) if "SETTING_INVALID key=slow_rate" in line]

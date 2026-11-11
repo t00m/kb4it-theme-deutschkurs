@@ -37,9 +37,25 @@
     try { return root.localStorage; } catch (e) { return null; }
   }
 
+  // Listen and Slow buttons; speech.js handles their clicks.
   function listen(text, L, me) {
-    return el("button", { type: "button", className: "dk-listen uk-button uk-button-default uk-button-small",
-                          "data-say": text, "data-me": me ? "true" : "false", text: L.listen || "Listen" });
+    var css = "uk-button uk-button-default uk-button-small";
+    var mine = me ? "true" : "false";
+    return el("span", { className: "dk-say" }, [
+      el("button", { type: "button", className: "dk-listen " + css, "data-say": text, "data-me": mine,
+                     text: L.listen || "Listen" }),
+      doc.createTextNode(" "),
+      el("button", { type: "button", className: "dk-listen dk-slow " + css, "data-say": text, "data-me": mine,
+                     "data-rate": "slow", text: L.slow || "Slow" })]);
+  }
+
+  // A recording: one Listen button that plays the file, and the real badge.
+  function recording(src, L) {
+    return el("span", { className: "dk-say" }, [
+      el("button", { type: "button", className: "dk-listen uk-button uk-button-default uk-button-small",
+                     "data-audio": src, text: L.listen || "Listen" }),
+      doc.createTextNode(" "),
+      el("span", { className: "dk-badge dk-real", text: L.real_audio || "real" })]);
   }
 
   // State shared by the Today block and the Practice page.
@@ -154,7 +170,7 @@
 
     function choice(card, body) {
       var row = el("p", { className: "dk-choices" }, card.choices.map(function (option) {
-        var css = { der: "dk-m", die: "dk-f", das: "dk-n" }[option] || "";
+        var css = { der: "dk-m dk-cued", die: "dk-f dk-cued", das: "dk-n dk-cued" }[option] || "";
         var button = el("button", { type: "button", className: "uk-button uk-button-default uk-button-large " + css,
                                     text: option });
         button.addEventListener("click", function () {
@@ -185,21 +201,25 @@
       var list = el("ol", { className: "dk-dialogue" });
       body.appendChild(list);
       var turn = 0;
+      // Show the turns of the other speaker up to the next turn of the learner and speak them in a row.
       function step() {
+        var spoken = [];
+        while (turn < card.turns.length && !card.turns[turn].me) {
+          var other = card.turns[turn];
+          turn += 1;
+          list.appendChild(el("li", { className: "dk-turn dk-other" }, [
+            el("span", { className: "dk-speaker", text: other.speaker }),
+            el("span", { lang: "de", text: other.german }),
+            other.audio ? recording(other.audio, L) : listen(other.german, L, false)]));
+          spoken.push(other.audio ? { audio: other.audio } : { text: other.german, me: false });
+        }
+        if (spoken.length && dk.speech && dk.speech.sayAll) dk.speech.sayAll(spoken);
         if (turn >= card.turns.length) {
           body.appendChild(ratingButtons(card));
           return;
         }
         var t = card.turns[turn];
         turn += 1;
-        if (!t.me) {
-          list.appendChild(el("li", { className: "dk-turn dk-other" }, [
-            el("span", { className: "dk-speaker", text: t.speaker }), el("span", { lang: "de", text: t.german }),
-            listen(t.german, L, false)]));
-          if (dk.speech && dk.speech.say) dk.speech.say(t.german, false);
-          step();
-          return;
-        }
         var item = el("li", { className: "dk-turn dk-me" }, [
           el("span", { className: "dk-speaker", text: L.your_turn }),
           el("span", { className: "dk-tr", text: t.translation })]);
@@ -208,7 +228,7 @@
         reveal.addEventListener("click", function () {
           reveal.remove();
           item.appendChild(el("span", { className: "dk-de", lang: "de", text: t.german }));
-          item.appendChild(listen(t.german, L, true));
+          item.appendChild(t.audio ? recording(t.audio, L) : listen(t.german, L, true));
           step();
         });
         item.appendChild(reveal);

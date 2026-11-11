@@ -9,7 +9,7 @@ from .parse import inbox_items as list_items
 from .german import sort_key
 from .glossary import find_spans
 from .model import AREAS, GENRES
-from .render import ARTICLE_KEY, FACET_KEYS, GENDER, UNVERIFIED, day, facet_page, perfekt, plain_date
+from .render import ARTICLE_KEY, FACET_KEYS, GENDER, UNVERIFIED, cued, day, facet_page, has_plural, perfekt, plain_date
 
 LISTS = (("situations", "Situation"), ("conversations", "Conversation"), ("texts", "Text"), ("vocabulary", "Word"),
          ("verbs", "Verb"), ("chunks", "Chunk"), ("grammar", "Grammar"), ("photos", "Photo"), ("mistakes", "Mistake"))
@@ -20,6 +20,11 @@ IN_SITUATION = (("conversations", "Conversation"), ("texts", "Text"), ("chunks",
 
 def cell(text="", href="", css=""):
     return {"text": text, "href": href, "css": css}
+
+
+def plural_cell(plural):
+    """The plural in its colour, or an empty cell."""
+    return cell(plural, css=cued("dk-pl")) if has_plural(plural) else cell()
 
 
 def translation(entry):
@@ -33,8 +38,8 @@ def word_row(entry, url):
     css = "dk-pl" if plural_only else GENDER.get(article, "")
     plural = entry.value("Plural")
     href = facet_page(ARTICLE_KEY, article) if entry.is_noun and article in GENDER else ""
-    return [cell(article, href, css), cell(entry.title, url(entry.id), css),
-            cell("" if plural in ("none", "-") else plural), translation(entry), cell(entry.level),
+    return [cell(article, href, css), cell(entry.title, url(entry.id), cued(css)), plural_cell(plural),
+            translation(entry), cell(entry.level),
             cell(entry.value("PartOfSpeech"))]
 
 
@@ -68,7 +73,7 @@ def by_article(course: Course) -> dict[str, list]:
 def article_row(entry, url):
     css = "dk-pl" if entry.value("PluralOnly") == "yes" else GENDER.get(entry.value("Article"), "")
     plural = entry.value("Plural")
-    return [cell(entry.title, url(entry.id), css), cell("" if plural in ("none", "-") else plural), translation(entry),
+    return [cell(entry.title, url(entry.id), cued(css)), plural_cell(plural), translation(entry),
             cell(entry.level), cell(", ".join(entry.values("Topic")))]
 
 
@@ -194,7 +199,7 @@ def write_articles(theme, site, course: Course, table_html) -> None:
         groups = [("", nouns[article], "dk-table")]
         if article == "die":
             groups = [(L["feminine"], nouns["die"], "dk-table"), (L["plural_only"], nouns["pl"], "dk-table-pl")]
-        parts = [theme.render("DK_ARTICLE_HEAD", dk=dk, article=article, css=css, count=counts[article])]
+        parts = [theme.render("DK_ARTICLE_HEAD", dk=dk, article=article, css=cued(css), count=counts[article])]
         for heading, entries, table_id in groups:
             if heading:
                 parts.append(theme.render("DK_ARTICLE_GROUP", dk=dk, heading=heading, count=len(entries)))

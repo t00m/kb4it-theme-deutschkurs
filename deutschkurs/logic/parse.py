@@ -17,6 +17,11 @@ IMAGE_SRC = re.compile(r"!\[[^\]]*\]\(\s*(?:<([^>]+)>|([^)\s]+))(?:\s+\"[^\"]*\"
 LEADING_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:\s+|$)")
 LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 HTML_TAG = re.compile(r"<[^>]+>")
+# A recording at the end of a turn: [audio](resources/audio/x.m4a).
+AUDIO_EXTENSIONS = r"\.(?:m4a|mp3|ogg|oga|opus|wav|webm)"
+# The path may be in <...> (then it may hold spaces) and may have a "title", as Markdown allows.
+AUDIO_LINK = re.compile(rf"\s*\[audio\]\(\s*(?:<([^>]+{AUDIO_EXTENSIONS})>|([^)\s]+{AUDIO_EXTENSIONS}))"
+                        r"(?:\s+\"[^\"]*\")?\s*\)", re.I)
 INLINE_TAGS = "a|abbr|b|br|code|em|i|img|kbd|mark|s|small|span|strong|sub|sup|u"
 # First lines of blocks that are no paragraph: headings, quotes, lists, tables, code, rules, boxes, block HTML.
 NOT_A_PARAGRAPH = re.compile(r"^(#|>|[-*+]\s|\d+[.)]\s|\||```|~~~|!!!|\s{4}|\t|(-{3,}|\*{3,}|_{3,})\s*$"
@@ -38,6 +43,8 @@ class Unit:
     speaker: str = ""
     line: int = 0
     replaces: int = 0
+    # The recording of a turn, as written in its [audio](...) link.
+    audio: str = ""
 
 
 @dataclass(frozen=True)
@@ -130,6 +137,12 @@ def clean(text: str) -> str:
     return " ".join(MARKUP.sub("", text).split())
 
 
+def audio_link(text: str) -> tuple[str, str]:
+    """(text without its [audio](...) links, the last recording or '')."""
+    found = [bracketed or plain for bracketed, plain in AUDIO_LINK.findall(text)]
+    return AUDIO_LINK.sub("", text).strip(), found[-1] if found else ""
+
+
 def _split(text: str) -> tuple[str, str]:
     german, sep, translation = text.partition("::")
     return clean(german), translation.strip() if sep else ""
@@ -165,8 +178,9 @@ def turns(markdown: str) -> tuple[list[Unit], list[Unit], list[int]]:
             turn = TURN.match(item.group(1))
             anchor = f"t{len(found) + 1}"
             if turn:
-                german, translation = _split(turn.group(3))
-                found.append(Unit(anchor, german, translation, turn.group(2).strip(), n))
+                text, audio = audio_link(turn.group(3))
+                german, translation = _split(text)
+                found.append(Unit(anchor, german, translation, turn.group(2).strip(), n, audio=audio))
             else:
                 german, translation = _split(item.group(1))
                 found.append(Unit(anchor, german, translation, "", n))
@@ -177,9 +191,10 @@ def turns(markdown: str) -> tuple[list[Unit], list[Unit], list[int]]:
             if not turn:
                 bad.append(n)
                 continue
-            german, translation = _split(turn.group(3))
+            text, audio = audio_link(turn.group(3))
+            german, translation = _split(text)
             variations.append(Unit(f"v{len(variations) + 1}", german, translation, turn.group(2).strip(), n,
-                                   int(numbered.group(1))))
+                                   int(numbered.group(1)), audio))
     return found, variations, bad
 
 

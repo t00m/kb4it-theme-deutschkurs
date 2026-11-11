@@ -1,3 +1,4 @@
+from pathlib import Path
 """Article pages: one page per article with every noun that takes it."""
 
 import re
@@ -32,7 +33,7 @@ def main(page):
 def words(page):
     """Linked words of the article table, in order."""
     table = page.split('<table id="dk-table"', 1)[1].split("</table>", 1)[0]
-    return re.findall(r'<td><a class="dk-[mfnpl]+" href="[^"]+" lang="de">([^<]+)</a></td>', table)
+    return re.findall(r'<td><a class="dk-[mfnpl]+ dk-cued" href="[^"]+" lang="de">([^<]+)</a></td>', table)
 
 
 def test_article_pages_exist_even_without_nouns(tmp_path):
@@ -45,14 +46,14 @@ def test_article_pages_exist_even_without_nouns(tmp_path):
 def test_der_page_lists_only_der_nouns_sorted(built_site):
     page = built_site.page("Article_der.html")
     assert words(page) == ["Ausflug", "Elternabend", "Termin"]
-    assert re.search(r'<p class="dk-article-head"><span class="dk-m">der</span> 3</p>', page)
+    assert re.search(r'<p class="dk-article-head"><span class="dk-m dk-cued">der</span> 3</p>', page)
 
 
 def test_die_page_has_feminine_then_plural_only(built_site):
     html = main(built_site.page("Article_die.html"))
     feminine, plural = html.split('<div class="dk-article-group uk-h3">', 2)[1:]
     assert "Brotdose" in feminine and "Lehrerin" in feminine and "Schule" in feminine and "Eltern" not in feminine
-    assert "Eltern" in plural and 'class="dk-pl"' in plural
+    assert "Eltern" in plural and 'class="dk-pl dk-cued"' in plural
     assert "3" in feminine.split("</div>", 1)[0] and "1" in plural.split("</div>", 1)[0]
 
 
@@ -64,8 +65,8 @@ def test_article_hub_counts(built_site):
 
 
 def test_word_card_badge_links_article_page(built_site):
-    assert re.search(r'<a class="dk-badge dk-article dk-m" href="Article_der.html">der</a>', built_site.page("termin.html"))
-    assert re.search(r'<a class="dk-badge dk-article dk-pl" href="Article_die.html">die</a>', built_site.page("eltern.html"))
+    assert re.search(r'<a class="dk-badge dk-article dk-m dk-cued" href="Article_der.html">der</a>', built_site.page("termin.html"))
+    assert re.search(r'<a class="dk-badge dk-article dk-pl dk-cued" href="Article_die.html">die</a>', built_site.page("eltern.html"))
 
 
 def test_vocabulary_links_three_articles(built_site):
@@ -113,3 +114,21 @@ def test_topic_filter_lists_single_topics(tmp_path):
     html = main(site.page("Article_das.html"))
     topic = re.search(r'<select[^>]*data-column="4".*?</select>', html, re.S).group()
     assert re.findall(r'<option value="([^"]*)">', topic) == ["", "Familie", "Schule"]
+
+
+def test_cue_in_cards_and_tables(built_site):
+    termin = main(built_site.page("termin.html"))
+    assert re.search(r"<h1 class=\"dk-headline dk-m dk-cued[ \"]", termin)
+    assert re.search(r'<dd class="dk-pl dk-cued">die Termine</dd>', termin)
+    vocabulary = main(built_site.page("vocabulary.html"))
+    assert '<a class="dk-m dk-cued" href="termin.html" lang="de">Termin</a>' in vocabulary
+    assert '<td class="dk-pl dk-cued">die Termine</td>' in vocabulary
+    der = main(built_site.page("Article_der.html"))
+    assert '<a class="dk-m dk-cued" href="termin.html" lang="de">Termin</a>' in der
+    assert '<td class="dk-pl dk-cued">die Termine</td>' in der
+
+
+def test_cue_css_covers_every_gender():
+    css = (Path(__file__).resolve().parent.parent / "deutschkurs" / "framework" / "deutschkurs" / "deutschkurs.css").read_text()
+    for g in ("m", "f", "n", "pl"):
+        assert f'.dk-cued.dk-{g}::after' in css, g

@@ -105,8 +105,8 @@ def test_conversation_turns_mark_me():
     talk = record(data(), "talk.md")
     assert talk["turns"] == [
         {"speaker": "Lehrerin", "german": "Haben Sie einen Termin?", "translation": "Do you have an appointment?",
-         "me": False},
-        {"speaker": "Mutter", "german": "Ja, morgen.", "translation": "Yes, tomorrow.", "me": True}]
+         "me": False, "audio": ""},
+        {"speaker": "Mutter", "german": "Ja, morgen.", "translation": "Yes, tomorrow.", "me": True, "audio": ""}]
 
 
 def test_mistake_and_gap_records():
@@ -156,3 +156,11 @@ def test_offsets_are_utf16_after_an_emoji():
     assert utf16(row["german"], row["start"], row["end"]) == "Termin"
     split = next(s for s in record(payload, "anrufen.md")["separable"] if "😊" in s["german"])
     assert [utf16(split["german"], s, e) for s, e in split["parts"]] == ["rufe", "an"]
+
+
+def test_perfekt_bracket_gives_a_participle_row_and_no_separable_split():
+    perfekt = (ANRUFEN[0], ANRUFEN[1], "# anrufen\n\n## Examples\n\n- Ich habe dich gestern angerufen. :: I called you.\n")
+    payload = data([perfekt])
+    rows = [r for r in payload["sentences"] if r["entry"] == "anrufen.md"]
+    assert [r["german"][r["start"]:r["end"]] for r in rows] == ["angerufen"]
+    assert record(payload, "anrufen.md")["separable"] == []

@@ -53,6 +53,8 @@ Only `kb4it build` reports these: they read the text of the files and the images
 | `PHOTO_MISSING doc=<file> reason=none` | The Photo has no image before its first section | Add `![what it shows](resources/photos/<file>)` under the title |
 | `PHOTO_UNREADABLE doc=<image>` | An image under `resources/photos/` cannot be opened, so it was not checked for GPS data | Save the image again as JPEG or WebP, or remove the broken file |
 | `PHOTO_MISSING doc=<file> reason=remote` | The image of a Photo, or of an inbox capture, is a web address; the Inbox page leaves such an image out | Save the image under `source/resources/photos/`; pages never load anything from the internet |
+| `AUDIO_MISSING doc=<file> reason=missing` | An `Audio` property or an `[audio](...)` link of a turn names a file that does not exist | Correct the path, or add the recording under `source/resources/audio/` |
+| `AUDIO_MISSING doc=<file> reason=remote` | A recording is a web address; the page does not load it and uses the device voice | Save the recording under `source/resources/audio/` |
 
 ## KB4IT messages
 

@@ -41,6 +41,10 @@ Do not describe faces or people in photos. If a photo shows a person, a number p
 
 Phone cameras store where a photo was taken. Tell the learner to remove that location data before the image goes into `source/resources/photos/`. You never write an image file yourself.
 
+## Recordings
+
+A voice identifies a person. Recordings under `source/resources/audio/` should be the learner's own voice, or a person who agreed to be recorded and kept. Never suggest recording a call or a conversation without the other person's consent. You never write an audio file yourself.
+
 ## What the build checks
 
 `kb4it build` reads every file and logs `PRIVACY_SUSPECT doc=<file> reason=<reason> line=<n>` for text that looks like personal data. It is a filter that catches the obvious cases, not a proof that a file is clean: names, for example, are not detected.

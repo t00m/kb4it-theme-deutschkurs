@@ -9,7 +9,7 @@ from .course import Course
 from .glossary import Glossary, find_spans
 from .model import Entry
 from .parse import Pair, Unit, clean
-from .render import day
+from .render import day, local_audio
 
 FILE = "deutschkurs-data.js"
 PREFIX = "window.DEUTSCHKURS_DATA = "
@@ -87,6 +87,9 @@ def _rows(course: Course, sentences) -> tuple[list[dict], dict[str, list[dict]]]
             if css == "dk-bracket":
                 brackets.setdefault(entry_id, []).append([start, end])
                 continue
+            # The auxiliary of a Perfekt bracket is no form of the verb to fill in.
+            if "dk-aux" in css.split():
+                continue
             rows.append({"entry": entry_id, "doc": doc_id, "anchor": anchor, "german": german,
                          "translation": translation, "start": start, "end": end})
         for entry_id, parts in brackets.items():
@@ -100,7 +103,7 @@ def _pairs(pairs: tuple[Pair, ...]) -> list[dict]:
 
 def _turn(unit: Unit, me: str) -> dict:
     return {"speaker": unit.speaker, "german": unit.german, "translation": unit.translation,
-            "me": unit.speaker.strip().lower() == me.strip().lower()}
+            "me": unit.speaker.strip().lower() == me.strip().lower(), "audio": local_audio(unit.audio)}
 
 
 def reason(entry: Entry, has_sentence: bool) -> str:
@@ -134,6 +137,7 @@ def _record(entry: Entry, course: Course, forms: list[str], split: list[dict], h
     if entry.type in ("Word", "Verb", "Chunk"):
         record["forms"] = forms
         record["examples"] = _pairs(entry.examples)
+        record["audio"] = local_audio(entry.value("Audio"))
     if entry.type == "Word":
         plural_only = entry.value("PluralOnly") == "yes"
         record.update(article="" if plural_only else entry.value("Article"), plural=entry.value("Plural"),
