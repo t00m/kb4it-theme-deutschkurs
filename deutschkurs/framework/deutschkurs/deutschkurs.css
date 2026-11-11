@@ -120,3 +120,11 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-today-counts { font-weight: 700; }
 .dk-prepare-bar { margin: 0 0 1rem; }
 .dk-practice .uk-button, .dk-today .uk-button, .dk-prepare-bar .uk-button { text-transform: none; }
+/* Progress */
+.dk-section-title { margin-top: 1.5rem; }
+.dk-cando .uk-progress { margin: .25rem 0 0; height: 8px; }
+.dk-calendar-grid { display: flex; gap: 3px; }
+.dk-week { display: flex; flex-direction: column; gap: 3px; }
+.dk-day { width: 14px; height: 14px; border-radius: 3px; background: #eaeef2; }
+.dk-day.dk-studied { background: var(--dk-n); }
+.dk-day.dk-future { background: transparent; }

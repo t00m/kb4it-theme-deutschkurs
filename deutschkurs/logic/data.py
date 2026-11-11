@@ -95,8 +95,30 @@ def _turn(unit: Unit, me: str) -> dict:
             "me": unit.speaker.strip().lower() == me.strip().lower()}
 
 
+def reason(entry: Entry, has_sentence: bool) -> str:
+    """Why an entry gives no new cards (spec 7.4): "unchecked", "no_sentence", or "" when it is ready."""
+    if entry.checked == "unchecked":
+        return "unchecked"
+    if entry.type == "Word" and not entry.examples and not has_sentence:
+        return "no_sentence"
+    return ""
+
+
+def indexed_ids(course: Course) -> set[str]:
+    """Entries that appear in at least one sentence of the course."""
+    rows, split = _rows(course, _sentences(course))
+    return {row["entry"] for row in rows} | set(split)
+
+
+def not_ready(course: Course) -> list[tuple[Entry, str]]:
+    """Practised entries that are not ready, with their reason, sorted by title."""
+    indexed = indexed_ids(course)
+    found = [(e, reason(e, e.id in indexed)) for e in course.entries.values() if e.type in PRACTISED]
+    return sorted([(e, r) for e, r in found if r], key=lambda item: item[0].title.lower())
+
+
 def _record(entry: Entry, course: Course, forms: list[str], split: list[dict], has_sentence: bool) -> dict:
-    ready = entry.checked != "unchecked" and (entry.type != "Word" or bool(entry.examples) or has_sentence)
+    ready = not reason(entry, has_sentence)
     record = {"id": entry.id, "type": entry.type, "title": entry.title, "url": course.url(entry.id),
               "level": entry.level, "translation": entry.translation, "checked": entry.checked, "ready": ready,
               "situations": list(entry.values("Situation")), "topics": list(entry.values("Topic")),

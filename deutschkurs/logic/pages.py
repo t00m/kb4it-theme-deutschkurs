@@ -4,6 +4,8 @@ import json
 
 from .checks import real_date
 from .course import Course
+from .data import not_ready
+from .parse import inbox_items as list_items
 from .german import sort_key
 from .glossary import find_spans
 from .model import AREAS, GENRES
@@ -223,9 +225,30 @@ def practice_filters(course: Course, labels) -> list[tuple]:
             ("type", labels["type"], [(v, v) for v in kinds])]
 
 
+def wins(course: Course, url) -> list[dict]:
+    """Every dated ## Log item of every situation, newest first; items without a date last."""
+    found = []
+    for entry in course.by_type("Situation"):
+        for item in list_items(entry.sections.get("Log", "")):
+            found.append({"date": item.date if real_date(item.date) else "", "text": item.text,
+                          "title": entry.title, "href": url(entry.id)})
+    dated = sorted([w for w in found if w["date"]], key=lambda w: w["date"], reverse=True)
+    return dated + [w for w in found if not w["date"]]
+
+
+def candos(course: Course, url) -> list[dict]:
+    """Can-do progress of every situation that has an ## I can list."""
+    return [{"title": e.title, "href": url(e.id), "ticked": e.cando[0], "total": e.cando[1]}
+            for e in sorted(course.by_type("Situation"), key=lambda e: sort_key(e.title)) if e.cando[1]]
+
+
 def write_pages(theme, site, course: Course) -> None:
     """Write every list, facet and home page."""
     L, url, dk = theme.labels, course.url, theme.dk_var()
+    waiting = [{"title": e.title, "href": url(e.id), "reason": L[f"reason_{r}"]} for e, r in not_ready(course)]
+    site.page("progress", L["progress"],
+              theme.render("DK_PROGRESS", dk=dk, wins=wins(course, url), candos=candos(course, url),
+                           waiting=waiting, scripts=scripts(theme, ("progress.js",))))
     site.page("practice", L["practice"],
               theme.render("DK_PRACTICE", dk=dk, filters=practice_filters(course, L),
                            scripts=scripts(theme, ("practice.js",))))
