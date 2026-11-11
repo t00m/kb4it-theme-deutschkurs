@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict, replace
 from pathlib import Path
 
+from kb4it.core.checks import Problem
 from kb4it.theme import BaseTheme, ThemeError
 
 from .config import DeutschkursConfig, valid_color
@@ -13,6 +14,7 @@ from .glossary import link_html
 from .labels import labels
 from .model import TYPES
 from .pages import write_pages
+from .privacy import has_gps, image_path, photo_files, scan
 from .skill import PUBLISHED, publish, skill_html
 from .render import (FACET_KEYS, card, dialogue_html, extras, facet_page, fold_sections, grammar_order, pairs_html,
                      text_html)
@@ -74,8 +76,43 @@ class Theme(BaseTheme):
             name = doc_id.lower()
             if name.startswith(tuple(f"{t}_" for t in taken)) or name.rsplit(".", 1)[0] in taken:
                 self.log.warning(f"[DEUTSCHKURS] PAGE_NAME_TAKEN doc={doc_id} reason=facet_page_name")
-        if self.config.strict and self.course.problems:
-            raise ThemeError(f"{len(self.course.problems)} metadata problems and strict is on")
+        hits = self._privacy(site)
+        if self.config.strict and (self.course.problems or hits):
+            raise ThemeError(f"{len(self.course.problems)} metadata problems, {hits} privacy hits and strict is on")
+
+    def _privacy(self, site) -> int:
+        """Log suspected personal data in the sources and GPS data in photos; return the number of text hits."""
+        allow = [str(a) for a in (self.config.privacy_allow or [])]
+        count = 0
+        for doc in site.documents:
+            for hit in scan(doc.source(), allow):
+                count += 1
+                self.log.warning(f"[DEUTSCHKURS] PRIVACY_SUSPECT doc={doc.id} reason={hit.reason} line={hit.line}")
+        source = Path(site.paths.source)
+        for path in photo_files(source):
+            try:
+                gps = has_gps(path)
+            except OSError:
+                continue
+            if gps is None:
+                self.log.info("[DEUTSCHKURS] Pillow is not installed: photos are not checked for GPS data")
+                break
+            if gps:
+                self.log.warning(f"[DEUTSCHKURS] PHOTO_GPS doc={path.relative_to(source).as_posix()}")
+        return count
+
+    def checks(self, site):
+        problems = list(super().checks(site))
+        source = Path(site.paths.source)
+        for entry in self.course.by_type("Photo"):
+            if not entry.image:
+                reason = "none"
+            else:
+                path = image_path(source, entry.image)
+                reason = "remote" if path is None else "" if path.is_file() else "missing"
+            if reason:
+                problems.append(Problem("PHOTO_MISSING", entry.id, f"reason={reason}", label="doc"))
+        return problems
 
     def dk_var(self, entry=None):
         """The var['dk'] of every page the theme renders."""
