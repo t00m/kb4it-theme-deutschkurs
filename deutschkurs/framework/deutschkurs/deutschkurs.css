@@ -106,7 +106,7 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-photo, .dk-photo:hover { color: inherit; text-decoration: none; }
 .dk-photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--dk-muted); }
 .dk-photo-title.uk-card-body { padding: .5rem .75rem; font-size: .9rem; }
-.dk-filter-bar, .dk-gallery-filters > div { gap: .5rem 1rem; }
+.dk-filter-bar, .dk-gallery-filters > div, .dk-list-filters > div { gap: .5rem 1rem; }
 .dk-table th { text-transform: none; }
 .dk-articles { display: flex; gap: .5rem; }
 .dk-article-head { font-size: 1.5rem; font-weight: 700; }
@@ -137,3 +137,7 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-day { width: 14px; height: 14px; border-radius: 3px; background: #eaeef2; }
 .dk-day.dk-studied { background: var(--dk-n); }
 .dk-day.dk-future { background: transparent; }
+/* View source and edit links under the card of an entry page. */
+.dk-source-bar { gap: .25rem 1.25rem; margin: .5rem .25rem 1rem; }
+.dk-source-bar .uk-button-text { text-transform: none; font-size: .875rem; color: var(--dk-muted); }
+#dk-source-text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85rem; }

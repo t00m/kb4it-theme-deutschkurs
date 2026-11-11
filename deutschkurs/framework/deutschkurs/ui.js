@@ -19,3 +19,17 @@
     }
   });
 })();
+
+// deutschkurs: "Edit in the editor" opens add.html with the file name and its Markdown in the address,
+// as the KB4IT editor reads them (add.html#edit=<file>&text=<markdown>); it works from file:// too.
+(function () {
+  "use strict";
+  document.addEventListener("click", function (event) {
+    var link = event.target.closest ? event.target.closest("[data-kb-edit]") : null;
+    var source = document.getElementById("dk-source-text");
+    if (!link || !source || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    window.location.href = link.getAttribute("href") + "#edit=" + encodeURIComponent(link.getAttribute("data-kb-edit")) +
+      "&text=" + encodeURIComponent(source.value);
+  });
+})();

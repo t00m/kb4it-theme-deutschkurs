@@ -4,6 +4,21 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-11
+
+### Added
+
+- Entry pages: View source shows the Markdown in a dialog; Edit in the editor opens it in `add.html`; Edit on the git server links the file when `repo.json` sets `git`, `git_server`, `git_user`, `git_repo` and `git_branch`.
+- Part of speech facet: `PartOfSpeech.html` and one page per value.
+- The Level and Part of speech cells of the vocabulary table, and the Level cells of the verb and chunk tables, link their facet pages.
+- Filters: Situations by topic; Conversations by topic, level and kind. A situation group with no matching conversation is hidden.
+
+### Changed
+
+- The top bar and the phone menu have no Home link; the logo opens the home page.
+- Mistakes and Inbox left the Real life menu. The pages stay: the home page links Mistakes and shows the Inbox alert.
+- `PartOfSpeech.md` is now a reserved source file name, and names starting with `PartOfSpeech_` get `PAGE_NAME_TAKEN`. Rename such a file if your course has one.
+
 ## [0.5.0] - 2026-11-11
 
 ### Added

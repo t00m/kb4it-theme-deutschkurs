@@ -30,7 +30,11 @@
             <tr class="dk-row">
 % for c in row:
 % if c['href']:
-                <td><a class="${c['css']}" href="${c['href']}" lang="de">${c['text']}</a></td>
+% if c['css'] or c['lang']:
+                <td><a class="${c['css']}" href="${c['href']}" lang="${c['lang']}">${c['text']}</a></td>
+% else:
+                <td><a href="${c['href']}">${c['text']}</a></td>
+% endif
 % elif c['css']:
                 <td class="${c['css']}">${c['text']}</td>
 % else:

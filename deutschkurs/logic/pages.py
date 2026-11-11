@@ -9,7 +9,7 @@ from .parse import inbox_items as list_items
 from .german import sort_key
 from .glossary import find_spans
 from .model import AREAS, GENRES
-from .render import ARTICLE_KEY, FACET_KEYS, GENDER, UNVERIFIED, cued, day, facet_page, has_plural, perfekt, plain_date
+from .render import ARTICLE_KEY, FACET_KEYS, FACET_LABELS, GENDER, UNVERIFIED, cued, day, facet_page, has_plural, perfekt, plain_date
 
 LISTS = (("situations", "Situation"), ("conversations", "Conversation"), ("texts", "Text"), ("vocabulary", "Word"),
          ("verbs", "Verb"), ("chunks", "Chunk"), ("grammar", "Grammar"), ("photos", "Photo"), ("mistakes", "Mistake"))
@@ -18,8 +18,13 @@ INBOX = "inbox"
 IN_SITUATION = (("conversations", "Conversation"), ("texts", "Text"), ("chunks", "Chunk"), ("vocabulary", "Word"))
 
 
-def cell(text="", href="", css=""):
-    return {"text": text, "href": href, "css": css}
+def cell(text="", href="", css="", lang="de"):
+    return {"text": text, "href": href, "css": css, "lang": lang}
+
+
+def facet_cell(key, value):
+    """A value that links the page of its facet, such as A1 to Level_A1.html."""
+    return cell(value, facet_page(key, value) if value else "", lang="")
 
 
 def plural_cell(plural):
@@ -39,19 +44,19 @@ def word_row(entry, url):
     plural = entry.value("Plural")
     href = facet_page(ARTICLE_KEY, article) if entry.is_noun and article in GENDER else ""
     return [cell(article, href, css), cell(entry.title, url(entry.id), cued(css)), plural_cell(plural),
-            translation(entry), cell(entry.level),
-            cell(entry.value("PartOfSpeech"))]
+            translation(entry), facet_cell("Level", entry.level),
+            facet_cell("PartOfSpeech", entry.value("PartOfSpeech"))]
 
 
 def verb_row(entry, url):
     separable = f"{entry.value('Prefix')}-" if entry.value("Separable") == "yes" else ""
     return [cell(entry.title, url(entry.id)), cell(perfekt(entry)), cell(separable), translation(entry),
-            cell(entry.level)]
+            facet_cell("Level", entry.level)]
 
 
 def chunk_row(entry, url):
     return [cell(entry.title, url(entry.id)), cell(entry.value("Register")), translation(entry),
-            cell(entry.level)]
+            facet_cell("Level", entry.level)]
 
 
 def any_row(entry, url):
@@ -81,6 +86,7 @@ def item(entry, course: Course, url) -> dict:
     """One line of a grouped list."""
     found = course.coverage.get(entry.id)
     return {"title": entry.title, "href": url(entry.id), "level": entry.level, "kind": entry.value("Kind"),
+            "topics": "|".join(entry.values("Topic")),
             "coverage": f"{found.percent} %" if found is not None and found.total else "",
             "deadline": day(entry.value("Deadline")) if entry.type == "Text" else ""}
 
@@ -94,7 +100,17 @@ def situation_card(entry, course: Course, labels, url) -> dict:
     if entry.value("NextTime"):
         facts.append((labels["next_time"], plain_date(entry.value("NextTime"))))
     facts += [(labels[label], sum(1 for e in inside if e.type == kind)) for label, kind in IN_SITUATION]
-    return {"title": entry.title, "href": url(entry.id), "facts": facts}
+    return {"title": entry.title, "href": url(entry.id), "facts": facts, "topics": "|".join(entry.values("Topic"))}
+
+
+def list_filters(entries, keys, labels) -> list[tuple]:
+    """(key, label, values) of the filters of a list page, for the properties that have values."""
+    found = []
+    for key, prop in keys:
+        values = sorted({v for e in entries for v in e.values(prop)}, key=sort_key)
+        if values:
+            found.append((key, labels[key], values))
+    return found
 
 
 def by_situation(course: Course, labels, url) -> list[tuple]:
@@ -286,7 +302,11 @@ def write_pages(theme, site, course: Course) -> None:
         site.page(name, L[name], theme.render("DK_GROUPS", dk=dk, heading=L[name], groups=found), listing=True)
 
     grouped("grammar", ordered)
-    grouped("conversations", by_situation(course, L, url))
+    talks = course.by_type("Conversation")
+    talk_filters = list_filters(talks, (("topic", "Topic"), ("level", "Level"), ("kind", "Kind")), L)
+    site.page("conversations", L["conversations"],
+              theme.render("DK_GROUPS", dk=dk, heading=L["conversations"], groups=by_situation(course, L, url),
+                           filters_html=theme.render("DK_LIST_FILTERS", dk=dk, filters=talk_filters)), listing=True)
     grouped("texts", by_genre(course, url))
     grouped("mistakes", by_pattern(course, L))
     photos = gallery(course)
@@ -297,14 +317,16 @@ def write_pages(theme, site, course: Course) -> None:
     site.page(INBOX, L["inbox"], theme.render("DK_INBOX", dk=dk, heading=L["inbox"], items=inbox_items(course)),
               listing=True)
     situations = [situation_card(e, course, L, url) for e in course.by_type("Situation")]
+    place_filters = list_filters(course.by_type("Situation"), (("topic", "Topic"),), L)
     site.page("situations", L["situations"],
-              theme.render("DK_SITUATIONS", dk=dk, heading=L["situations"], situations=situations), listing=True)
+              theme.render("DK_SITUATIONS", dk=dk, heading=L["situations"], situations=situations,
+                           filters_html=theme.render("DK_LIST_FILTERS", dk=dk, filters=place_filters)), listing=True)
 
     columns = [L["word"], L["type"], L["translation"], L["level"]]
     for key in FACET_KEYS:
         facet = course.facet(key)
         values = [(value, facet_page(key, value), len(entries)) for value, entries in facet.items()]
-        heading = L[key.lower()]
+        heading = L[FACET_LABELS.get(key, key.lower())]
         site.page(facet_page(key), heading, theme.render("DK_FACET", dk=dk, heading=heading, values=values),
                   listing=True)
         for value, entries in facet.items():

@@ -17,7 +17,9 @@ from .parse import AUDIO_EXTENSIONS, Unit
 
 GENDER = {"der": "dk-m", "die": "dk-f", "das": "dk-n"}
 PERFEKT = {"haben": "hat", "sein": "ist"}
-FACET_KEYS = ("Level", "Topic", "Register", "Kind", "Genre", "Place", "Pattern")
+FACET_KEYS = ("Level", "Topic", "Register", "Kind", "Genre", "Place", "Pattern", "PartOfSpeech")
+# Label of a facet whose key is not its label key in lower case.
+FACET_LABELS = {"PartOfSpeech": "part_of_speech"}
 # The article pages Article.html and Article_<article>.html.
 ARTICLE_KEY = "Article"
 # Kind.html and the Word page kind.html are one file where file names ignore case.

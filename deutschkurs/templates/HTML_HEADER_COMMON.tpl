@@ -14,7 +14,7 @@
     cfg = dk['settings'] if dk else None
     L = dk['labels'] if dk else None
     life = (('situations', 'situations.html'), ('conversations', 'conversations.html'), ('texts', 'texts.html'),
-            ('photos', 'photos.html'), ('mistakes', 'mistakes.html'), ('inbox', 'inbox.html'))
+            ('photos', 'photos.html'))
     course = (('vocabulary', 'vocabulary.html'), ('articles', 'Article.html'), ('verbs', 'verbs.html'), ('chunks', 'chunks.html'),
               ('grammar', 'grammar.html'), ('progress', 'progress.html'))
 %>
@@ -35,7 +35,6 @@
             <a class="dk-brand uk-navbar-item uk-logo" href="index.html" title="${var['repo']['title']}"><img src="resources/themes/${var['theme']['id']}/images/logo.svg" width="24" height="24" alt="${var['repo']['title']}"></a>
 % if dk:
             <ul class="dk-nav uk-navbar-nav uk-visible@m">
-                <li><a href="index.html">${L['home']}</a></li>
                 <li>
                     <a href="#">${L['menu_life']} <span data-uk-navbar-parent-icon></span></a>
                     <div class="uk-navbar-dropdown">
@@ -76,7 +75,6 @@
     <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close" type="button" data-uk-close aria-label="Close"></button>
         <ul class="uk-nav uk-nav-default">
-            <li><a href="index.html">${L['home']}</a></li>
             <li class="uk-nav-header">${L['menu_life']}</li>
 % for key, href in life:
             <li><a href="${href}">${L[key]}</a></li>
