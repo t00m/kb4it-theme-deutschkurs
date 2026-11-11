@@ -131,8 +131,9 @@ def test_nav(site):
     for name in ("index.html", "termin.html", "search.html", "404.html"):
         nav = re.search(r'<nav class="dk-nav">.*?</nav>', site.page(name), re.S).group()
         hrefs = re.findall(r'href="([^"]+)"', nav)
-        assert hrefs == ["index.html", "situations.html", "conversations.html", "texts.html", "vocabulary.html",
-                         "verbs.html", "chunks.html", "grammar.html", "skill.html"], name
+        assert hrefs == ["index.html", "situations.html", "conversations.html", "texts.html", "photos.html",
+                         "mistakes.html", "inbox.html", "vocabulary.html", "verbs.html", "chunks.html", "grammar.html",
+                         "skill.html"], name
 
 
 def test_home(site):
@@ -317,7 +318,7 @@ def test_home_without_dates_has_no_dated_blocks(site):
 
 
 def test_new_lists_exist_when_empty(site):
-    for name in ("situations.html", "conversations.html", "texts.html"):
+    for name in ("situations.html", "conversations.html", "texts.html", "photos.html", "mistakes.html", "inbox.html"):
         assert "<main" in site.page(name)
 
 

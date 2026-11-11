@@ -122,3 +122,13 @@ test("a dated block is hidden when all its dated items are", () => {
   initDates(doc, TODAY);
   assert.deepStrictEqual([empty.hidden, used.hidden], [true, false]);
 });
+
+test("galleryMatch filters by place and situation", () => {
+  const { galleryMatch } = context.Deutschkurs;
+  const item = { place: "Street", situations: ["Unterwegs", "Am Schultor"] };
+  assert.strictEqual(galleryMatch(item, "", ""), true);
+  assert.strictEqual(galleryMatch(item, "Street", ""), true);
+  assert.strictEqual(galleryMatch(item, "Shop", ""), false);
+  assert.strictEqual(galleryMatch(item, "", "Am Schultor"), true);
+  assert.strictEqual(galleryMatch(item, "Street", "Elternabend"), false);
+});

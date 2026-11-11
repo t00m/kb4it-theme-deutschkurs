@@ -91,8 +91,11 @@ Type: Inbox
 - Termine
 """
 
+OLDER = MISTAKE.replace("2026-11-05", "2026-10-01").replace("# Ich habe 40 Jahre", "# Ich habe Hunger nicht")
+LOOSE = MISTAKE.replace("Pattern: es-tener-haben\n", "").replace("# Ich habe 40 Jahre", "# Ich gehe zu Hause")
+
 FILES = {"termin.md": TERMIN, "schild.md": SCHILD, "alter.md": GRAMMAR, "mistake-alter.md": MISTAKE,
-         "gap-krank.md": GAP, "inbox-2026-11.md": INBOX}
+         "mistake-older.md": OLDER, "mistake-loose.md": LOOSE, "gap-krank.md": GAP, "inbox-2026-11.md": INBOX}
 
 
 @pytest.fixture(scope="module")
@@ -168,3 +171,68 @@ def test_inbox_not_in_search(life):
 def test_inbox_page_links_inbox_list(life):
     html = main(life.page("inbox-2026-11.html"))
     assert 'href="inbox.html"' in html
+
+
+def test_gallery_uses_relative_lazy_images(life):
+    html = main(life.page("photos.html"))
+    assert '<a class="dk-photo" href="schild.html"' in html
+    assert '<img loading="lazy" src="resources/photos/schild.webp" alt="Termin am Schild">' in html
+
+
+def test_gallery_images_exist_in_target(life):
+    html = life.page("photos.html")
+    for src in re.findall(r'<img loading="lazy" src="([^"]+)"', html):
+        assert (life.target / src).is_file(), src
+
+
+def test_gallery_shows_all_without_js(life):
+    html = main(life.page("photos.html"))
+    assert re.search(r'<li class="dk-photo-item" data-place="Street" data-situation="">', html)
+    assert "<li class=\"dk-photo-item\" hidden" not in html
+    assert re.search(r'<div class="dk-gallery-filters" hidden>', html)
+
+
+def test_mistakes_grouped_by_pattern_newest_first(life):
+    html = main(life.page("mistakes.html"))
+    assert html.index("Ich habe 40 Jahre") < html.index("Ich habe Hunger nicht") < html.index("No pattern") \
+        < html.index("Ich gehe zu Hause")
+    assert 'href="alter.html"' in html.split("No pattern")[0]
+
+
+def test_inbox_lists_items_and_open_gaps(life):
+    html = main(life.page("inbox.html"))
+    for text in ("Kaution", "Termine", "Krank melden"):
+        assert text in html
+
+
+def test_inbox_undated_item_is_last(life):
+    html = main(life.page("inbox.html"))
+    assert html.index("Termine") > max(html.index("Kaution"), html.index("Krank melden"))
+
+
+def test_inbox_marks_known_word(life):
+    html = main(life.page("inbox.html"))
+    item = html[html.index("Termine"):]
+    assert "already in the course" in item[:400] and 'href="termin.html"' in item[:400]
+
+
+def test_home_shows_inbox_count(life):
+    html = main(life.page("index.html"))
+    assert '<a href="inbox.html">Inbox: 3 to process</a>' in html
+
+
+def test_place_and_pattern_facets(life):
+    assert "schild.html" in main(life.page("Place_Street.html"))
+    pattern = main(life.page("Pattern_es-tener-haben.html"))
+    assert "mistake-alter.html" in pattern and "alter.html" in pattern
+
+
+def test_list_translation_marked_unverified(life):
+    html = main(life.page("vocabulary.html"))
+    assert re.search(r'<td class="[^"]*dk-unverified[^"]*"[^>]*>cita</td>', html)
+
+
+def test_nav_links_new_pages(life):
+    page = life.page("termin.html")
+    for name in ("photos.html", "mistakes.html", "inbox.html"):
+        assert f'<a href="{name}">' in page
