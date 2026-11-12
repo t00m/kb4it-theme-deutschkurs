@@ -55,6 +55,7 @@ Only `kb4it build` reports these: they read the text of the files and the images
 | `PHOTO_MISSING doc=<file> reason=remote` | The image of a Photo, or of an inbox capture, is a web address; the Inbox page leaves such an image out | Save the image under `source/resources/photos/`; pages never load anything from the internet |
 | `AUDIO_MISSING doc=<file> reason=missing` | An `Audio` property or an `[audio](...)` link of a turn names a file that does not exist | Correct the path, or add the recording under `source/resources/audio/` |
 | `AUDIO_MISSING doc=<file> reason=remote` | A recording is a web address; the page does not load it and uses the device voice | Save the recording under `source/resources/audio/` |
+| `AUDIO_MISSING doc=<file> reason=type` | `Audio` names a file that is not `.m4a`, `.mp3`, `.ogg`, `.oga`, `.opus`, `.wav` or `.webm`; the page uses the device voice | Point to the recording, not to another file |
 
 ## KB4IT messages
 

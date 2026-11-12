@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.6.0, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.6.1, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -73,7 +73,7 @@ Exercises: der, die or das; plural; German to your language; your language to Ge
 
 Only entries that are ready give new cards: not `Checked: unchecked`, and for a Word at least one example sentence. `progress.html` lists the others, the words you understand and can say per level, what you can do per situation, your real-life wins from `## Log`, mistake patterns and the days you studied.
 
-Progress lives in the browser (`localStorage`), per course title. Export it as `deutschkurs-progress-YYYY-MM-DD.json` and import it on another device; per card the newer state wins. A private window does not keep progress, and the page says so.
+Progress lives in the browser (`localStorage`), per course title. Export it as `deutschkurs-progress-YYYY-MM-DD.json` and import it on another device; per card the newer state wins. An import skips cards of entries this course does not have and broken card data, and says how many. A private window does not keep progress, and the page says so; when the storage fills up during a session, the page says that too. If you rename the course, the Practice page finds the progress saved under the old title and offers to use it.
 
 ## Privacy
 
@@ -93,8 +93,9 @@ A real recording replaces the device voice. Put the file under `source/resources
 
 - Word, Verb or Chunk: the property `Audio: resources/audio/termin.m4a`.
 - A turn of a conversation: a link at the end, `- **Lehrerin:** Guten Morgen! :: Good morning! [audio](resources/audio/guten-morgen.m4a)`.
+- A paragraph of a text: the same link at the end of the paragraph.
 
-The page shows a player and the badge `real`; Play all and roleplay play the recording. A file that does not exist, or a web address, gives `AUDIO_MISSING`; a web address is never loaded. Record only your own voice or a person who agreed to it.
+The page shows a player and the badge `real`; Play all and roleplay play the recording. A file that does not exist, a web address or an `Audio` file that is no recording gives `AUDIO_MISSING`; a web address is never loaded. Listen buttons and page players stop each other, so two sounds never overlap. Record only your own voice or a person who agreed to it.
 
 ### German voice
 

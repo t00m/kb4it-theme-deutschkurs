@@ -264,7 +264,7 @@ A dialogue from the learner's life. The `#` title names the moment.
 
 Body, before any `##` heading: one list, one item per turn, written `**Speaker:** German :: translation`. The translation is optional. The turns are numbered by position (`#t1`, `#t2`...), so do not put other lists above the turns. Speaker names follow `privacy.md`: a role such as `Mutter`, `Lehrerin`, `Arzt`, never a real name.
 
-A turn may end with a recording: `**Lehrerin:** Guten Morgen! :: Good morning! [audio](resources/audio/guten-morgen.m4a)`. The file lives under `source/resources/audio/` (`.m4a`, `.mp3`, `.ogg`, `.oga`, `.opus`, `.wav`, `.webm`); the page plays it instead of the device voice and marks it `real`.
+A turn may end with a recording: `**Lehrerin:** Guten Morgen! :: Good morning! [audio](resources/audio/guten-morgen.m4a)`. The file lives under `source/resources/audio/` (`.m4a`, `.mp3`, `.ogg`, `.oga`, `.opus`, `.wav`, `.webm`); the page plays it instead of the device voice and marks it `real`. A paragraph of a Text may end with a recording in the same way.
 
 Sections, all optional:
 

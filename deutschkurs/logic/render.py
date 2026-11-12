@@ -46,6 +46,7 @@ NOT_A_LETTER = re.compile(r"[\W_]+")
 # The [audio](...) link of a turn after Markdown.
 RENDERED_AUDIO = re.compile(rf'\s*<a href="([^"]+{AUDIO_EXTENSIONS})"[^>]*>audio</a>', re.I)
 REMOTE = ("http://", "https://", "//")
+AUDIO_FILE = re.compile(rf"{AUDIO_EXTENSIONS}$", re.I)
 
 
 def cued(css: str) -> str:
@@ -89,7 +90,7 @@ def listen_button(text: str, labels: Mapping[str, str], me: bool = False) -> str
 def local_audio(src: str) -> str:
     """The path of a recording inside the site, or '' for a web address: pages load nothing from the internet."""
     src = src.strip()
-    return "" if not src or src.lower().startswith(REMOTE) else src
+    return "" if not src or src.lower().startswith(REMOTE) or not AUDIO_FILE.search(src) else src
 
 
 def audio_html(src: str, labels: Mapping[str, str]) -> str:
@@ -327,16 +328,18 @@ def _sentence_paragraphs(head: str, units: Sequence[Unit], native: str, labels: 
                                             f'{html.escape(labels["translation"])}</summary>{head[start:end]}'
                                             f'</details>'))
             continue
-        key = _letters(plain(head[inner_start:inner_end]))
+        content = RENDERED_AUDIO.sub("", head[inner_start:inner_end])
+        key = _letters(plain(content))
         if head[start:inner_start] != "<p>" or not key or key not in keys[at:]:
             continue
         at = keys.index(key, at) + 1
         unit = units[at - 1]
         first = play_all and not any('class="dk-sentence"' in change[2] for change in changes)
         bar = f'<p class="dk-play-bar">{play_all_button(".dk-sentence", labels)}</p>' if first else ""
+        recording = local_audio(unit.audio)
+        voice = audio_html(recording, labels) if recording else listen_button(unit.german, labels)
         changes.append((start, end, f'{bar}<p id="{unit.anchor}" class="dk-sentence"><span class="dk-de" lang="de">'
-                                    f'{head[inner_start:inner_end]}</span> '
-                                    f'{listen_button(unit.german, labels)}</p>'))
+                                    f'{content.strip()}</span> {voice}</p>'))
         sentence_end = end
     return _replace(head, changes)
 

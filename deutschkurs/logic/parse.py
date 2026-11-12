@@ -222,14 +222,15 @@ def paragraphs(markdown: str, prefix: str = "s") -> list[Unit]:
         current.append(text)
     units: list[Unit] = []
     for i, (n, lines) in enumerate(blocks):
-        german = clean(" ".join(lines))
+        text, audio = audio_link(" ".join(lines))
+        german = clean(text)
         # A paragraph that holds only images has no text.
         if NOT_A_PARAGRAPH.match(lines[0]) or not german:
             continue
         translation = ""
         if i + 1 < len(blocks) and blocks[i + 1][1][0].startswith(">"):
             translation = " ".join(l.lstrip(">").strip() for l in blocks[i + 1][1]).strip()
-        units.append(Unit(f"{prefix}{len(units) + 1}", german, translation, "", n))
+        units.append(Unit(f"{prefix}{len(units) + 1}", german, translation, "", n, audio=audio))
     return units
 
 

@@ -93,3 +93,10 @@ test("the first rating records the day the card was started", () => {
   const old = { due: DAY, interval: 3, ease: 2.5, reps: 2, lapses: 0, last: "2026-11-08", goods: 2 };
   assert.strictEqual(rate(old, "good", DAY).first, "");
 });
+
+test("the interval stops at ten years", () => {
+  let s = null;
+  for (let i = 0; i < 25; i++) s = rate(s, "good", "2026-11-11", "to_native");
+  assert.strictEqual(s.interval, 3650);
+  assert.strictEqual(s.due, addDays("2026-11-11", 3650));
+});

@@ -4,6 +4,26 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-12
+
+### Added
+
+- A paragraph of a Text can end with `[audio](resources/audio/x.m4a)`, like a turn.
+- `AUDIO_MISSING reason=type` when the `Audio` property names a file that is no recording.
+- When the course title changed, the Practice page finds the progress saved under the old title and offers to use it.
+
+### Fixed
+
+- Import and stored progress drop broken card states, which could keep a card from ever coming due.
+- The Practice page says when the browser storage fills up during a session.
+- The interval of a card stops at ten years; free practice could push it past year 9999. Such cards are kept and set ten years ahead.
+- The import message says why cards were skipped.
+- Speech: `1.2.3` is no longer read as a date, and a date at the end of a sentence keeps its full stop; `12.30 Uhr` and street names such as `Hauptstr.` are read out; an abbreviation at the end of a sentence keeps its full stop.
+- Listen, Play all and the page players stop each other instead of sounding together.
+- The verb bracket takes the nearest auxiliary: in *Wir haben Zeit und haben gekocht* the second *haben*.
+- In *Er hat ein Auto gehabt*, *hat* keeps its fill-the-gap card for *haben*.
+- A web address written in capitals (`HTTPS://`) is reported `remote`, for photos and recordings.
+
 ## [0.6.0] - 2026-11-11
 
 ### Added

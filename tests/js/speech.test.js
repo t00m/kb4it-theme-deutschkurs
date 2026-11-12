@@ -100,7 +100,7 @@ test("normalise reads times, amounts, abbreviations and dates", () => {
   assert.strictEqual(normalise("nur 0,99 €"), "nur null Euro neunundneunzig");
   assert.strictEqual(normalise("5,50 EUR"), "fünf Euro fünfzig");
   assert.strictEqual(normalise("€ 21"), "einundzwanzig Euro");
-  assert.strictEqual(normalise("z. B. Obst, d. h. Äpfel usw."), "zum Beispiel Obst, das heißt Äpfel und so weiter");
+  assert.strictEqual(normalise("z. B. Obst, d. h. Äpfel usw."), "zum Beispiel Obst, das heißt Äpfel und so weiter.");
   assert.strictEqual(normalise("am 3.11. kommt"), "am dritten November kommt");
   assert.strictEqual(normalise("bis zum 1. März"), "bis zum ersten März");
   assert.strictEqual(normalise("Heute ist der 7.10.2026"), "Heute ist der siebte Oktober 2026");
@@ -216,3 +216,44 @@ for (const [name, alsoError] of [["a blocked recording does not stop the queue",
     assert.deepStrictEqual(synth.spoken.map((u) => u.text), ["weiter"]);
   });
 }
+
+test("normalise leaves dotted numbers that are no date", () => {
+  const { normalise } = load().Deutschkurs.speech;
+  assert.strictEqual(normalise("Version 1.2.3"), "Version 1.2.3");
+  assert.strictEqual(normalise("Abschnitt 1.2.3."), "Abschnitt 1.2.3.");
+  assert.strictEqual(normalise("am 3.11. um"), "am dritten November um");
+});
+
+test("normalise reads times with a dot, street abbreviations and keeps the final stop", () => {
+  const { normalise } = load().Deutschkurs.speech;
+  assert.strictEqual(normalise("um 12.30 Uhr"), "um zwölf Uhr dreißig");
+  assert.strictEqual(normalise("Hauptstr. 5"), "Hauptstraße 5");
+  assert.strictEqual(normalise("in der Str. 5"), "in der Straße 5");
+  assert.strictEqual(normalise("Das ist z.B."), "Das ist zum Beispiel.");
+  assert.strictEqual(normalise("Obst usw."), "Obst und so weiter.");
+  assert.strictEqual(normalise("Obst usw. und Brot"), "Obst und so weiter und Brot");
+});
+
+test("speech stops page players, and a page player stops speech", () => {
+  const synth = fakeSynth();
+  const ctx = load({ speechSynthesis: synth, SpeechSynthesisUtterance: Utterance });
+  const player = { paused: 0, pause() { this.paused += 1; } };
+  const listeners = {};
+  const doc = speakingDocument({});
+  doc.querySelectorAll = (selector) => (selector === "audio" ? [player] : []);
+  doc.addEventListener = (name, fn) => { listeners[name] = fn; };
+  ctx.Deutschkurs.speech.init(doc);
+  ctx.Deutschkurs.speech.say("Hallo");
+  assert.strictEqual(player.paused, 1);
+  const cancelled = synth.spoken.cancelled;
+  listeners.play({ target: player });
+  assert.strictEqual(synth.spoken.cancelled, cancelled + 1);
+  assert.strictEqual(player.paused, 1);
+});
+
+test("a date with a year or at the end of a sentence is read out", () => {
+  const { normalise } = load().Deutschkurs.speech;
+  assert.strictEqual(normalise("Der Termin ist am 3.4.2025."), "Der Termin ist am dritten April 2025.");
+  assert.strictEqual(normalise("am 3.4.2025. Dann gehen wir."), "am dritten April 2025. Dann gehen wir.");
+  assert.strictEqual(normalise("Heute ist der 3.4."), "Heute ist der dritte April.");
+});

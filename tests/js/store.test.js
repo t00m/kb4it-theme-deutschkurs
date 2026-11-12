@@ -8,7 +8,7 @@ const SOURCE = fs.readFileSync(
   path.join(__dirname, "..", "..", "deutschkurs", "framework", "deutschkurs", "store.js"), "utf8");
 const context = {};
 vm.runInNewContext(SOURCE, context);
-const { open, exportJson, merge } = context.Deutschkurs.store;
+const { open, exportJson, merge, validState, others } = context.Deutschkurs.store;
 const plain = (x) => JSON.parse(JSON.stringify(x));
 
 function memoryStorage() {
@@ -111,4 +111,65 @@ test("store replaces its cards and days after an import", () => {
   store.replace({ a: STATE }, ["2026-11-01"]);
   assert.deepStrictEqual(plain(open(storage, "abc").cards()), { a: STATE });
   assert.deepStrictEqual(plain(open(storage, "abc").days()), ["2026-11-01"]);
+});
+
+test("validState accepts scheduler states and refuses broken ones", () => {
+  assert.strictEqual(validState(STATE), true);
+  assert.strictEqual(validState(Object.assign({}, STATE, { first: "2026-11-11" })), true);
+  assert.strictEqual(validState(Object.assign({}, STATE, { first: "" })), true);
+  for (const bad of [{}, { due: "2026-11-12" }, Object.assign({}, STATE, { due: "tomorrow" }),
+                     Object.assign({}, STATE, { interval: -1 }), Object.assign({}, STATE, { interval: "3" }),
+                     Object.assign({}, STATE, { ease: 0 }), Object.assign({}, STATE, { reps: 1.5 }),
+                     Object.assign({}, STATE, { lapses: null }), Object.assign({}, STATE, { last: 5 })]) {
+    assert.strictEqual(validState(bad), false, JSON.stringify(bad));
+  }
+});
+
+test("merge skips broken card states", () => {
+  const incoming = JSON.stringify({ format: "deutschkurs-progress", version: 1, site: "abc",
+    cards: { a: STATE, b: { due: "never" } }, days: [] });
+  const result = merge({ cards: {}, days: [] }, incoming, ["a", "b"]);
+  assert.strictEqual(result.merged, 1);
+  assert.strictEqual(result.skipped, 1);
+  assert.ok(!("b" in result.cards));
+});
+
+test("stored broken card states are dropped on open", () => {
+  const storage = memoryStorage();
+  storage.setItem("deutschkurs.abc.cards", JSON.stringify({ a: STATE, b: { due: 3 } }));
+  assert.deepStrictEqual(Object.keys(plain(open(storage, "abc").cards())), ["a"]);
+});
+
+test("save tells when the storage is full", () => {
+  const storage = memoryStorage();
+  const store = open(storage, "abc");
+  assert.strictEqual(store.save("a", STATE), true);
+  storage.setItem = () => { throw new Error("QuotaExceededError"); };
+  assert.strictEqual(store.save("b", STATE), false);
+  assert.strictEqual(store.ok, false);
+  assert.ok("b" in store.cards());
+});
+
+test("others finds progress of other course titles in the same browser", () => {
+  const storage = memoryStorage();
+  storage.key = (i) => Object.keys(storage.data)[i];
+  Object.defineProperty(storage, "length", { get: () => Object.keys(storage.data).length });
+  open(storage, "old").save("a", STATE);
+  open(storage, "older").save("a", STATE);
+  open(storage, "older").save("b", STATE);
+  open(storage, "abc");
+  storage.setItem("deutschkurs.empty.cards", "{}");
+  storage.setItem("other.app", "x");
+  assert.deepStrictEqual(plain(others(storage, "abc")), [{ site: "older", cards: 2 }, { site: "old", cards: 1 }]);
+  assert.deepStrictEqual(plain(others(null, "abc")), []);
+});
+
+test("a state with an overlong interval is kept and capped at ten years", () => {
+  const storage = memoryStorage();
+  const long = Object.assign({}, STATE, { due: "10207-03-21", interval: 2987813, last: "2026-11-11" });
+  storage.setItem("deutschkurs.abc.cards", JSON.stringify({ a: long }));
+  const card = plain(open(storage, "abc").cards()).a;
+  assert.strictEqual(card.interval, 3650);
+  assert.strictEqual(card.due, "2036-11-11");
+  assert.strictEqual(card.reps, 1);
 });

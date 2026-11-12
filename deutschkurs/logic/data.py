@@ -87,9 +87,12 @@ def _rows(course: Course, sentences) -> tuple[list[dict], dict[str, list[dict]]]
             if css == "dk-bracket":
                 brackets.setdefault(entry_id, []).append([start, end])
                 continue
-            # The auxiliary of a Perfekt bracket is no form of the verb to fill in.
+            # The auxiliary of a Perfekt bracket is no form of the verb to fill in, unless the verb is haben or
+            # sein itself: "hat" in "Er hat ein Auto gehabt" is a form of haben.
             if "dk-aux" in css.split():
-                continue
+                own = course.glossary.lookup(german[found_start:found_end])
+                if not own or own[0] != entry_id:
+                    continue
             rows.append({"entry": entry_id, "doc": doc_id, "anchor": anchor, "german": german,
                          "translation": translation, "start": start, "end": end})
         for entry_id, parts in brackets.items():

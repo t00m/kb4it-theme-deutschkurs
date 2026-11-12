@@ -15,6 +15,7 @@ ENTRIES = [
          Present="ich rufe an, du rufst an, er ruft an", Participle="angerufen"),
     make("lernen", "# lernen", Type="Verb", Participle="gelernt"),
     make("gehen", "# gehen", Type="Verb", Participle="gegangen", Auxiliary="sein"),
+    make("kochen", "# kochen", Type="Verb", Participle="gekocht", Auxiliary="haben"),
     make("bescheid-sagen", "# Bescheid sagen", Type="Chunk"),
 ]
 G = build_glossary(ENTRIES)
@@ -145,3 +146,9 @@ def test_perfekt_bracket_stays_in_its_clause():
 def test_participle_first_is_no_bracket():
     out = link("<p>Gelernt habe ich viel.</p>")
     assert "dk-aux" not in out and "dk-bracket" not in out
+
+
+def test_perfekt_bracket_takes_the_nearest_auxiliary():
+    out = link("<p>Wir haben Zeit und haben gekocht.</p>")
+    assert out.count("dk-aux") == 1
+    assert out.index("dk-aux") > out.index("Zeit")

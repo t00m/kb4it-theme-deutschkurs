@@ -10,9 +10,10 @@
                 "November", "Dezember"];
   var ABBREVIATIONS = [
     [/\bz\.\s?B\./g, "zum Beispiel"], [/\bd\.\s?h\./g, "das heißt"], [/\busw\./g, "und so weiter"],
-    [/\bbzw\./g, "beziehungsweise"], [/\bca\./g, "circa"], [/\bNr\./g, "Nummer"], [/\bStr\./g, "Straße"],
-    [/\bTel\./g, "Telefon"],
+    [/\bbzw\./g, "beziehungsweise"], [/\bca\./g, "circa"], [/\bNr\./g, "Nummer"], [/\bTel\./g, "Telefon"],
   ];
+  // Str. alone or at the end of a street name: Hauptstr. is Hauptstraße.
+  var STREET = /(^|[^A-Za-zÄÖÜäöüß])([A-Za-zÄÖÜäöüß]*)([Ss])tr\./g;
   // Words before a date that take the dative ending: am dritten, bis zum ersten.
   var DATIVE = ["am", "vom", "zum", "dem"];
   var DEFAULT_SLOW = 0.75;
@@ -61,8 +62,17 @@
   // Text as a German voice should read it: times, amounts, abbreviations and dates in words.
   function normalise(text) {
     var out = String(text || "");
-    for (var i = 0; i < ABBREVIATIONS.length; i++) out = out.replace(ABBREVIATIONS[i][0], ABBREVIATIONS[i][1]);
-    out = out.replace(/\b(\d{1,2}):(\d{2})\s*Uhr\b/g, function (all, h, m) {
+    // An abbreviation at the end of the text also ended the sentence: keep that full stop.
+    function expand(words) {
+      return function (all) {
+        var whole = arguments[arguments.length - 1], offset = arguments[arguments.length - 2];
+        return words(arguments) + (offset + all.length === whole.length ? "." : "");
+      };
+    }
+    function fixed(words) { return expand(function () { return words; }); }
+    for (var i = 0; i < ABBREVIATIONS.length; i++) out = out.replace(ABBREVIATIONS[i][0], fixed(ABBREVIATIONS[i][1]));
+    out = out.replace(STREET, expand(function (m) { return m[1] + m[2] + (m[3] === "S" ? "Straße" : "straße"); }));
+    out = out.replace(/\b(\d{1,2})[:.](\d{2})\s*Uhr\b/g, function (all, h, m) {
       var hour = Number(h) === 1 ? "ein" : numberWords(Number(h));
       return hour + " Uhr" + (Number(m) ? " " + numberWords(Number(m)) : "");
     });
@@ -72,10 +82,13 @@
     out = out.replace(/€\s*(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?\b/g, function (all, whole, cents) {
       return euros(whole, cents);
     });
-    out = out.replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4}\b)?/g, function (all, d, m, year, offset, whole) {
+    // A date is not part of a longer dotted number such as 1.2.3.
+    out = out.replace(/(?<![\d.])\b(\d{1,2})\.(\d{1,2})\.(\d{4}\b)?(?!\d|\.\d)/g, function (all, d, m, year, offset, whole) {
       var day = Number(d), month = Number(m);
       if (day < 1 || day > 31 || month < 1 || month > 12) return all;
-      return ordinal(day, dativeBefore(whole, offset)) + " " + MONTHS[month - 1] + (year ? " " + year : "");
+      // A date without a year at the end of the text also ended the sentence: keep that full stop.
+      var stop = !year && offset + all.length === whole.length ? "." : "";
+      return ordinal(day, dativeBefore(whole, offset)) + " " + MONTHS[month - 1] + (year ? " " + year : "") + stop;
     });
     out = out.replace(new RegExp("\\b(\\d{1,2})\\.\\s+(" + MONTHS.join("|") + ")", "g"),
       function (all, d, month, offset, whole) {
@@ -137,7 +150,18 @@
       token += 1;
       if (synth && synth.cancel) synth.cancel();
       if (audio && audio.pause) audio.pause();
+      // Players on the page stop too, so two sounds never overlap.
+      var players = doc.querySelectorAll ? doc.querySelectorAll("audio") : [];
+      for (var i = 0; i < players.length; i++) if (players[i].pause) players[i].pause();
     }
+
+    // A page player that starts stops the voice and any queue. The play event does not bubble: capture it.
+    doc.addEventListener("play", function (event) {
+      if (event.target === audio) return;
+      token += 1;
+      if (synth && synth.cancel) synth.cancel();
+      if (audio && audio.pause) audio.pause();
+    }, true);
 
     // Play one item {text, me, slow} or {audio}; call done when it ends. False when it cannot play.
     function play(item, done) {

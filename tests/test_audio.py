@@ -43,9 +43,41 @@ Type: Conversation
 """
 
 
+LETTER = """---
+Checked: native
+Genre: Letter
+Level: A1
+Type: Text
+---
+
+# Brief
+
+Liebe Eltern, [audio](resources/audio/praxis.m4a)
+
+> Dear parents,
+
+Bitte kommen Sie morgen.
+"""
+
+LOUD = """---
+Checked: native
+Kind: real
+Level: A1
+Type: Conversation
+---
+
+# Laut
+
+- **Anna:** Hallo! [audio](HTTPS://example.org/hallo.m4a)
+"""
+
+NOTE = WORD.replace("Audio: resources/audio/termin.m4a", "Audio: resources/audio/notiz.txt").replace("# Termin", "# Notiz")
+
+
 @pytest.fixture(scope="module")
 def site(tmp_path_factory):
-    config = prepare_site(tmp_path_factory.mktemp("audio"), {"termin.md": WORD, "am-telefon.md": CALL}, starter=False)
+    config = prepare_site(tmp_path_factory.mktemp("audio"), {"termin.md": WORD, "am-telefon.md": CALL, "brief.md": LETTER,
+                                                           "laut.md": LOUD, "notiz.md": NOTE}, starter=False)
     root = config.parent.parent
     audio = root / "source" / "resources" / "audio"
     audio.mkdir(parents=True)
@@ -129,3 +161,28 @@ def test_turn_audio_link_with_angle_brackets_or_title():
     found, _, _ = turns(text)
     assert [(u.german, u.translation, u.audio) for u in found] == [
         ("Ja", "Yes", "resources/audio/a.m4a"), ("Wie?", "How?", "resources/audio/c d.m4a")]
+
+
+def test_text_paragraph_with_a_recording():
+    from deutschkurs.logic.parse import paragraphs
+    units = paragraphs("# Brief\n\nLiebe Eltern, [audio](resources/audio/brief.m4a)\n\n> Dear parents,\n")
+    assert [(u.german, u.translation, u.audio) for u in units] == [
+        ("Liebe Eltern,", "Dear parents,", "resources/audio/brief.m4a")]
+
+
+def test_text_page_plays_the_recording_of_a_paragraph(site):
+    page = main(site.page("brief.html"))
+    first = re.search(r'<p id="s1" class="dk-sentence">.*?</p>', page, re.S).group()
+    assert 'src="resources/audio/praxis.m4a"' in first and "data-say" not in first and ">audio</a>" not in first
+    assert 'data-say="Bitte kommen Sie morgen."' in page
+
+
+def test_upper_case_web_address_is_remote(site):
+    log = "\n".join(warnings(site.log))
+    assert "AUDIO_MISSING doc=laut.md reason=remote" in log
+
+
+def test_audio_property_must_be_a_sound_file(site):
+    log = "\n".join(warnings(site.log))
+    assert "AUDIO_MISSING doc=notiz.md reason=type" in log
+    assert "<audio" not in main(site.page("notiz.html"))

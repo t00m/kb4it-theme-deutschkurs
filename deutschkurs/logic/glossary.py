@@ -136,6 +136,9 @@ def find_spans(text: str, g: Glossary, self_id: str = "") -> list[tuple[int, int
         clause = [w for w in words[i + 1:] if w.end() <= limit]
         if not clause or not free(clause[-1].start(), clause[-1].end()):
             continue
+        # The participle belongs to the nearest auxiliary: in "haben Zeit und haben gekocht" the second one.
+        if any(w.group().lower() in AUXILIARY_FORMS for w in clause[:-1]):
+            continue
         for doc_id, auxiliaries in g.participles.get(clause[-1].group().lower(), []):
             if doc_id != self_id and (not auxiliaries or auxiliary in auxiliaries):
                 take(m.start(), m.end(), doc_id, "dk-bracket dk-aux")

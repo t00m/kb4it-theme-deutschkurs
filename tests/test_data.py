@@ -164,3 +164,12 @@ def test_perfekt_bracket_gives_a_participle_row_and_no_separable_split():
     rows = [r for r in payload["sentences"] if r["entry"] == "anrufen.md"]
     assert [r["german"][r["start"]:r["end"]] for r in rows] == ["angerufen"]
     assert record(payload, "anrufen.md")["separable"] == []
+
+
+def test_auxiliary_that_is_a_form_of_haben_keeps_its_row():
+    haben = ("haben.md", {"Type": ("Verb",), "Level": ("A1",), "Translation": ("to have",), "Checked": ("native",),
+                          "Present": ("ich habe", "du hast", "er hat"), "Participle": ("gehabt",),
+                          "Auxiliary": ("haben",)},
+             "# haben\n\n## Examples\n\n- Er hat ein Auto gehabt. :: He had a car.\n")
+    rows = [r for r in data([haben])["sentences"] if r["entry"] == "haben.md"]
+    assert sorted(r["german"][r["start"]:r["end"]] for r in rows) == ["gehabt", "hat"]

@@ -63,7 +63,7 @@ def scan(text: str, allow: Sequence[str] = ()) -> list[Hit]:
 
 def image_path(source_dir: Path, src: str) -> Optional[Path]:
     """The file an image src points to inside the source folder, or None for a remote image."""
-    if src.startswith(("http://", "https://", "//")):
+    if src.lower().startswith(("http://", "https://", "//")):
         return None
     # A path written with Windows backslashes points to the same file.
     return source_dir / unquote(src).replace("\\", "/")
