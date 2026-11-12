@@ -4,7 +4,7 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
-## [0.6.1] - 2026-11-11
+## [0.6.1] - 2026-11-12
 
 ### Added
 
