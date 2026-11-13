@@ -18,4 +18,4 @@ Type: Word
 
 ## Notes
 
-*mich* after verbs with Akkusativ (*anrufen*, *fragen*), *mir* after verbs with Dativ (*helfen*, *geben* + thing) and after *mit*, *bei*, *von*.
+*mich* after verbs with Akkusativ (*anrufen*, *fragen*), *mir* for the person who gets something or is helped (*helfen*, *geben* to whom) and after *mit*, *bei*, *von*.

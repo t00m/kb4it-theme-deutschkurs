@@ -186,3 +186,10 @@ def test_preposition_at_the_end_of_a_clause_is_a_verb_prefix():
     assert linked("Kommst du mit, oder nicht?") == []
     assert linked("Ich fahre mit ") == ["mit"]
     assert linked("Ich fahre mit dem Bus.") == ["mit"]
+
+
+def test_a_word_keeps_its_title_against_another_comparative():
+    g = build_glossary([word("früh", PartOfSpeech="adjective", Comparative="früher", Superlative="am frühesten"),
+                        word("früher", PartOfSpeech="adverb")])
+    assert g.lookup("früher")[0] == "früher.md"
+    assert g.lookup("frühesten")[0] == "früh.md"

@@ -57,6 +57,9 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
     """Index the surface forms of every Word, Verb and Chunk."""
     g = Glossary()
     phrases = {}
+    # Comparison and pronoun case forms come after every title and Forms value: früher, the comparative of
+    # früh, must not take the title of the Word früher.
+    derived: list[tuple[str, str]] = []
     for e in entries:
         if e.type == "Word" and e.is_noun:
             plural_only = e.value("PluralOnly") == "yes"
@@ -71,10 +74,11 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
             superlative = [AM.sub("", v) for v in e.values("Superlative")]
             if e.value("PartOfSpeech") == "preposition":
                 g.prepositions.add(e.id)
-            for form in [e.title, *e.values("Forms"), *e.values("Comparative"), *superlative,
-                         *e.values("Akkusativ"), *e.values("Dativ")]:
+            for form in [e.title, *e.values("Forms")]:
+                g.forms.setdefault(form.strip().lower(), e.id)
+            for form in [*e.values("Comparative"), *superlative, *e.values("Akkusativ"), *e.values("Dativ")]:
                 if form.strip():
-                    g.forms.setdefault(form.strip().lower(), e.id)
+                    derived.append((form.strip().lower(), e.id))
         elif e.type == "Verb":
             prefix = e.value("Prefix") if e.value("Separable") == "yes" else ""
             finite = present_forms(e.values("Present"), prefix) or regular_present(e.title, prefix)
@@ -92,6 +96,8 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
                     g.forms.setdefault(form.lower(), e.id)
         elif e.type == "Chunk" and e.title:
             phrases[e.title.lower()] = e.id
+    for form, doc_id in derived:
+        g.forms.setdefault(form, doc_id)
     g.phrases = sorted(phrases.items(), key=lambda item: -len(item[0]))
     return g
 

@@ -36,6 +36,18 @@
     return c;
   }
 
+  // Forms a cloze gap accepts. For a word with cases or comparison, the title and those forms are other
+  // answers, not variants: "mich" or "ich" in the gap of "mir" is wrong.
+  function clozeForms(entry) {
+    var other = [entry.comparative, String(entry.superlative || "").replace(/^am\s+/i, "")]
+      .concat((entry.cases || []).map(function (c) { return c.form; }))
+      .filter(function (x) { return x; })
+      .map(function (x) { return x.toLowerCase(); });
+    if (!other.length) return entry.forms || [];
+    other.push(String(entry.title).toLowerCase());
+    return (entry.forms || []).filter(function (f) { return other.indexOf(String(f).toLowerCase()) < 0; });
+  }
+
   function cardsOf(entry, sentences) {
     var found = [];
     var t = entry.type;
@@ -49,7 +61,7 @@
         options: { noun: noun, article: noun } }));
       var rows = sentences.filter(function (r) { return r.entry === entry.id; });
       if (rows.length) {
-        found.push(card(entry, "cloze", { items: rows, alternatives: entry.forms || [], options: { noun: noun } }));
+        found.push(card(entry, "cloze", { items: rows, alternatives: clozeForms(entry), options: { noun: noun } }));
       }
     }
     if (noun && !entry.plural_only && has(ARTICLES, entry.article)) {
@@ -70,7 +82,8 @@
     }
     var degrees = [entry.comparative, entry.superlative].filter(function (x) { return x; });
     if (t === "Word" && (entry.pos === "adjective" || entry.pos === "adverb") && degrees.length) {
-      found.push(card(entry, "comparison", { prompt: entry.title, answer: degrees.join(", ") }));
+      found.push(card(entry, "comparison", { prompt: entry.title, answer: degrees.join(", "),
+                                             alternatives: degrees.length > 1 ? [degrees.join(" ")] : [] }));
     }
     if (t === "Word" && entry.pos === "pronoun" && (entry.cases || []).length) {
       found.push(card(entry, "case_form", { prompt: entry.title, items: entry.cases }));

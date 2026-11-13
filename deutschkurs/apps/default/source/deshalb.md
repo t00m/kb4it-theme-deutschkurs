@@ -17,4 +17,4 @@ WordOrder: inversion
 
 ## Notes
 
-After *deshalb* the verb comes first, then the subject: *deshalb **bleibt er***, not *deshalb er bleibt*.
+*deshalb* takes the first place of the clause, so the verb comes right after it and the subject follows: *deshalb **bleibt er***, not *deshalb er bleibt*.

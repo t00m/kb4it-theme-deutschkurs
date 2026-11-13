@@ -238,3 +238,24 @@ test("new exercises come after plural and before to_target", () => {
   const ids = cardsFor(posWord({ title: "gut", pos: "adjective", comparative: "besser" })).map((c) => c.exercise);
   assert.deepStrictEqual(ids, ["to_native", "comparison", "to_target"]);
 });
+
+test("cloze of a word with cases or comparison accepts no other case or degree", () => {
+  const rows = [{ entry: "ich", doc: "d", anchor: "", german: "Geben Sie mir das.", translation: "", start: 10, end: 13 }];
+  const ich = posWord({ title: "ich", pos: "pronoun", forms: ["ich", "mich", "mir"],
+    cases: [{ case: "Akkusativ", form: "mich" }, { case: "Dativ", form: "mir" }] });
+  const c = plain(cards({ settings: SETTINGS, entries: [ich], sentences: rows, situations: [] }))
+    .find((x) => x.exercise === "cloze");
+  assert.deepStrictEqual(c.alternatives, []);
+  const gut = posWord({ title: "gut", pos: "adjective", forms: ["gut", "guten", "besser", "besten"],
+                        comparative: "besser", superlative: "am besten" });
+  const g = plain(cards({ settings: SETTINGS, entries: [gut],
+    sentences: [{ entry: "gut", doc: "d", anchor: "", german: "Es geht besser.", translation: "", start: 8, end: 14 }],
+    situations: [] })).find((x) => x.exercise === "cloze");
+  assert.deepStrictEqual(g.alternatives, ["guten"]);
+});
+
+test("comparison accepts the answer without the comma", () => {
+  const c = only(cardsFor(posWord({ title: "gut", pos: "adjective", comparative: "besser",
+                                    superlative: "am besten" })), "comparison");
+  assert.deepStrictEqual(c.alternatives, ["besser am besten"]);
+});
