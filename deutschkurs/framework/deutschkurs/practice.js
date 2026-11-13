@@ -285,13 +285,13 @@
       area.appendChild(el("p", { className: "uk-text-small uk-text-muted",
                                  text: fill(L.card_of, { n: position + 1, total: queue.length }) }));
       area.appendChild(el("h2", { className: "uk-h4 dk-exercise", text: L["exercise_" + card.exercise] }));
-      var germanPrompt = ["article", "plural", "to_native", "perfekt", "separable", "cloze", "mistake", "roleplay"]
-        .indexOf(card.exercise) >= 0;
+      var germanPrompt = ["article", "plural", "to_native", "perfekt", "separable", "cloze", "mistake", "roleplay",
+                          "case", "word_order", "comparison", "case_form"].indexOf(card.exercise) >= 0;
+      // "mit + ?" and "ich → Dativ" are no German to read aloud.
+      var spoken = germanPrompt && ["roleplay", "cloze", "separable", "case", "case_form"].indexOf(card.exercise) < 0;
       var prompt = el("p", { className: "dk-prompt", lang: germanPrompt ? "de" : ctx.data.settings.native },
                       [el("span", { text: shown.prompt })]);
-      if (germanPrompt && card.exercise !== "roleplay" && card.exercise !== "cloze" && card.exercise !== "separable") {
-        prompt.appendChild(listen(shown.prompt, L));
-      }
+      if (spoken) prompt.appendChild(listen(shown.prompt, L));
       area.appendChild(prompt);
       if (shown.translation && card.exercise !== "to_target" && card.exercise !== "to_native") {
         area.appendChild(el("p", { className: "dk-hint uk-text-muted", text: shown.translation }));
