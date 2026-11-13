@@ -165,7 +165,7 @@ One grammar point, explained briefly.
 | Property | Values | Rule |
 |---|---|---|
 | `Area` | `Verbs`, `Nouns`, `Cases`, `Word order`, `Sentences`, `Other` | Required |
-| `Case` | `Akkusativ`, `Dativ`, `Genitiv`, `Nominativ` | Optional; the page lists verbs whose `Government` is this case |
+| `Case` | `Akkusativ`, `Dativ`, `Genitiv`, `Nominativ`, `Wechsel` | Optional; the page lists verbs whose `Government` is this case and prepositions that take it (a `Wechsel` preposition counts for `Akkusativ` and `Dativ`). The page of such a preposition links back to this entry |
 | `Tense` | `Präsens`, `Perfekt`, `Präteritum`, `Futur` | Optional |
 | `Pattern` | A short slug such as `es-tener-haben` | Optional; Mistake entries with the same `Pattern` show this entry as their grammar point |
 | `Marker` | Words that signal the point, such as `weil, dass` | Optional; the page lists the sentences of texts and conversations that contain one of them, as candidates |
