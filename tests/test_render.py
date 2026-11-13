@@ -358,3 +358,59 @@ def test_text_has_play_all_before_the_first_sentence():
            'data-play=".dk-sentence">Play all</button></p>')
     assert out.count(bar) == 1
     assert out.index(bar) < out.index('<p id="s1"')
+
+
+POS = dict(Type="Word", Level="A1", Translation="x")
+GRAMMAR_CASE = "# {0}\n\n## Explanation\n\nx\n"
+POS_DOCS = [
+    doc("mit.md", "# mit\n", PartOfSpeech="preposition", Case="Dativ", **POS),
+    doc("in.md", "# in\n", PartOfSpeech="preposition", Case="Wechsel", **POS),
+    doc("fuer.md", "# für\n", PartOfSpeech="preposition", Case="Akkusativ", **POS),
+    doc("weil-k.md", "# weil\n", PartOfSpeech="conjunction", WordOrder="end", **POS),
+    doc("gut.md", "# gut\n", PartOfSpeech="adjective", Comparative="besser", Superlative="am besten", **POS),
+    doc("schnell.md", "# schnell\n", PartOfSpeech="adjective", Comparative="schneller", **POS),
+    doc("rot.md", "# rot\n", PartOfSpeech="adjective", **POS),
+    doc("ich.md", "# ich\n", PartOfSpeech="pronoun", Akkusativ="mich", Dativ="mir", **POS),
+    doc("dativ.md", GRAMMAR_CASE.format("Dativ"), Type="Grammar", Level="A2", Area="Cases", Case="Dativ"),
+    doc("akk.md", GRAMMAR_CASE.format("Akkusativ"), Type="Grammar", Level="A2", Area="Cases", Case="Akkusativ"),
+    doc("gen.md", GRAMMAR_CASE.format("Genitiv"), Type="Grammar", Level="B1", Area="Cases", Case="Genitiv"),
+]
+
+
+def pos_card(doc_id):
+    course, entries = built(POS_DOCS)
+    return card(entries[doc_id], course, LABELS, course.url)
+
+
+def test_preposition_card_shows_case_and_grammar():
+    data = pos_card("mit.md")
+    assert ("Case", "Dativ") in data["facts"]
+    assert ("Grammar point", [("Dativ", "dativ.html")]) in data["links"]
+
+
+def test_wechsel_preposition_links_both_cases():
+    data = pos_card("in.md")
+    assert ("Case", LABELS["case_wechsel"]) in data["facts"]
+    found = dict(data["links"])["Grammar point"]
+    assert sorted(found) == [("Akkusativ", "akk.html"), ("Dativ", "dativ.html")]
+
+
+def test_conjunction_card_shows_word_order():
+    assert ("Word order", "verb goes to the end") in pos_card("weil-k.md")["facts"]
+
+
+def test_comparison_fact_has_the_parts_that_exist():
+    assert ("Comparison", "gut, besser, am besten") in pos_card("gut.md")["facts"]
+    assert ("Comparison", "schnell, schneller") in pos_card("schnell.md")["facts"]
+    assert "Comparison" not in dict(pos_card("rot.md")["facts"])
+
+
+def test_pronoun_card_shows_its_cases():
+    facts = pos_card("ich.md")["facts"]
+    assert ("Akkusativ", "mich") in facts and ("Dativ", "mir") in facts
+
+
+def test_grammar_case_page_lists_its_prepositions():
+    assert ("Prepositions with this case", [("in", "in.html"), ("mit", "mit.html")]) in pos_card("dativ.md")["links"]
+    assert ("Prepositions with this case", [("für", "fuer.html"), ("in", "in.html")]) in pos_card("akk.md")["links"]
+    assert "Prepositions with this case" not in dict(pos_card("gen.md")["links"])

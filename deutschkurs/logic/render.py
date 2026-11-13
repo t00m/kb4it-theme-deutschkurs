@@ -410,6 +410,33 @@ def perfekt(entry: Entry) -> str:
     return f"{aux} {participle}".strip() if participle else ""
 
 
+# The Grammar cases a preposition case belongs to: a Wechsel preposition takes Akkusativ and Dativ.
+CASES_OF = {"Akkusativ": ("Akkusativ",), "Dativ": ("Dativ",), "Genitiv": ("Genitiv",),
+            "Wechsel": ("Wechsel", "Akkusativ", "Dativ")}
+
+
+def _part_of_speech_facts(entry: Entry, course: Course, labels: dict[str, str], fact, links, url) -> None:
+    """Case, word order, comparison and pronoun cases of a Word, with the grammar of a preposition's case."""
+    pos = entry.value("PartOfSpeech")
+    case = entry.value("Case")
+    if pos == "preposition" and case:
+        fact("case", labels["case_wechsel"] if case == "Wechsel" else case)
+        points = [g for g in course.by_type("Grammar") if g.value("Case") in CASES_OF.get(case, ())]
+        if points:
+            links.append((labels["grammar_point"],
+                          [(g.title, url(g.id)) for g in sorted(points, key=lambda g: g.title.lower())]))
+    order = entry.value("WordOrder")
+    if pos in ("conjunction", "adverb") and f"word_order_{order}" in labels:
+        fact("word_order", labels[f"word_order_{order}"])
+    if pos in ("adjective", "adverb"):
+        parts = [p for p in (entry.value("Comparative"), entry.value("Superlative")) if p]
+        if parts:
+            fact("comparison", ", ".join([entry.title, *parts]))
+    if pos == "pronoun":
+        fact("akkusativ", entry.value("Akkusativ"))
+        fact("dativ", entry.value("Dativ"))
+
+
 def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[str], str]) -> dict:
     """Everything the entry template shows above the body."""
     headline, css = entry.title, ""
@@ -436,6 +463,7 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     if entry.type == "Word":
         fact("part_of_speech", entry.value("PartOfSpeech"))
         fact("forms", ", ".join(entry.values("Forms")))
+        _part_of_speech_facts(entry, course, labels, fact, links, url)
         fact("regional", ", ".join(entry.values("Regional")))
         family = [_find(course, value) for value in entry.values("Family")]
         if family:
@@ -459,6 +487,11 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
         verbs = [v for v in course.by_type("Verb") if case and v.value("Government") == case]
         if verbs:
             links.append((labels["verbs_with_case"], [(v.title, url(v.id)) for v in verbs]))
+        prepositions = [w for w in course.by_type("Word") if case and w.value("PartOfSpeech") == "preposition"
+                        and case in CASES_OF.get(w.value("Case"), ())]
+        if prepositions:
+            links.append((labels["prepositions_with_case"],
+                          [(w.title, url(w.id)) for w in sorted(prepositions, key=lambda w: w.title.lower())]))
     fact("stress", stress(entry))
     if entry.type == "Conversation":
         fact("date", plain_date(entry.value("Date")))
