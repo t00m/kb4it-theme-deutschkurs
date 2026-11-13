@@ -152,3 +152,27 @@ def test_perfekt_bracket_takes_the_nearest_auxiliary():
     out = link("<p>Wir haben Zeit und haben gekocht.</p>")
     assert out.count("dk-aux") == 1
     assert out.index("dk-aux") > out.index("Zeit")
+
+
+def word(title, **props):
+    return make(f"{title}.md", f"# {title}", Type="Word", **props)
+
+
+def test_comparison_and_pronoun_forms_link_their_word():
+    g = build_glossary([word("gut", PartOfSpeech="adjective", Comparative="besser", Superlative="am besten"),
+                        word("ich", PartOfSpeech="pronoun", Akkusativ="mich", Dativ="mir")])
+    assert g.lookup("besser")[0] == "gut.md" and g.lookup("besten")[0] == "gut.md"
+    assert g.lookup("mir")[0] == "ich.md" and g.lookup("mich")[0] == "ich.md"
+    assert g.lookup("am") is None
+
+
+def test_article_words_are_not_linked():
+    g = build_glossary([word("ein", PartOfSpeech="article", Forms="einen, einem")])
+    assert g.lookup("ein") is None and g.lookup("einem") is None
+
+
+def test_shared_form_stays_with_the_first_entry():
+    g = build_glossary([word("ihr", PartOfSpeech="pronoun", Dativ="euch"),
+                        word("sie", PartOfSpeech="pronoun", Dativ="ihr")])
+    assert g.lookup("ihr")[0] == "ihr.md"
+    assert g.lookup("euch")[0] == "ihr.md"

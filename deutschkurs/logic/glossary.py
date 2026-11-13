@@ -16,6 +16,7 @@ TAG_NAME = re.compile(r"^<\s*(/)?\s*([a-zA-Z][a-zA-Z0-9]*)")
 ENTITY = re.compile(r"(&#?\w+;)")
 CLAUSE_END = re.compile(r"[.,;:!?]")
 ARTICLE = re.compile(r"^(der|die|das)\s+", re.I)
+AM = re.compile(r"^\s*am\s+", re.I)
 # Present and preterite forms of haben and sein: the finite part of Perfekt and Plusquamperfekt.
 AUXILIARY_FORMS = {
     **dict.fromkeys(("habe", "hast", "hat", "haben", "habt", "hatte", "hattest", "hatten", "hattet"), "haben"),
@@ -62,9 +63,13 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
             for plural in e.values("Plural"):
                 if plural.strip() not in ("none", "-"):
                     g.nouns.setdefault(_strip_article(plural), (e.id, "dk-pl"))
-        elif e.type == "Word":
-            for form in [e.title, *e.values("Forms")]:
-                g.forms.setdefault(form.strip().lower(), e.id)
+        elif e.type == "Word" and e.value("PartOfSpeech") != "article":
+            # Article words stay plain text (spec 5.1); the superlative is linked without its "am".
+            superlative = [AM.sub("", v) for v in e.values("Superlative")]
+            for form in [e.title, *e.values("Forms"), *e.values("Comparative"), *superlative,
+                         *e.values("Akkusativ"), *e.values("Dativ")]:
+                if form.strip():
+                    g.forms.setdefault(form.strip().lower(), e.id)
         elif e.type == "Verb":
             prefix = e.value("Prefix") if e.value("Separable") == "yes" else ""
             finite = present_forms(e.values("Present"), prefix) or regular_present(e.title, prefix)
