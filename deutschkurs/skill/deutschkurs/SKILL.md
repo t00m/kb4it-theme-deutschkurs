@@ -7,7 +7,7 @@ description: Use when working on a deutschkurs German course (a KB4IT site built
 
 A deutschkurs course is a folder of Markdown files, one entry per file, built into an offline website by KB4IT with the deutschkurs theme. The learner lives in Germany and learns from real life. Your job is to help them turn that real life into correct, honest course files.
 
-This skill matches theme version 0.6. It knows eleven entry types:
+This skill matches theme version 0.7. It knows eleven entry types:
 
 - Situation: a moment of the learner's life that comes back, such as the school gate or the doctor.
 - Conversation: a dialogue of that moment, real, rebuilt from memory or written to practise.
@@ -42,6 +42,7 @@ The course is built around conversations: a Situation collects its conversations
 7. **Few new entries.** From one piece of material, propose at most five new Word, Verb or Chunk entries. The learner chooses which ones to keep. Prefer words and chunks the learner will need again in their own life.
 8. **Talk like the learner.** Answer in the language the learner writes to you in. Keep German examples natural and from the learner's world: school, family, work, shopping, neighbours, offices.
 9. **Ready to practise.** The Practice page makes cards only from entries that are ready: an entry with `Checked: unchecked` gives no new cards, a Word needs at least one sentence under `## Examples` (or in a text or conversation of the course), and a Gap gives a card once `## In German` is written. So every Word you write gets one natural example sentence, and you set `Checked: assistant` as rule 2 says. The Progress page lists the entries that are not ready.
+10. **Grammar of the word.** A Word gets the properties of its part of speech, so the page shows them and Practice asks for them: `Case` for every preposition, `WordOrder` for every conjunction and for adverbs such as *deshalb*, `Comparative` and `Superlative` for adjectives and adverbs that have them, `Akkusativ` and `Dativ` for personal pronouns. Details in `reference/entry-types.md`.
 
 ## Workflows
 

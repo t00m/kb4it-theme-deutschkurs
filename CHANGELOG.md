@@ -4,6 +4,18 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-13
+
+### Added
+
+- `PartOfSpeech` values `article`, `numeral` and `interjection`, so every German word class has one. Verbs keep their own type. Words with `article` (*ein*, *kein*) are not linked in sentences and give no practice cards.
+- Word properties by part of speech, all optional: `Case` for prepositions (`Akkusativ`, `Dativ`, `Wechsel`, `Genitiv`); `WordOrder` for conjunctions and adverbs (`normal`, `end`, `inversion`); `Comparative` and `Superlative` for adjectives and adverbs (`besser`, `am besten`); `Akkusativ` and `Dativ` for pronouns (`mich`, `mir`).
+- Word pages show the case, the word order, the comparison and the pronoun forms. A preposition links the grammar entries of its case; a grammar entry with `Case` lists its prepositions, a `Wechsel` preposition on both the Akkusativ and the Dativ page.
+- The comparative, the superlative without *am* and the pronoun forms link their word in sentences.
+- Practice: "Which case?" for prepositions, "Where does the verb go?" for conjunctions and adverbs, "Comparison" for adjectives and adverbs, "Which form?" for pronouns, one case per review.
+- Checks: `case_invalid`, `word_order_invalid`, `superlative_invalid` and `property_unexpected`.
+- Starter course: one word for each part of speech (*ein, gut, gern, deshalb, ich, mit, für, in, aber, weil, drei, ach, doch*), the comparison of *krank*, and the grammar entries *Präpositionen mit Dativ*, *Nebensatz mit weil* and *Adjektivendungen*.
+
 ## [0.6.2] - 2026-11-13
 
 ### Fixed
