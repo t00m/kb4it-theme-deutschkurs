@@ -257,3 +257,13 @@ test("a date with a year or at the end of a sentence is read out", () => {
   assert.strictEqual(normalise("am 3.4.2025. Dann gehen wir."), "am dritten April 2025. Dann gehen wir.");
   assert.strictEqual(normalise("Heute ist der 3.4."), "Heute ist der dritte April.");
 });
+
+test("normalise leaves abbreviations ending in str. that are no street", () => {
+  const { normalise } = load().Deutschkurs.speech;
+  assert.strictEqual(normalise("Im 3. Distr. von Wien"), "Im 3. Distr. von Wien");
+  assert.strictEqual(normalise("Er kommt aus Austr."), "Er kommt aus Austr.");
+  assert.strictEqual(normalise("Industr. und Handel"), "Industr. und Handel");
+  assert.strictEqual(normalise("Instr. 4, Konstr., Registr."), "Instr. 4, Konstr., Registr.");
+  assert.strictEqual(normalise("Demonstr., Ministr., Administr."), "Demonstr., Ministr., Administr.");
+  assert.strictEqual(normalise("Mozartstr. 3 und Neustr. 2"), "Mozartstraße 3 und Neustraße 2");
+});

@@ -4,6 +4,13 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-11-13
+
+### Fixed
+
+- A recording path may end with a query or a fragment, such as `[audio](resources/audio/dialog.m4a#t=12)` or `Audio: resources/audio/termin.m4a?v=2`. The player keeps it, so `#t=12` starts at second 12; the file check ignores it. Before, the link stayed in the text and `Audio` gave `AUDIO_MISSING reason=type`.
+- Speech: `Distr.`, `Austr.`, `Industr.`, `Instr.`, `Konstr.`, `Registr.`, `Demonstr.`, `Ministr.` and `Administr.` are no longer read as street names. A street really called Austraße must be written out.
+
 ## [0.6.1] - 2026-11-12
 
 ### Added

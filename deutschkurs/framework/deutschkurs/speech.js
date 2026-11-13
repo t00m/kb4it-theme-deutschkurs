@@ -14,6 +14,8 @@
   ];
   // Str. alone or at the end of a street name: Hauptstr. is Hauptstraße.
   var STREET = /(^|[^A-Za-zÄÖÜäöüß])([A-Za-zÄÖÜäöüß]*)([Ss])tr\./g;
+  // Abbreviations that end in str. but are no street: Distrikt, Australien, Industrie, Instrument and others.
+  var NOT_STREET = ["di", "au", "indu", "in", "kon", "regi", "demon", "mini", "admini"];
   // Words before a date that take the dative ending: am dritten, bis zum ersten.
   var DATIVE = ["am", "vom", "zum", "dem"];
   var DEFAULT_SLOW = 0.75;
@@ -71,7 +73,10 @@
     }
     function fixed(words) { return expand(function () { return words; }); }
     for (var i = 0; i < ABBREVIATIONS.length; i++) out = out.replace(ABBREVIATIONS[i][0], fixed(ABBREVIATIONS[i][1]));
-    out = out.replace(STREET, expand(function (m) { return m[1] + m[2] + (m[3] === "S" ? "Straße" : "straße"); }));
+    var street = expand(function (m) { return m[1] + m[2] + (m[3] === "S" ? "Straße" : "straße"); });
+    out = out.replace(STREET, function (all, lead, name) {
+      return NOT_STREET.indexOf(name.toLowerCase()) >= 0 ? all : street.apply(null, arguments);
+    });
     out = out.replace(/\b(\d{1,2})[:.](\d{2})\s*Uhr\b/g, function (all, h, m) {
       var hour = Number(h) === 1 ? "ein" : numberWords(Number(h));
       return hour + " Uhr" + (Number(m) ? " " + numberWords(Number(m)) : "");

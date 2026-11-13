@@ -71,13 +71,30 @@ Type: Conversation
 - **Anna:** Hallo! [audio](HTTPS://example.org/hallo.m4a)
 """
 
+START = WORD.replace("termin.m4a", "termin.m4a#t=1").replace("# Termin", "# Anfang")
+
+GONE = WORD.replace("termin.m4a", "weg.m4a?v=2").replace("# Termin", "# Weg")
+
+PART = """---
+Checked: native
+Kind: real
+Level: A1
+Type: Conversation
+---
+
+# Teil
+
+- **Anna:** Hallo! [audio](resources/audio/praxis.m4a?v=2&x=1)
+"""
+
 NOTE = WORD.replace("Audio: resources/audio/termin.m4a", "Audio: resources/audio/notiz.txt").replace("# Termin", "# Notiz")
 
 
 @pytest.fixture(scope="module")
 def site(tmp_path_factory):
     config = prepare_site(tmp_path_factory.mktemp("audio"), {"termin.md": WORD, "am-telefon.md": CALL, "brief.md": LETTER,
-                                                           "laut.md": LOUD, "notiz.md": NOTE}, starter=False)
+                                                           "laut.md": LOUD, "notiz.md": NOTE,
+                                                           "anfang.md": START, "weg.md": GONE, "teil.md": PART}, starter=False)
     root = config.parent.parent
     audio = root / "source" / "resources" / "audio"
     audio.mkdir(parents=True)
@@ -186,3 +203,47 @@ def test_audio_property_must_be_a_sound_file(site):
     log = "\n".join(warnings(site.log))
     assert "AUDIO_MISSING doc=notiz.md reason=type" in log
     assert "<audio" not in main(site.page("notiz.html"))
+
+
+def test_turn_audio_link_with_query_or_fragment():
+    text = ("# T\n\n- **Anna:** Ja [audio](resources/audio/a.m4a#t=3) :: Yes\n"
+            "- **ich:** Wie? [audio](resources/audio/b.mp3?v=2) :: How?\n"
+            "- **Anna:** Gut [audio](<resources/audio/c d.ogg#t=1,4>)\n")
+    found, _, _ = turns(text)
+    assert [(u.german, u.audio) for u in found] == [
+        ("Ja", "resources/audio/a.m4a#t=3"), ("Wie?", "resources/audio/b.mp3?v=2"),
+        ("Gut", "resources/audio/c d.ogg#t=1,4")]
+
+
+def test_local_audio_keeps_query_and_fragment():
+    from deutschkurs.logic.render import audio_file, local_audio
+    assert local_audio("resources/audio/a.mp3#t=3") == "resources/audio/a.mp3#t=3"
+    assert local_audio("resources/audio/a.mp3?v=2") == "resources/audio/a.mp3?v=2"
+    assert local_audio("resources/audio/a.txt#t=3") == ""
+    assert local_audio("resources/audio/a.mp3x") == ""
+    assert audio_file("resources/audio/a.mp3#t=3") == "resources/audio/a.mp3"
+    assert audio_file("resources/audio/a.MP3?v=2#t=1") == "resources/audio/a.MP3"
+    assert audio_file("resources/audio/a.m4a") == "resources/audio/a.m4a"
+
+
+def test_audio_property_with_fragment_plays_from_there(site):
+    log = "\n".join(warnings(site.log))
+    assert "doc=anfang.md" not in log
+    head = main(site.page("anfang.html")).split('<div class="dk-body', 1)[0]
+    assert 'src="resources/audio/termin.m4a#t=1"' in head
+
+
+def test_missing_recording_with_query_is_missing_not_wrong_type(site):
+    log = "\n".join(warnings(site.log))
+    assert "AUDIO_MISSING doc=weg.md reason=missing" in log
+    assert "doc=weg.md reason=type" not in log
+
+
+def test_turn_recording_with_query_is_played(site):
+    log = "\n".join(warnings(site.log))
+    assert "doc=teil.md" not in log
+    page = main(site.page("teil.html"))
+    assert 'src="resources/audio/praxis.m4a?v=2&amp;x=1"' in page
+    assert ">audio</a>" not in page
+    entries = {e["id"]: e for e in payload(site)["entries"]}
+    assert entries["teil.md"]["turns"][0]["audio"] == "resources/audio/praxis.m4a?v=2&x=1"

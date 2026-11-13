@@ -19,8 +19,11 @@ LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 HTML_TAG = re.compile(r"<[^>]+>")
 # A recording at the end of a turn: [audio](resources/audio/x.m4a).
 AUDIO_EXTENSIONS = r"\.(?:m4a|mp3|ogg|oga|opus|wav|webm)"
+# A query or fragment may follow the extension: x.m4a?v=2, x.m4a#t=3 (start at second 3).
+AUDIO_SUFFIX = r"(?:[?#][^\s)>\"]*)?"
 # The path may be in <...> (then it may hold spaces) and may have a "title", as Markdown allows.
-AUDIO_LINK = re.compile(rf"\s*\[audio\]\(\s*(?:<([^>]+{AUDIO_EXTENSIONS})>|([^)\s]+{AUDIO_EXTENSIONS}))"
+AUDIO_LINK = re.compile(rf"\s*\[audio\]\(\s*(?:<([^>]+{AUDIO_EXTENSIONS}{AUDIO_SUFFIX})>"
+                        rf"|([^)\s]+{AUDIO_EXTENSIONS}{AUDIO_SUFFIX}))"
                         r"(?:\s+\"[^\"]*\")?\s*\)", re.I)
 INLINE_TAGS = "a|abbr|b|br|code|em|i|img|kbd|mark|s|small|span|strong|sub|sup|u"
 # First lines of blocks that are no paragraph: headings, quotes, lists, tables, code, rules, boxes, block HTML.
