@@ -1,7 +1,9 @@
 ---
 Checked: assistant
+Comparative: kränker
 Level: A1
 PartOfSpeech: adjective
+Superlative: am kränksten
 Topic: Gesundheit
 Translation: ill
 Type: Word
