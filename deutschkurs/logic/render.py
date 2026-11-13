@@ -13,7 +13,7 @@ from .course import Course
 from .glossary import TAG, TAG_NAME, VOID_TAGS
 from .index import Occurrence, marker_hits
 from .model import KINDS, LEVELS, Entry
-from .parse import AUDIO_EXTENSIONS, Unit
+from .parse import AUDIO_EXTENSIONS, AUDIO_SUFFIX, Unit
 
 GENDER = {"der": "dk-m", "die": "dk-f", "das": "dk-n"}
 PERFEKT = {"haben": "hat", "sein": "ist"}
@@ -44,9 +44,9 @@ TURN = re.compile(r"^<(strong|b)>([^<]+?)(?::</\1>|</\1>:)\s*(.*)$", re.S)
 NUMBERED = re.compile(r"^(\d+)\s+(.*)$", re.S)
 NOT_A_LETTER = re.compile(r"[\W_]+")
 # The [audio](...) link of a turn after Markdown.
-RENDERED_AUDIO = re.compile(rf'\s*<a href="([^"]+{AUDIO_EXTENSIONS})"[^>]*>audio</a>', re.I)
+RENDERED_AUDIO = re.compile(rf'\s*<a href="([^"]+{AUDIO_EXTENSIONS}{AUDIO_SUFFIX})"[^>]*>audio</a>', re.I)
 REMOTE = ("http://", "https://", "//")
-AUDIO_FILE = re.compile(rf"{AUDIO_EXTENSIONS}$", re.I)
+AUDIO_FILE = re.compile(rf"{AUDIO_EXTENSIONS}(?=[?#]|$)", re.I)
 
 
 def cued(css: str) -> str:
@@ -91,6 +91,12 @@ def local_audio(src: str) -> str:
     """The path of a recording inside the site, or '' for a web address: pages load nothing from the internet."""
     src = src.strip()
     return "" if not src or src.lower().startswith(REMOTE) or not AUDIO_FILE.search(src) else src
+
+
+def audio_file(src: str) -> str:
+    """The file part of a recording path: without the ?query or #fragment after the extension."""
+    match = AUDIO_FILE.search(src)
+    return src[:match.end()] if match else src
 
 
 def audio_html(src: str, labels: Mapping[str, str]) -> str:
