@@ -173,3 +173,35 @@ def test_auxiliary_that_is_a_form_of_haben_keeps_its_row():
              "# haben\n\n## Examples\n\n- Er hat ein Auto gehabt. :: He had a car.\n")
     rows = [r for r in data([haben])["sentences"] if r["entry"] == "haben.md"]
     assert sorted(r["german"][r["start"]:r["end"]] for r in rows) == ["gehabt", "hat"]
+
+
+def pos_doc(doc_id, title, **props):
+    base = {"Type": ("Word",), "Level": ("A1",), "Translation": ("x",), "Checked": ("assistant",)}
+    base.update({k: tuple(v.split(", ")) for k, v in props.items()})
+    return doc_id, base, f"# {title}\n\n## Examples\n\n- {title} :: x\n"
+
+
+MIT = pos_doc("mit.md", "mit", PartOfSpeech="preposition", Case="Dativ")
+ICH = pos_doc("ich.md", "ich", PartOfSpeech="pronoun", Akkusativ="mich", Dativ="mir")
+WEIL = pos_doc("weil.md", "weil", PartOfSpeech="conjunction", WordOrder="end")
+GUT = pos_doc("gut.md", "gut", PartOfSpeech="adjective", Comparative="besser", Superlative="am besten")
+EIN = ("ein.md", {"Type": ("Word",), "Level": ("A1",), "Translation": ("a",), "Checked": ("assistant",),
+                  "PartOfSpeech": ("article",)}, "# ein\n")
+
+
+def test_word_record_has_part_of_speech_fields():
+    payload = data(DOCS + [MIT, ICH, WEIL, GUT])
+    mit, ich, weil, gut = (record(payload, i) for i in ("mit.md", "ich.md", "weil.md", "gut.md"))
+    assert (mit["pos"], mit["case"]) == ("preposition", "Dativ")
+    assert ich["cases"] == [{"case": "Akkusativ", "form": "mich"}, {"case": "Dativ", "form": "mir"}]
+    assert weil["word_order"] == "end"
+    assert (gut["comparative"], gut["superlative"]) == ("besser", "am besten")
+    assert record(payload, "krank.md")["cases"] == []
+
+
+def test_article_words_give_no_record_and_are_never_not_ready():
+    from deutschkurs.logic.data import not_ready
+    docs = DOCS + [EIN]
+    assert "ein.md" not in [e["id"] for e in data(docs)["entries"]]
+    course = build_course(docs, DeutschkursConfig())
+    assert "ein.md" not in [e.id for e, _ in not_ready(course)]

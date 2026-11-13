@@ -197,12 +197,17 @@
     function choice(card, body) {
       var row = el("p", { className: "dk-choices" }, card.choices.map(function (option) {
         var css = { der: "dk-m dk-cued", die: "dk-f dk-cued", das: "dk-n dk-cued" }[option] || "";
+        var text = card.labels ? L[card.labels + option] || option : option;
         var button = el("button", { type: "button", className: "uk-button uk-button-default uk-button-large " + css,
-                                    text: option });
+                                    text: text });
         button.addEventListener("click", function () {
           Array.prototype.forEach.call(row.querySelectorAll("button"), function (b) { b.disabled = true; });
           var result = { result: option === card.answer ? "good" : "again", diff: [] };
-          body.appendChild(verdict(result, card, { answer: card.answer + " " + card.prompt }));
+          // The right answer in words: "mit + Dativ", "weil: verb goes to the end", "der Termin".
+          var shown = card.reveal ||
+            (card.labels ? card.prompt + ": " + (L[card.labels + card.answer] || card.answer)
+                         : card.answer + " " + card.prompt);
+          body.appendChild(verdict(result, card, { answer: shown }));
         });
         return button;
       }));

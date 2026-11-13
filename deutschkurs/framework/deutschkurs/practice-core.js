@@ -3,8 +3,10 @@
   "use strict";
   var dk = (root.Deutschkurs = root.Deutschkurs || {});
   // Order of the exercises of one entry: understanding before producing.
-  var ORDER = ["to_native", "article", "plural", "to_target", "perfekt", "separable", "cloze", "mistake", "gap",
-               "roleplay"];
+  var ORDER = ["to_native", "article", "plural", "case", "word_order", "comparison", "case_form", "to_target",
+               "perfekt", "separable", "cloze", "mistake", "gap", "roleplay"];
+  var CASES = ["Akkusativ", "Dativ", "Wechsel", "Genitiv"];
+  var WORD_ORDERS = ["normal", "end", "inversion"];
   var ARTICLES = ["der", "die", "das"];
   var PERFEKT = { haben: "hat", sein: "ist" };
   var GAP = "___";
@@ -29,7 +31,7 @@
   function card(entry, exercise, fields) {
     var c = { id: exercise + ":" + entry.id, exercise: exercise, entry: entry.id, kind: "", check: "typed",
               prompt: "", answer: "", alternatives: [], options: {}, choices: [], translation: entry.translation,
-              items: [], turns: [] };
+              items: [], turns: [], reveal: "", labels: "" };
     for (var key in fields) c[key] = fields[key];
     return c;
   }
@@ -57,6 +59,21 @@
     if (noun && entry.plural && entry.plural !== "none" && entry.plural !== "-") {
       found.push(card(entry, "plural", { prompt: german(entry), answer: entry.plural,
                                          options: { noun: true, article: /^(der|die|das)\s/.test(entry.plural) } }));
+    }
+    if (t === "Word" && entry.pos === "preposition" && has(CASES, entry.case)) {
+      found.push(card(entry, "case", { check: "choice", prompt: entry.title + " + ?", answer: entry.case,
+                                       choices: CASES.slice(), reveal: entry.title + " + " + entry.case }));
+    }
+    if (t === "Word" && (entry.pos === "conjunction" || entry.pos === "adverb") && has(WORD_ORDERS, entry.word_order)) {
+      found.push(card(entry, "word_order", { check: "choice", prompt: entry.title, answer: entry.word_order,
+                                             choices: WORD_ORDERS.slice(), labels: "word_order_" }));
+    }
+    var degrees = [entry.comparative, entry.superlative].filter(function (x) { return x; });
+    if (t === "Word" && (entry.pos === "adjective" || entry.pos === "adverb") && degrees.length) {
+      found.push(card(entry, "comparison", { prompt: entry.title, answer: degrees.join(", ") }));
+    }
+    if (t === "Word" && entry.pos === "pronoun" && (entry.cases || []).length) {
+      found.push(card(entry, "case_form", { prompt: entry.title, items: entry.cases }));
     }
     if (t === "Verb" && entry.participle && (entry.auxiliary || []).length) {
       var forms = entry.auxiliary.filter(function (a) { return PERFEKT[a]; })
@@ -106,6 +123,11 @@
     if (!c.items.length) return shown;
     var turn = state ? (state.reps || 0) + (state.lapses || 0) : 0;
     var item = c.items[turn % c.items.length];
+    if (c.exercise === "case_form") {
+      shown.prompt = c.prompt + " → " + item.case;
+      shown.answer = item.form;
+      return shown;
+    }
     if (c.exercise === "cloze") {
       shown.prompt = blank(item.german, [[item.start, item.end]]);
       shown.answer = item.german.slice(item.start, item.end);
