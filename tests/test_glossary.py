@@ -176,3 +176,13 @@ def test_shared_form_stays_with_the_first_entry():
                         word("sie", PartOfSpeech="pronoun", Dativ="ihr")])
     assert g.lookup("ihr")[0] == "ihr.md"
     assert g.lookup("euch")[0] == "ihr.md"
+
+
+def test_preposition_at_the_end_of_a_clause_is_a_verb_prefix():
+    from deutschkurs.logic.glossary import find_spans
+    g = build_glossary([word("mit", PartOfSpeech="preposition", Case="Dativ")])
+    linked = lambda text: [text[s:e] for s, e, _, _ in find_spans(text, g)]
+    assert linked("Geben Sie eine Regenjacke mit.") == []
+    assert linked("Kommst du mit, oder nicht?") == []
+    assert linked("Ich fahre mit ") == ["mit"]
+    assert linked("Ich fahre mit dem Bus.") == ["mit"]

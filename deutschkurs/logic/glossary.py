@@ -36,6 +36,9 @@ class Glossary:
     separable: dict[str, list[tuple[str, str]]] = field(default_factory=dict)
     # Participle, lower-cased, to its (entry id, auxiliaries) pairs; no auxiliaries means any.
     participles: dict[str, list[tuple[str, tuple[str, ...]]]] = field(default_factory=dict)
+    # Entry ids of prepositions: before a punctuation mark the same word is a verb prefix (gib das Geld mit.).
+    # The end of a text piece is not enough: an inline tag such as <em> can follow inside the sentence.
+    prepositions: set[str] = field(default_factory=set)
 
     def lookup(self, token: str) -> tuple[str, str] | None:
         """(entry id, css class) of a token, or None."""
@@ -66,6 +69,8 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
         elif e.type == "Word" and e.value("PartOfSpeech") != "article":
             # Article words stay plain text (spec 5.1); the superlative is linked without its "am".
             superlative = [AM.sub("", v) for v in e.values("Superlative")]
+            if e.value("PartOfSpeech") == "preposition":
+                g.prepositions.add(e.id)
             for form in [e.title, *e.values("Forms"), *e.values("Comparative"), *superlative,
                          *e.values("Akkusativ"), *e.values("Dativ")]:
                 if form.strip():
@@ -154,6 +159,8 @@ def find_spans(text: str, g: Glossary, self_id: str = "") -> list[tuple[int, int
         if not free(m.start(), m.end()):
             continue
         found = g.lookup(m.group())
+        if found and found[0] in g.prepositions and re.match(r"\s*[.,;:!?]", text[m.end():]):
+            continue
         if found and found[0] != self_id:
             take(m.start(), m.end(), found[0], found[1])
     return sorted(spans)
