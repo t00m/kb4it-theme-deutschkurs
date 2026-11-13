@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Collection, Mapping, Optional, Sequence
 
 from .model import (AREAS, ARTICLES, AUXILIARIES, CHECKED, GENRES, KINDS, LEVELS, NO_LEVEL, PARTS_OF_SPEECH,
-                    PLACES, REGISTERS, TYPES, Entry)
+                    PLACES, POS_PROPERTIES, PREPOSITION_CASES, REGISTERS, TYPES, WORD_ORDERS, Entry)
 
 REASONS = (
     "type_missing", "type_unknown", "level_missing", "level_invalid", "translation_missing",
@@ -14,6 +14,7 @@ REASONS = (
     "prefix_missing", "register_invalid", "checked_invalid", "area_invalid", "date_invalid",
     "topic_unknown", "explanation_missing", "flag_invalid", "kind_missing", "kind_invalid", "genre_invalid",
     "situation_unknown", "turn_invalid", "place_invalid", "mistake_incomplete",
+    "case_invalid", "word_order_invalid", "superlative_invalid", "property_unexpected",
 )
 
 FLAGS = ("PluralOnly", "Irregular", "Separable", "Reflexive", "Reply")
@@ -72,6 +73,16 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
         elif pos[0] == "noun" and "yes" not in get("PluralOnly"):
             if not any(a in ARTICLES for a in get("Article")):
                 add("Article", "article_missing")
+        part = pos[0] if pos else ""
+        for key, parts in POS_PROPERTIES.items():
+            if get(key) and part not in parts:
+                add(key, "property_unexpected")
+            elif key == "Case" and get(key) and get(key)[0] not in PREPOSITION_CASES:
+                add(key, "case_invalid")
+            elif key == "WordOrder" and get(key) and get(key)[0] not in WORD_ORDERS:
+                add(key, "word_order_invalid")
+            elif key == "Superlative" and get(key) and not get(key)[0].startswith("am "):
+                add(key, "superlative_invalid")
 
     if kind == "Verb":
         if not get("Participle"):
