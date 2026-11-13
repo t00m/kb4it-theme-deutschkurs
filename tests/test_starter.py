@@ -24,7 +24,7 @@ def course():
 def test_counts():
     c = course()
     assert {kind: len(c.by_type(kind)) for kind in TYPES} == \
-        {"Word": 10, "Verb": 5, "Chunk": 4, "Grammar": 2, "Text": 1, "Conversation": 1, "Situation": 3,
+        {"Word": 23, "Verb": 5, "Chunk": 4, "Grammar": 5, "Text": 1, "Conversation": 1, "Situation": 3,
          "Photo": 1, "Mistake": 1, "Gap": 2, "Inbox": 1}
     assert c.problems == []
 
@@ -170,7 +170,7 @@ def test_starter_has_no_privacy_or_photo_warning(built_site):
 
 
 EXERCISES = {"article", "plural", "to_native", "to_target", "perfekt", "separable", "cloze", "roleplay", "mistake",
-             "gap"}
+             "gap", "case", "word_order", "comparison", "case_form"}
 
 
 def test_starter_has_a_card_for_every_exercise(built_site):
@@ -184,3 +184,14 @@ def test_starter_has_a_card_for_every_exercise(built_site):
                           str(framework / "scheduler.js"), str(framework / "practice-core.js")],
                          capture_output=True, text=True, check=True)
     assert set(json.loads(run.stdout)) == EXERCISES
+
+
+def test_every_part_of_speech_has_a_starter_word():
+    found = {e.value("PartOfSpeech") for e in course().by_type("Word")}
+    assert found >= {"noun", "article", "adjective", "adverb", "pronoun", "preposition", "conjunction",
+                     "numeral", "interjection", "particle"}
+
+
+def test_starter_grammar_lists_its_prepositions(built_site):
+    page = built_site.page("praepositionen-mit-dativ.html")
+    assert 'href="mit.html"' in page and 'href="in.html"' in page

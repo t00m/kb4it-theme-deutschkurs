@@ -16,6 +16,7 @@ TAG_NAME = re.compile(r"^<\s*(/)?\s*([a-zA-Z][a-zA-Z0-9]*)")
 ENTITY = re.compile(r"(&#?\w+;)")
 CLAUSE_END = re.compile(r"[.,;:!?]")
 ARTICLE = re.compile(r"^(der|die|das)\s+", re.I)
+AM = re.compile(r"^\s*am\s+", re.I)
 # Present and preterite forms of haben and sein: the finite part of Perfekt and Plusquamperfekt.
 AUXILIARY_FORMS = {
     **dict.fromkeys(("habe", "hast", "hat", "haben", "habt", "hatte", "hattest", "hatten", "hattet"), "haben"),
@@ -35,6 +36,9 @@ class Glossary:
     separable: dict[str, list[tuple[str, str]]] = field(default_factory=dict)
     # Participle, lower-cased, to its (entry id, auxiliaries) pairs; no auxiliaries means any.
     participles: dict[str, list[tuple[str, tuple[str, ...]]]] = field(default_factory=dict)
+    # Entry ids of prepositions: before a punctuation mark the same word is a verb prefix (gib das Geld mit.).
+    # The end of a text piece is not enough: an inline tag such as <em> can follow inside the sentence.
+    prepositions: set[str] = field(default_factory=set)
 
     def lookup(self, token: str) -> tuple[str, str] | None:
         """(entry id, css class) of a token, or None."""
@@ -53,6 +57,9 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
     """Index the surface forms of every Word, Verb and Chunk."""
     g = Glossary()
     phrases = {}
+    # Comparison and pronoun case forms come after every title and Forms value: früher, the comparative of
+    # früh, must not take the title of the Word früher.
+    derived: list[tuple[str, str]] = []
     for e in entries:
         if e.type == "Word" and e.is_noun:
             plural_only = e.value("PluralOnly") == "yes"
@@ -62,9 +69,16 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
             for plural in e.values("Plural"):
                 if plural.strip() not in ("none", "-"):
                     g.nouns.setdefault(_strip_article(plural), (e.id, "dk-pl"))
-        elif e.type == "Word":
+        elif e.type == "Word" and e.value("PartOfSpeech") != "article":
+            # Article words stay plain text (spec 5.1); the superlative is linked without its "am".
+            superlative = [AM.sub("", v) for v in e.values("Superlative")]
+            if e.value("PartOfSpeech") == "preposition":
+                g.prepositions.add(e.id)
             for form in [e.title, *e.values("Forms")]:
                 g.forms.setdefault(form.strip().lower(), e.id)
+            for form in [*e.values("Comparative"), *superlative, *e.values("Akkusativ"), *e.values("Dativ")]:
+                if form.strip():
+                    derived.append((form.strip().lower(), e.id))
         elif e.type == "Verb":
             prefix = e.value("Prefix") if e.value("Separable") == "yes" else ""
             finite = present_forms(e.values("Present"), prefix) or regular_present(e.title, prefix)
@@ -82,6 +96,8 @@ def build_glossary(entries: Iterable[Entry]) -> Glossary:
                     g.forms.setdefault(form.lower(), e.id)
         elif e.type == "Chunk" and e.title:
             phrases[e.title.lower()] = e.id
+    for form, doc_id in derived:
+        g.forms.setdefault(form, doc_id)
     g.phrases = sorted(phrases.items(), key=lambda item: -len(item[0]))
     return g
 
@@ -149,6 +165,8 @@ def find_spans(text: str, g: Glossary, self_id: str = "") -> list[tuple[int, int
         if not free(m.start(), m.end()):
             continue
         found = g.lookup(m.group())
+        if found and found[0] in g.prepositions and re.match(r"\s*[.,;:!?]", text[m.end():]):
+            continue
         if found and found[0] != self_id:
             take(m.start(), m.end(), found[0], found[1])
     return sorted(spans)

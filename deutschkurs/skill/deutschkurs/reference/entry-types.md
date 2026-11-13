@@ -18,11 +18,11 @@ One file per entry, in the course's `source/` folder. Each file has YAML frontma
 
 ## Word
 
-Nouns, adjectives, adverbs and other single words. The `#` title is the word without article.
+Every single word that is not a verb: nouns, articles, adjectives, adverbs, pronouns, prepositions, conjunctions, numerals, interjections and particles. The `#` title is the word without article.
 
 | Property | Values | Rule |
 |---|---|---|
-| `PartOfSpeech` | `noun`, `adjective`, `adverb`, `preposition`, `conjunction`, `pronoun`, `particle`, `other` | Required |
+| `PartOfSpeech` | `noun`, `article`, `adjective`, `adverb`, `pronoun`, `preposition`, `conjunction`, `numeral`, `interjection`, `particle`, `other` | Required. Words with `article` (*ein*, *kein*) are not linked in sentences and give no practice cards |
 | `Article` | `der`, `die`, `das` | Required for nouns, except plural-only nouns |
 | `Plural` | `die Termine`, or `none` | Optional; with the article; `none` when there is no plural |
 | `PluralOnly` | `yes` | Optional; for nouns that only exist in the plural, such as *Eltern* |
@@ -31,6 +31,11 @@ Nouns, adjectives, adverbs and other single words. The `#` title is the word wit
 | `Regional` | Other words for the same thing | Optional; such as `Brotbox, Brotbüchse` |
 | `Family` | Related words | Optional; such as `der Terminkalender`; linked when an entry exists |
 | `Audio` | `resources/audio/termin.m4a` | Optional; a recording under `source/resources/audio/`; the page plays it instead of the device voice |
+| `Case` | `Akkusativ`, `Dativ`, `Wechsel`, `Genitiv` | Prepositions only; the case it takes: *mit* `Dativ`, *für* `Akkusativ`, *in* `Wechsel` (Akkusativ for "where to?", Dativ for "where?"). Set it for every preposition |
+| `WordOrder` | `normal`, `end`, `inversion` | Conjunctions and adverbs only; where the conjugated verb goes: `normal` stays in position 2 (*und, aber, oder, denn*), `end` goes to the end of the clause (*weil, dass, wenn, ob*), `inversion` comes right after the word (*deshalb, trotzdem, dann*). Set it for every conjunction |
+| `Comparative` | `besser` | Adjectives and adverbs only; the comparative |
+| `Superlative` | `am besten` | Adjectives and adverbs only; the superlative with *am* |
+| `Akkusativ`, `Dativ` | `mich`, `mir` | Pronouns only; the forms of a personal pronoun in these cases |
 
 Sections, all optional, in this order:
 

@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.6.2, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.7.0, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -8,7 +8,7 @@ One file per entry in `source/`, with YAML frontmatter, one `#` title and option
 
 | Type | What | Required properties |
 |---|---|---|
-| Word | A noun, adjective or other word | `Level`, `Translation`, `PartOfSpeech`; `Article` for nouns |
+| Word | A noun, article, adjective, adverb, pronoun, preposition, conjunction, numeral, interjection or particle | `Level`, `Translation`, `PartOfSpeech`; `Article` for nouns |
 | Verb | A verb | `Level`, `Translation`, `Participle`, `Auxiliary`; `Prefix` when `Separable: yes` |
 | Chunk | A fixed phrase | `Level`, `Translation` |
 | Grammar | One grammar point | `Level`, `Area`, and a `## Explanation` section |
@@ -69,7 +69,7 @@ Article pages: `Article.html` and one page per article, `Article_der.html`, `Art
 
 Each build writes `deutschkurs-data.js`, the data the browser needs to practise. The home page shows how many cards are due and new today. `practice.html` has four sessions: Daily (due cards, the conversation of the day and a few new cards), Short (up to 15 due cards), Weekly (due cards, a conversation and the mistakes you repeat most) and Free (any card, by level, situation, topic or type). A situation page has a Prepare button that opens Free practice for that situation.
 
-Exercises: der, die or das; plural; German to your language; your language to German; Perfekt; separable verbs in a sentence; fill the gap; roleplay of your turns in a conversation; fix a mistake; say a gap in German. Typed answers accept `ae oe ue ss` for `ä ö ü ß`, ignore a capital first letter, extra spaces and final punctuation, and need the exact article. A small typo rates as hard. Speaking exercises have no speech recognition: say the line aloud or type it, then show the answer and rate yourself.
+Exercises: der, die or das; plural; the case of a preposition; where the verb goes after a conjunction; comparison (*gut, besser, am besten*); the Akkusativ or Dativ of a pronoun; German to your language; your language to German; Perfekt; separable verbs in a sentence; fill the gap; roleplay of your turns in a conversation; fix a mistake; say a gap in German. Typed answers accept `ae oe ue ss` for `ä ö ü ß`, ignore a capital first letter, extra spaces and final punctuation, and need the exact article. A small typo rates as hard. Speaking exercises have no speech recognition: say the line aloud or type it, then show the answer and rate yourself.
 
 Only entries that are ready give new cards: not `Checked: unchecked`, and for a Word at least one example sentence. `progress.html` lists the others, the words you understand and can say per level, what you can do per situation, your real-life wins from `## Log`, mistake patterns and the days you studied.
 

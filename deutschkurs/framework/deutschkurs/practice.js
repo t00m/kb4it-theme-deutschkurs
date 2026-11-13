@@ -197,12 +197,17 @@
     function choice(card, body) {
       var row = el("p", { className: "dk-choices" }, card.choices.map(function (option) {
         var css = { der: "dk-m dk-cued", die: "dk-f dk-cued", das: "dk-n dk-cued" }[option] || "";
+        var text = card.labels ? L[card.labels + option] || option : option;
         var button = el("button", { type: "button", className: "uk-button uk-button-default uk-button-large " + css,
-                                    text: option });
+                                    text: text });
         button.addEventListener("click", function () {
           Array.prototype.forEach.call(row.querySelectorAll("button"), function (b) { b.disabled = true; });
           var result = { result: option === card.answer ? "good" : "again", diff: [] };
-          body.appendChild(verdict(result, card, { answer: card.answer + " " + card.prompt }));
+          // The right answer in words: "mit + Dativ", "weil: verb goes to the end", "der Termin".
+          var shown = card.reveal ||
+            (card.labels ? card.prompt + ": " + (L[card.labels + card.answer] || card.answer)
+                         : card.answer + " " + card.prompt);
+          body.appendChild(verdict(result, card, { answer: shown }));
         });
         return button;
       }));
@@ -280,13 +285,13 @@
       area.appendChild(el("p", { className: "uk-text-small uk-text-muted",
                                  text: fill(L.card_of, { n: position + 1, total: queue.length }) }));
       area.appendChild(el("h2", { className: "uk-h4 dk-exercise", text: L["exercise_" + card.exercise] }));
-      var germanPrompt = ["article", "plural", "to_native", "perfekt", "separable", "cloze", "mistake", "roleplay"]
-        .indexOf(card.exercise) >= 0;
+      var germanPrompt = ["article", "plural", "to_native", "perfekt", "separable", "cloze", "mistake", "roleplay",
+                          "case", "word_order", "comparison", "case_form"].indexOf(card.exercise) >= 0;
+      // "mit + ?" and "ich → Dativ" are no German to read aloud.
+      var spoken = germanPrompt && ["roleplay", "cloze", "separable", "case", "case_form"].indexOf(card.exercise) < 0;
       var prompt = el("p", { className: "dk-prompt", lang: germanPrompt ? "de" : ctx.data.settings.native },
                       [el("span", { text: shown.prompt })]);
-      if (germanPrompt && card.exercise !== "roleplay" && card.exercise !== "cloze" && card.exercise !== "separable") {
-        prompt.appendChild(listen(shown.prompt, L));
-      }
+      if (spoken) prompt.appendChild(listen(shown.prompt, L));
       area.appendChild(prompt);
       if (shown.translation && card.exercise !== "to_target" && card.exercise !== "to_native") {
         area.appendChild(el("p", { className: "dk-hint uk-text-muted", text: shown.translation }));

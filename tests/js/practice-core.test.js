@@ -191,3 +191,71 @@ test("daily_new counts the new cards already started today", () => {
   const tomorrow = session("daily", ALL, states, DATA, "2026-11-12", {});
   assert.strictEqual(tomorrow.filter((c) => !states[c.id] && c.exercise !== "roleplay").length, 2);
 });
+
+function posWord(extra) {
+  return word(extra.title, Object.assign({ noun: false, article: "", forms: [extra.title] }, extra));
+}
+function cardsFor(w) { return plain(cards({ settings: SETTINGS, entries: [w], sentences: [], situations: [] })); }
+function find(list, exercise) { return list.find((c) => c.exercise === exercise); }
+function only(list, exercise) { const c = find(list, exercise); assert.ok(c, exercise); return c; }
+
+test("a preposition with Case gives a case card", () => {
+  const c = only(cardsFor(posWord({ title: "mit", pos: "preposition", case: "Dativ" })), "case");
+  assert.deepStrictEqual([c.check, c.prompt, c.answer, c.reveal], ["choice", "mit + ?", "Dativ", "mit + Dativ"]);
+  assert.deepStrictEqual(c.choices, ["Akkusativ", "Dativ", "Wechsel", "Genitiv"]);
+});
+
+test("a preposition without Case gives no case card", () => {
+  assert.strictEqual(find(cardsFor(posWord({ title: "mit", pos: "preposition" })), "case"), undefined);
+});
+
+test("word order card uses label keys", () => {
+  const c = only(cardsFor(posWord({ title: "weil", pos: "conjunction", word_order: "end" })), "word_order");
+  assert.deepStrictEqual([c.check, c.answer, c.labels, c.choices],
+                         ["choice", "end", "word_order_", ["normal", "end", "inversion"]]);
+});
+
+test("comparison answers the parts that exist", () => {
+  assert.strictEqual(only(cardsFor(posWord({ title: "gut", pos: "adjective", comparative: "besser",
+                                             superlative: "am besten" })), "comparison").answer, "besser, am besten");
+  assert.strictEqual(only(cardsFor(posWord({ title: "gut", pos: "adjective", comparative: "besser" })),
+                          "comparison").answer, "besser");
+  assert.strictEqual(only(cardsFor(posWord({ title: "viel", pos: "adverb", superlative: "am meisten" })),
+                          "comparison").answer, "am meisten");
+  assert.strictEqual(find(cardsFor(posWord({ title: "rot", pos: "adjective" })), "comparison"), undefined);
+});
+
+test("case_form takes the next case each review", () => {
+  const c = only(cardsFor(posWord({ title: "ich", pos: "pronoun",
+    cases: [{ case: "Akkusativ", form: "mich" }, { case: "Dativ", form: "mir" }] })), "case_form");
+  const first = view(c, { reps: 0, lapses: 0 }), second = view(c, { reps: 1, lapses: 0 });
+  assert.deepStrictEqual([first.prompt, first.answer], ["ich → Akkusativ", "mich"]);
+  assert.deepStrictEqual([second.prompt, second.answer], ["ich → Dativ", "mir"]);
+  assert.strictEqual(first.translation, "t-ich");
+});
+
+test("new exercises come after plural and before to_target", () => {
+  const ids = cardsFor(posWord({ title: "gut", pos: "adjective", comparative: "besser" })).map((c) => c.exercise);
+  assert.deepStrictEqual(ids, ["to_native", "comparison", "to_target"]);
+});
+
+test("cloze of a word with cases or comparison accepts no other case or degree", () => {
+  const rows = [{ entry: "ich", doc: "d", anchor: "", german: "Geben Sie mir das.", translation: "", start: 10, end: 13 }];
+  const ich = posWord({ title: "ich", pos: "pronoun", forms: ["ich", "mich", "mir"],
+    cases: [{ case: "Akkusativ", form: "mich" }, { case: "Dativ", form: "mir" }] });
+  const c = plain(cards({ settings: SETTINGS, entries: [ich], sentences: rows, situations: [] }))
+    .find((x) => x.exercise === "cloze");
+  assert.deepStrictEqual(c.alternatives, []);
+  const gut = posWord({ title: "gut", pos: "adjective", forms: ["gut", "guten", "besser", "besten"],
+                        comparative: "besser", superlative: "am besten" });
+  const g = plain(cards({ settings: SETTINGS, entries: [gut],
+    sentences: [{ entry: "gut", doc: "d", anchor: "", german: "Es geht besser.", translation: "", start: 8, end: 14 }],
+    situations: [] })).find((x) => x.exercise === "cloze");
+  assert.deepStrictEqual(g.alternatives, ["guten"]);
+});
+
+test("comparison accepts the answer without the comma", () => {
+  const c = only(cardsFor(posWord({ title: "gut", pos: "adjective", comparative: "besser",
+                                    superlative: "am besten" })), "comparison");
+  assert.deepStrictEqual(c.alternatives, ["besser am besten"]);
+});

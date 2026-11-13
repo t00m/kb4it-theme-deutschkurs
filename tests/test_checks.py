@@ -42,6 +42,12 @@ ROWS = [
     (change(VERB, Separable="Yes", Prefix="an"), None, ("Separable", "flag_invalid")),
     (change(WORD, PluralOnly="true"), None, ("PluralOnly", "flag_invalid")),
     ({"Type": ("Photo",), "Place": ("Moon",)}, None, ("Place", "place_invalid")),
+    (change(WORD, PartOfSpeech="preposition", Article=None, Case="Nominativ"), None, ("Case", "case_invalid")),
+    (change(WORD, PartOfSpeech="conjunction", Article=None, WordOrder="first"), None,
+     ("WordOrder", "word_order_invalid")),
+    (change(WORD, PartOfSpeech="adverb", Article=None, Superlative="liebsten"), None,
+     ("Superlative", "superlative_invalid")),
+    (change(WORD, Comparative="besser"), None, ("Comparative", "property_unexpected")),
 ]
 
 
@@ -198,3 +204,38 @@ def test_complete_mistake_is_clean():
 
 def test_reasons_of_0_3_listed():
     assert "place_invalid" in REASONS and "mistake_incomplete" in REASONS
+
+
+def word(**props):
+    base = {"Type": ("Word",), "Level": ("A1",), "Translation": ("x",)}
+    base.update({k: (v,) for k, v in props.items()})
+    return [p.reason + ":" + p.key for p in check_properties("w.md", base, None)]
+
+
+def test_new_parts_of_speech_are_valid():
+    for pos in ("article", "numeral", "interjection"):
+        assert word(PartOfSpeech=pos) == []
+
+
+def test_preposition_case():
+    assert word(PartOfSpeech="preposition", Case="Dativ") == []
+    assert word(PartOfSpeech="preposition", Case="Wechsel") == []
+    assert word(PartOfSpeech="preposition", Case="dativ") == ["case_invalid:Case"]
+    assert word(PartOfSpeech="preposition") == []
+
+
+def test_word_order():
+    assert word(PartOfSpeech="conjunction", WordOrder="end") == []
+    assert word(PartOfSpeech="adverb", WordOrder="inversion") == []
+    assert word(PartOfSpeech="conjunction", WordOrder="last") == ["word_order_invalid:WordOrder"]
+    assert word(PartOfSpeech="conjunction") == []
+
+
+def test_superlative_starts_with_am():
+    assert word(PartOfSpeech="adjective", Comparative="besser", Superlative="am besten") == []
+    assert word(PartOfSpeech="adjective", Superlative="beste") == ["superlative_invalid:Superlative"]
+
+
+def test_property_for_another_part_of_speech():
+    assert word(PartOfSpeech="noun", Article="der", Case="Dativ") == ["property_unexpected:Case"]
+    assert word(PartOfSpeech="preposition", Dativ="mir") == ["property_unexpected:Dativ"]

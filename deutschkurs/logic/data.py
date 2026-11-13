@@ -109,6 +109,11 @@ def _turn(unit: Unit, me: str) -> dict:
             "me": unit.speaker.strip().lower() == me.strip().lower(), "audio": local_audio(unit.audio)}
 
 
+def practised(entry: Entry) -> bool:
+    """Types that give cards; article words (ein, kein) give none, their forms are grammar."""
+    return entry.type in PRACTISED and not (entry.type == "Word" and entry.value("PartOfSpeech") == "article")
+
+
 def reason(entry: Entry, has_sentence: bool) -> str:
     """Why an entry gives no new cards (spec 7.4): "unchecked", "no_sentence", or "" when it is ready."""
     if entry.checked == "unchecked":
@@ -127,7 +132,7 @@ def indexed_ids(course: Course) -> set[str]:
 def not_ready(course: Course) -> list[tuple[Entry, str]]:
     """Practised entries that are not ready, with their reason, sorted by title."""
     indexed = indexed_ids(course)
-    found = [(e, reason(e, e.id in indexed)) for e in course.entries.values() if e.type in PRACTISED]
+    found = [(e, reason(e, e.id in indexed)) for e in course.entries.values() if practised(e)]
     return sorted([(e, r) for e, r in found if r], key=lambda item: item[0].title.lower())
 
 
@@ -145,7 +150,11 @@ def _record(entry: Entry, course: Course, forms: list[str], split: list[dict], h
         plural_only = entry.value("PluralOnly") == "yes"
         record.update(article="" if plural_only else entry.value("Article"), plural=entry.value("Plural"),
                       plural_only=plural_only, regional=list(entry.values("Regional")),
-                      noun=entry.is_noun)
+                      noun=entry.is_noun, pos=entry.value("PartOfSpeech"), case=entry.value("Case"),
+                      word_order=entry.value("WordOrder"), comparative=entry.value("Comparative"),
+                      superlative=entry.value("Superlative"),
+                      cases=[{"case": key, "form": entry.value(key)} for key in ("Akkusativ", "Dativ")
+                             if entry.value(key)])
     elif entry.type == "Verb":
         record.update(participle=entry.value("Participle"), auxiliary=list(entry.values("Auxiliary")),
                       separable=split)
@@ -169,7 +178,7 @@ def build_data(course: Course, config: DeutschkursConfig, title: str, version: s
     indexed = {row["entry"] for row in rows} | set(split)
     forms = forms_by_entry(course.glossary)
     entries = [_record(e, course, forms.get(e.id, []), split.get(e.id, []), e.id in indexed)
-               for e in course.entries.values() if e.type in PRACTISED]
+               for e in course.entries.values() if practised(e)]
     situations = [{"title": e.title, "url": course.url(e.id), "next_time": day(e.value("NextTime")),
                    "cando": list(e.cando)} for e in course.by_type("Situation")]
     days = config.prepare_days

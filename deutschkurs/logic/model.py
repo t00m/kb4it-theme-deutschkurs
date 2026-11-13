@@ -10,7 +10,17 @@ LEVELS = ("A1", "A2", "B1", "B2", "C1", "C2")
 CHECKED = ("unchecked", "assistant", "reference", "native", "attested")
 REGISTERS = ("du", "Sie", "neutral", "colloquial")
 ARTICLES = ("der", "die", "das")
-PARTS_OF_SPEECH = ("noun", "adjective", "adverb", "preposition", "conjunction", "pronoun", "particle", "other")
+# The German word classes (Wortarten) in Duden order; verbs have their own type.
+PARTS_OF_SPEECH = ("noun", "article", "adjective", "adverb", "pronoun", "preposition", "conjunction", "numeral",
+                   "interjection", "particle", "other")
+PREPOSITION_CASES = ("Akkusativ", "Dativ", "Wechsel", "Genitiv")
+# Where the conjugated verb goes after the word: position 2, the end of the clause, or right after it.
+WORD_ORDERS = ("normal", "end", "inversion")
+# Word properties that only some parts of speech take.
+POS_PROPERTIES: dict[str, tuple[str, ...]] = {
+    "Case": ("preposition",), "WordOrder": ("conjunction", "adverb"), "Comparative": ("adjective", "adverb"),
+    "Superlative": ("adjective", "adverb"), "Akkusativ": ("pronoun",), "Dativ": ("pronoun",),
+}
 AREAS = ("Verbs", "Nouns", "Cases", "Word order", "Sentences", "Other")
 GOVERNMENTS = ("Akkusativ", "Dativ", "Präposition")
 AUXILIARIES = ("haben", "sein")
@@ -25,7 +35,7 @@ COMMON = ("Type", "Level", "Topic", "Situation", "Translation", "Checked", "Sour
 
 PROPERTIES: dict[str, tuple[str, ...]] = {
     "Word": COMMON + ("Article", "Plural", "PluralOnly", "PartOfSpeech", "Forms", "Stress", "Regional", "Family",
-                      "Audio"),
+                      "Audio", "Case", "WordOrder", "Comparative", "Superlative", "Akkusativ", "Dativ"),
     "Verb": COMMON + ("Present", "Preterite", "Participle", "Auxiliary", "Irregular", "Separable", "Prefix",
                       "Reflexive", "Government", "Preposition", "KonjunktivII", "Stress", "Audio"),
     "Chunk": COMMON + ("Register", "Audio"),

@@ -31,6 +31,10 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`. Some e
 | `turn_invalid` | An item of the turn list, or of `## Variations`, is not written `**Speaker:** German`; a variation also needs the turn number first | Fix the line the message names. Only `kb4it build` reports this one |
 | `place_invalid` | `Place` of a Photo not an allowed value | Use one of the values in `entry-types.md`, or `Other` |
 | `mistake_incomplete` | A Mistake without text under `## Wrong` or `## Right` | Write one sentence in each. Only `kb4it build` reports this one |
+| `case_invalid` | `Case` is not `Akkusativ`, `Dativ`, `Wechsel` or `Genitiv` | Use one of these values, spelt exactly so |
+| `word_order_invalid` | `WordOrder` is not `normal`, `end` or `inversion` | Use one of these values, lower case |
+| `superlative_invalid` | `Superlative` does not start with `am ` | Write it with *am*: `am besten` |
+| `property_unexpected` | `Case`, `WordOrder`, `Comparative`, `Superlative`, `Akkusativ` or `Dativ` on a Word whose `PartOfSpeech` does not take it | Remove it, or correct `PartOfSpeech` |
 | `situation_unknown` | A `Situation` value is not the title of a Situation entry | Correct the spelling, or create the Situation entry. Only `kb4it build` reports this one |
 
 ## Other theme messages
