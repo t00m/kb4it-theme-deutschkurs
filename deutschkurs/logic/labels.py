@@ -7,6 +7,7 @@ LABELS: dict[str, str] = {
     "today": "Today",
     "vocabulary": "Vocabulary",
     "articles": "Articles",
+    "parts_of_speech": "Parts of speech",
     "feminine": "Feminine",
     "no_nouns": "The course has no noun with this article yet.",
     "verbs": "Verbs",

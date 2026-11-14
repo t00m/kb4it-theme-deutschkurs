@@ -15,7 +15,8 @@
     L = dk['labels'] if dk else None
     life = (('situations', 'situations.html'), ('conversations', 'conversations.html'), ('texts', 'texts.html'),
             ('photos', 'photos.html'))
-    course = (('vocabulary', 'vocabulary.html'), ('articles', 'Article.html'), ('verbs', 'verbs.html'), ('chunks', 'chunks.html'),
+    course = (('vocabulary', 'vocabulary.html'), ('articles', 'Article.html'),
+              ('parts_of_speech', 'PartOfSpeech.html'), ('verbs', 'verbs.html'), ('chunks', 'chunks.html'),
               ('grammar', 'grammar.html'), ('progress', 'progress.html'))
 %>
 % if cfg:

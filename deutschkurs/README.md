@@ -65,6 +65,8 @@ These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chun
 
 Article pages: `Article.html` and one page per article, `Article_der.html`, `Article_die.html` and `Article_das.html`, list every noun said with that article. The `die` page shows feminine nouns first, then plural-only nouns. The word cards, the vocabulary table and the Course menu link to them.
 
+Part of speech pages: `PartOfSpeech.html` counts the words of each part of speech, and one page per value, such as `PartOfSpeech_preposition.html`, lists them. The Course menu, the vocabulary table and the "Part of speech" line of every word page link to them.
+
 ## Practice
 
 Each build writes `deutschkurs-data.js`, the data the browser needs to practise. The home page shows how many cards are due and new today. `practice.html` has four sessions: Daily (due cards, the conversation of the day and a few new cards), Short (up to 15 due cards), Weekly (due cards, a conversation and the mistakes you repeat most) and Free (any card, by level, situation, topic or type). A situation page has a Prepare button that opens Free practice for that situation.

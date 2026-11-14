@@ -151,3 +151,10 @@ def test_part_of_speech_pages(built_site):
 def test_verb_and_chunk_tables_link_the_level(built_site):
     for name in ("verbs.html", "chunks.html"):
         assert re.search(r'<td><a href="Level_A[12].html">A[12]</a></td>', main(built_site.page(name))), name
+
+
+def test_word_page_links_its_part_of_speech(built_site):
+    assert re.search(r'<dt>Part of speech</dt><dd><a href="PartOfSpeech_noun.html">noun</a></dd>',
+                     main(built_site.page("termin.html")))
+    assert re.search(r'<dt>Part of speech</dt><dd><a href="PartOfSpeech_preposition.html">preposition</a></dd>',
+                     main(built_site.page("mit.html")))
