@@ -4,6 +4,8 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-14
+
 ### Added
 
 - Course menu: "Parts of speech", after Articles. It opens `PartOfSpeech.html`, which lists the parts of speech in the course with their number of words.
