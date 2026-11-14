@@ -341,17 +341,19 @@
       reader.readAsText(file);
     });
 
-    // practice.html#session=daily starts a session; #situation=<title> opens free practice for it.
+    // practice.html#session=daily starts a session; #situation=<title> and #level=A1 open free practice for it.
     var hash = String(root.location && root.location.hash || "").replace(/^#/, "");
-    var match = /^(session|situation)=(.*)$/.exec(hash);
+    var match = /^(session|situation|level)=(.*)$/.exec(hash);
     if (match) {
       var value = "";
       try { value = decodeURIComponent(match[2]); } catch (e) { value = match[2]; }
       if (match[1] === "session") start(value, {});
       else {
-        var select = doc.querySelector('[data-filter="situation"]');
+        var select = doc.querySelector('[data-filter="' + match[1] + '"]');
         if (select) select.value = value;
-        start("free", { situation: value });
+        var chosen = {};
+        chosen[match[1]] = value;
+        start("free", chosen);
       }
     }
   }

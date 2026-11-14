@@ -29,7 +29,8 @@ def _facts(entry) -> str:
         return " (to process)" if entry.open_gap else " (processed)"
     if entry.type in NO_LEVEL:
         return ""
-    facts = [entry.level or "no level", entry.value("Kind") or entry.value("Genre") or entry.value("Pattern")]
+    facts = [entry.level or "no level", entry.value("Kind") or entry.value("Genre") or entry.value("Pattern"),
+             f"step {entry.value('Step')}" if entry.value("Step") else ""]
     return f" ({', '.join(fact for fact in facts if fact)})"
 
 

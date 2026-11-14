@@ -31,7 +31,7 @@ YES = ("yes",)
 # Types that need no Level.
 NO_LEVEL = ("Situation", "Photo", "Gap", "Inbox")
 
-COMMON = ("Type", "Level", "Topic", "Situation", "Translation", "Checked", "Source", "Date", "Tag")
+COMMON = ("Type", "Level", "Topic", "Situation", "Translation", "Checked", "Source", "Date", "Tag", "Step")
 
 PROPERTIES: dict[str, tuple[str, ...]] = {
     "Word": COMMON + ("Article", "Plural", "PluralOnly", "PartOfSpeech", "Forms", "Stress", "Regional", "Family",

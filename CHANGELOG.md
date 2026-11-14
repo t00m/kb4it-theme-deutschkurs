@@ -4,6 +4,15 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Added
+
+- Levels in the Course menu. `Level.html` explains how to study a level and has a card per level, with its counts, a Study path button and a Practise button; your `learner_level` is marked.
+- A study path per level: `Level_A1.html` and the others list the entries of the level in study order, in numbered sections (Grammar, Conversations, Texts, Chunks, Verbs, Vocabulary by part of speech, Mistakes) with a hint each. Before, they were one table in alphabetical order.
+- The property `Step`, a whole number from 1, on any entry: its place on the study path of its level. Entries without it follow, conversations and texts with the best coverage first. Check: `step_invalid`.
+- Home page: a Start here box with a button per level.
+- `practice.html#level=A1` opens Free practice for a level.
+- Starter course: `Step` on its grammar entries.
+
 ## [0.7.2] - 2026-11-14
 
 ### Changed

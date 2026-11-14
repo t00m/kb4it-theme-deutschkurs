@@ -43,6 +43,7 @@ The course is built around conversations: a Situation collects its conversations
 8. **Talk like the learner.** Answer in the language the learner writes to you in. Keep German examples natural and from the learner's world: school, family, work, shopping, neighbours, offices.
 9. **Ready to practise.** The Practice page makes cards only from entries that are ready: an entry with `Checked: unchecked` gives no new cards, a Word needs at least one sentence under `## Examples` (or in a text or conversation of the course), and a Gap gives a card once `## In German` is written. So every Word you write gets one natural example sentence, and you set `Checked: assistant` as rule 2 says. The Progress page lists the entries that are not ready.
 10. **Grammar of the word.** A Word gets the properties of its part of speech, so the page shows them and Practice asks for them: `Case` for every preposition, `WordOrder` for every conjunction and for adverbs such as *deshalb*, `Comparative` and `Superlative` for adjectives and adverbs that have them, `Akkusativ` and `Dativ` for personal pronouns. Details in `reference/entry-types.md`.
+11. **Study order.** Each level has a study path page. When you add a Grammar entry, give it a `Step` that fits after the grammar points of its level the course already has (see `reference/site.md`), so the path stays in a sensible order. Never renumber the learner's steps without asking.
 
 ## Workflows
 

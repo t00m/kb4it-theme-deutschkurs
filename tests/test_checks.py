@@ -38,6 +38,8 @@ ROWS = [
     (change(WORD, Checked="maybe"), None, ("Checked", "checked_invalid")),
     (change(GRAMMAR, Area="Stuff"), None, ("Area", "area_invalid")),
     (change(WORD, Date="09.11.2026"), None, ("Date", "date_invalid")),
+    (change(WORD, Step="0"), None, ("Step", "step_invalid")),
+    (change(WORD, Step="zwei"), None, ("Step", "step_invalid")),
     (change(WORD, Topic="Kino"), ["Schule"], ("Topic", "topic_unknown")),
     (change(VERB, Separable="Yes", Prefix="an"), None, ("Separable", "flag_invalid")),
     (change(WORD, PluralOnly="true"), None, ("PluralOnly", "flag_invalid")),

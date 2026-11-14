@@ -8,6 +8,7 @@ from .data import not_ready
 from .parse import inbox_items as list_items
 from .german import sort_key
 from .glossary import find_spans
+from .levels import level_cards, level_plan, levels_in_use, practice_link
 from .model import AREAS, GENRES
 from .render import ARTICLE_KEY, FACET_KEYS, FACET_LABELS, GENDER, UNVERIFIED, cued, day, facet_page, has_plural, perfekt, plain_date
 
@@ -263,6 +264,17 @@ def candos(course: Course, url) -> list[dict]:
             for e in sorted(course.by_type("Situation"), key=lambda e: sort_key(e.title)) if e.cando[1]]
 
 
+def write_levels(theme, site, course: Course, facet) -> None:
+    """Level.html, the overview of the levels, and one study page per level."""
+    L, dk = theme.labels, theme.dk_var()
+    cards = level_cards(course, L, theme.config.learner_level)
+    site.page(facet_page("Level"), L["level"], theme.render("DK_LEVELS", dk=dk, cards=cards), listing=True)
+    for value in facet:
+        site.page(facet_page("Level", value), f"{L['level']}: {value}",
+                  theme.render("DK_LEVEL", dk=dk, level=value, practice=practice_link(value),
+                               sections=level_plan(course, value, L)), listing=True)
+
+
 def write_pages(theme, site, course: Course) -> None:
     """Write every list, facet and home page."""
     L, url, dk = theme.labels, course.url, theme.dk_var()
@@ -325,6 +337,10 @@ def write_pages(theme, site, course: Course) -> None:
     columns = [L["word"], L["type"], L["translation"], L["level"]]
     for key in FACET_KEYS:
         facet = course.facet(key)
+        if key == "Level":
+            # The level pages are study paths (spec 4.2, Levels); the other facets are plain lists.
+            write_levels(theme, site, course, facet)
+            continue
         values = [(value, facet_page(key, value), len(entries)) for value, entries in facet.items()]
         heading = L[FACET_LABELS.get(key, key.lower())]
         site.page(facet_page(key), heading, theme.render("DK_FACET", dk=dk, heading=heading, values=values),
@@ -343,6 +359,8 @@ def write_pages(theme, site, course: Course) -> None:
                         deadlines=dated(course.by_type("Text"), "Deadline", url),
                         latest=[(e.title, url(e.id), e.type) for e in latest],
                         others=[(e.title, url(e.id)) for e in others],
+                        levels=[(level, facet_page("Level", level), level == theme.config.learner_level)
+                                for level in levels_in_use(course)],
                         inbox=L["inbox_count"].replace("{n}", str(inbox_count(course))) if inbox_count(course) else "",
                         scripts=scripts(theme, ("practice.js",)))
     site.page("index", L["home"], home)

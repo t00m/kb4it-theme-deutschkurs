@@ -35,6 +35,7 @@ Each line looks like `META_INVALID doc=<file> key=<key> reason=<reason>`. Some e
 | `word_order_invalid` | `WordOrder` is not `normal`, `end` or `inversion` | Use one of these values, lower case |
 | `superlative_invalid` | `Superlative` does not start with `am ` | Write it with *am*: `am besten` |
 | `property_unexpected` | `Case`, `WordOrder`, `Comparative`, `Superlative`, `Akkusativ` or `Dativ` on a Word whose `PartOfSpeech` does not take it | Remove it, or correct `PartOfSpeech` |
+| `step_invalid` | `Step` is not a whole number from 1, such as `0`, `1.5` or `zwei` | Write the position as a number: `Step: 3` |
 | `situation_unknown` | A `Situation` value is not the title of a Situation entry | Correct the spelling, or create the Situation entry. Only `kb4it build` reports this one |
 
 ## Other theme messages

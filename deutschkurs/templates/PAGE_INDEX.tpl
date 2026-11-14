@@ -9,6 +9,18 @@
             <a class="uk-button uk-button-default uk-button-small" href="progress.html">${L['progress']}</a>
         </p>
     </section>
+% if var['levels']:
+    <section class="dk-start uk-card uk-card-default uk-card-small uk-card-body uk-border-rounded uk-margin">
+        <h2 class="uk-h4 uk-margin-small-bottom">${L['start_here']}</h2>
+        <p class="uk-margin-small">${L['start_here_intro'].replace('{level}', var['dk']['settings'].learner_level)}</p>
+        <p class="uk-margin-remove-bottom">
+% for level, href, mine in var['levels']:
+            <a class="uk-button ${'uk-button-primary' if mine else 'uk-button-default'} uk-button-small" href="${href}">${level}</a>
+% endfor
+            <a class="uk-button uk-button-text uk-margin-small-left" href="Level.html">${L['levels']}</a>
+        </p>
+    </section>
+% endif
     <ul class="dk-tiles uk-grid-small uk-child-width-1-2 uk-child-width-1-3@s uk-child-width-1-4@m" data-uk-grid>
 % for label, href, count in var['counts']:
         <li><a class="dk-tile uk-card uk-card-default uk-card-small uk-card-body uk-card-hover uk-border-rounded" href="${href}">

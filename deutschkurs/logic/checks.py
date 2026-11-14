@@ -14,7 +14,7 @@ REASONS = (
     "prefix_missing", "register_invalid", "checked_invalid", "area_invalid", "date_invalid",
     "topic_unknown", "explanation_missing", "flag_invalid", "kind_missing", "kind_invalid", "genre_invalid",
     "situation_unknown", "turn_invalid", "place_invalid", "mistake_incomplete",
-    "case_invalid", "word_order_invalid", "superlative_invalid", "property_unexpected",
+    "case_invalid", "word_order_invalid", "superlative_invalid", "property_unexpected", "step_invalid",
 )
 
 FLAGS = ("PluralOnly", "Irregular", "Separable", "Reflexive", "Reply")
@@ -119,9 +119,17 @@ def check_properties(doc: str, props: Mapping[str, Sequence[str]],
     for key in DATES:
         if get(key) and not real_date(get(key)[0]):
             add(key, "date_invalid")
+    if get("Step") and step(get("Step")[0]) is None:
+        add("Step", "step_invalid")
     if topics is not None and any(t not in topics for t in get("Topic")):
         add("Topic", "topic_unknown")
     return problems
+
+
+def step(value: str) -> int | None:
+    """The whole number from 1 of a Step value, or None."""
+    value = str(value).strip()
+    return int(value) if re.fullmatch(r"[0-9]+", value) and int(value) >= 1 else None
 
 
 def real_date(value: str) -> bool:
