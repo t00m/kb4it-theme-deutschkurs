@@ -69,6 +69,95 @@ Type: Word
 *Termin* is not a *term*: it is an appointment with a fixed time.
 ```
 
+Other parts of speech have no `Article`. Each one adds the properties of its part of speech.
+
+A preposition, with its case:
+
+```markdown
+---
+Case: Dativ
+Checked: assistant
+Level: A1
+PartOfSpeech: preposition
+Translation: with
+Type: Word
+---
+
+# mit
+
+## Examples
+
+- Meine Tochter fährt mit dem Bus zur Schule. :: My daughter goes to school by bus.
+
+## Notes
+
+*mit* always takes the Dativ: *mit dem Bus*, *mit der Lehrerin*, *mit den Kindern*.
+```
+
+A conjunction, with the place of the verb:
+
+```markdown
+---
+Checked: assistant
+Level: A2
+PartOfSpeech: conjunction
+Translation: because
+Type: Word
+WordOrder: end
+---
+
+# weil
+
+## Examples
+
+- Mein Sohn kommt heute nicht, weil er Fieber hat. :: My son is not coming today because he has a fever.
+
+## Notes
+
+After *weil* the conjugated verb goes to the end: *weil er Fieber **hat***.
+```
+
+An adjective, with its comparison:
+
+```markdown
+---
+Checked: assistant
+Comparative: besser
+Level: A1
+PartOfSpeech: adjective
+Superlative: am besten
+Translation: good
+Type: Word
+---
+
+# gut
+
+## Examples
+
+- Meinem Sohn geht es heute besser. :: My son is feeling better today.
+```
+
+A personal pronoun, with its Akkusativ and Dativ forms:
+
+```markdown
+---
+Akkusativ: mich
+Checked: assistant
+Dativ: mir
+Level: A1
+PartOfSpeech: pronoun
+Translation: I
+Type: Word
+---
+
+# ich
+
+## Examples
+
+- Können Sie mich morgen anrufen? :: Can you call me tomorrow?
+- Bitte geben Sie mir den Brief. :: Please give me the letter.
+```
+
 ## Verb
 
 The `#` title is the infinitive.

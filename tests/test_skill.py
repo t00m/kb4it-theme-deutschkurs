@@ -311,3 +311,14 @@ def test_skill_explains_what_makes_an_entry_ready_to_practise():
     text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     rule = text.split("**Ready to practise.**", 1)[1].split("\n", 1)[0]
     assert "`Checked: unchecked`" in rule and "## Examples" in rule and "## In German" in rule
+
+
+def test_word_examples_show_every_part_of_speech_property():
+    found = {}
+    for example in FENCED.findall(entry_types()):
+        props = props_of(example)
+        if props.get("Type") == ("Word",):
+            found[props["PartOfSpeech"][0]] = set(props)
+    for key, parts in model.POS_PROPERTIES.items():
+        assert any(key in found.get(pos, set()) for pos in parts), key
+    assert {"preposition", "conjunction", "adjective", "pronoun"} <= set(found)
