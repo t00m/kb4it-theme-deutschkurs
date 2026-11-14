@@ -141,3 +141,15 @@ li.dk-variation { list-style: none; margin: .5rem 0; }
 .dk-source-bar { gap: .25rem 1.25rem; margin: .5rem .25rem 1rem; }
 .dk-source-bar .uk-button-text { text-transform: none; font-size: .875rem; color: var(--dk-muted); }
 #dk-source-text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85rem; }
+
+/* Levels: the overview, the study path of a level and the Start here box of the home page. */
+.dk-level-card.dk-mine { box-shadow: inset 4px 0 0 var(--dk-accent); }
+.dk-your-level { vertical-align: middle; background: var(--dk-accent); color: #fff; }
+.dk-level-counts span:not(:last-child)::after { content: " · "; color: var(--dk-muted); }
+.dk-study { margin-top: 2rem; }
+.dk-study h2 { display: flex; align-items: center; gap: .5rem; }
+.dk-step { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem;
+    border-radius: 50%; background: var(--dk-accent); color: #fff; font-size: 1rem; }
+.dk-hint { color: var(--dk-muted); margin-top: -.5rem; }
+.dk-inline { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: .3rem .9rem; }
+.dk-start h2 { margin-top: 0; }

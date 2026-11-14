@@ -15,6 +15,7 @@ One file per entry, in the course's `source/` folder. Each file has YAML frontma
 | `Source` | Free text | Optional; where the entry comes from |
 | `Date` | `YYYY-MM-DD` | Optional; the day the entry was added |
 | `Tag` | Free | Optional |
+| `Step` | A whole number from 1 | Optional; the order of the entry on the study page of its level: `Step: 1` comes first. Set it on Grammar entries, and on the conversations to study first. Entries without it follow, the best-known conversations and texts first, the rest by title |
 
 ## Word
 

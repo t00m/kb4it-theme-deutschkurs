@@ -246,6 +246,7 @@ def test_site_appendix_lists_situations_conversations_and_texts(built_site):
     assert "- `situation-elternabend.md`: Elternabend\n" in site_md
     assert "- `gruss-am-schultor.md`: Gruß am Schultor (A1, model)" in site_md
     assert "- `elternbrief-ausflug.md`: Elternbrief zum Ausflug (A2, School letter)" in site_md
+    assert "- `perfekt-haben-sein.md`: Perfekt mit haben oder sein (A2, step 1)" in site_md
 
 
 def test_site_appendix_has_no_sentence_of_a_conversation_or_a_text(built_site):

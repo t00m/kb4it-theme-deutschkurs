@@ -3,6 +3,7 @@ Area: Word order
 Checked: assistant
 Level: A2
 Marker: weil, dass, wenn
+Step: 3
 Type: Grammar
 ---
 
