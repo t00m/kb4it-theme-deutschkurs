@@ -4,6 +4,13 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-14
+
+### Changed
+
+- Listen buttons prefer any other German voice to eSpeak and MBROLA, the robotic default voices of Linux. eSpeak is used only when no other German voice is installed. A voice named in `voice` is still used first.
+- README: the Linux voice advice recommends Piper voices, installed with the Pied app, instead of eSpeak.
+
 ## [0.7.1] - 2026-11-14
 
 ### Added

@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.7.1, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.7.2, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -107,8 +107,16 @@ Listen buttons use the voices of your device. Without a German voice the Listen,
 
 - Android: Settings, System, Languages, Text-to-speech output; install German in the speech engine.
 - iOS: Settings, Accessibility, Spoken Content, Voices, German.
-- Linux: install a German voice for speech-dispatcher, such as `espeak-ng` with its German data, then restart the browser.
+- Linux: see below.
 - Windows: Settings, Time and language, Speech, Add voices, German.
+
+On Linux, Firefox and Chromium get their voices from speech-dispatcher, which speaks with eSpeak by default. eSpeak works offline but sounds robotic. For a natural German voice, install Piper, a neural voice engine that also works offline:
+
+1. Install the Pied app (Flathub or Snap Store). It downloads Piper voices and sets them up for speech-dispatcher.
+2. In Pied, choose a German voice, such as *thorsten* or *kerstin*, and make it the default.
+3. Restart the browser.
+
+The course prefers any other German voice to eSpeak and uses eSpeak only when it is the only one. To choose one voice by name, set `voice` in the `deutschkurs` block of `repo.json`.
 
 ## Assistant skill
 
