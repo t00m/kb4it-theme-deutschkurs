@@ -4,6 +4,8 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-14
+
 ### Added
 
 - Levels in the Course menu. `Level.html` explains how to study a level and has a card per level, with its counts, a Study path button and a Practise button; your `learner_level` is marked.
