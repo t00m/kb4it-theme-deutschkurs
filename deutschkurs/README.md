@@ -1,6 +1,6 @@
 # deutschkurs theme
 
-A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.7.0, for KB4IT 0.12.x.
+A KB4IT theme that turns your own Markdown files into an offline German course built around real life. Version 0.7.1, for KB4IT 0.12.x.
 
 ## Entries
 
@@ -64,6 +64,8 @@ Home, Situations, Conversations, Texts, Photos, Mistakes, Inbox, Vocabulary, Ver
 These names are reserved: a source file named `vocabulary.md`, `verbs.md`, `chunks.md`, `grammar.md`, `texts.md`, `conversations.md`, `situations.md`, `skill.md`, `Level.md`, `Topic.md`, `Register.md`, `Genre.md`, `Place.md`, `Pattern.md`, `PartOfSpeech.md` (and the others in `logic/theme.py`) is refused. A file whose name starts with a facet name and `_`, such as `Level_` or `Genre_`, gets a `PAGE_NAME_TAKEN` warning. Your own `index.md` replaces the home page.
 
 Article pages: `Article.html` and one page per article, `Article_der.html`, `Article_die.html` and `Article_das.html`, list every noun said with that article. The `die` page shows feminine nouns first, then plural-only nouns. The word cards, the vocabulary table and the Course menu link to them.
+
+Part of speech pages: `PartOfSpeech.html` counts the words of each part of speech, and one page per value, such as `PartOfSpeech_preposition.html`, lists them. The Course menu, the vocabulary table and the "Part of speech" line of every word page link to them.
 
 ## Practice
 

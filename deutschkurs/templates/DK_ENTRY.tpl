@@ -52,7 +52,9 @@
 % if c['facts'] or c['links']:
         <dl class="dk-facts">
 % for label, text in c['facts']:
-% if c['fact_css'].get(label):
+% if c['fact_href'].get(label):
+            <dt>${label}</dt><dd><a href="${c['fact_href'][label]}">${text}</a></dd>
+% elif c['fact_css'].get(label):
             <dt>${label}</dt><dd class="${c['fact_css'][label]}">${text}</dd>
 % else:
             <dt>${label}</dt><dd>${text}</dd>

@@ -443,6 +443,8 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     facts: list[tuple[str, str]] = []
     # Classes of single facts, by label: the plural in its colour.
     fact_css: dict[str, str] = {}
+    # Pages of single facts, by label: the list of words with the same part of speech.
+    fact_href: dict[str, str] = {}
     links: list[tuple[str, list[tuple[str, str]]]] = []
 
     def fact(label: str, value: str) -> None:
@@ -461,7 +463,10 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
             if has_plural(plural):
                 fact_css[labels["plural"]] = cued("dk-pl")
     if entry.type == "Word":
-        fact("part_of_speech", entry.value("PartOfSpeech"))
+        pos = entry.value("PartOfSpeech")
+        fact("part_of_speech", pos)
+        if pos:
+            fact_href[labels["part_of_speech"]] = facet_page("PartOfSpeech", pos)
         fact("forms", ", ".join(entry.values("Forms")))
         _part_of_speech_facts(entry, course, labels, fact, links, url)
         fact("regional", ", ".join(entry.values("Regional")))
@@ -548,7 +553,7 @@ def card(entry: Entry, course: Course, labels: dict[str, str], url: Callable[[st
     say = headline if entry.type in INDEXED or entry.type == "Grammar" else ""
     recording = local_audio(entry.value("Audio")) if entry.type in INDEXED else ""
     return {"kind": entry.type, "headline": headline, "headline_class": cued(css), "say": say, "audio": recording,
-            "translation": entry.translation, "badges": badges, "facts": facts, "fact_css": fact_css, "links": links,
+            "translation": entry.translation, "badges": badges, "facts": facts, "fact_css": fact_css, "fact_href": fact_href, "links": links,
             "unverified": unverified, "hint_attr": hint}
 
 
