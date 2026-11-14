@@ -39,6 +39,32 @@ test("pickVoice returns null without a German voice", () => {
   assert.strictEqual(pickVoice([{ name: "x", lang: "en-US" }], "de-DE", null), null);
 });
 
+// eSpeak voices as Linux browsers list them through speech-dispatcher.
+const ESPEAK = [
+  { name: "German", lang: "de", voiceURI: "urn:moz-tts:speechd:German?de" },
+  { name: "German+klatt", lang: "de-DE", voiceURI: "urn:moz-tts:speechd:German+klatt?de-DE" },
+  { name: "eSpeak German", lang: "de-DE", voiceURI: "eSpeak German" },
+  { name: "mb-de1", lang: "de-DE", voiceURI: "mbrola" },
+];
+
+test("pickVoice prefers any other German voice to eSpeak", () => {
+  const { pickVoice } = load().Deutschkurs.speech;
+  const piper = { name: "thorsten", lang: "de", voiceURI: "urn:moz-tts:speechd:thorsten?de" };
+  assert.strictEqual(pickVoice(ESPEAK.concat([piper]), "de-DE", null).name, "thorsten");
+  assert.strictEqual(pickVoice([ESPEAK[1], VOICES[1]], "de-DE", null).name, "Anna");
+});
+
+test("pickVoice still uses eSpeak when it is the only German voice", () => {
+  const { pickVoice } = load().Deutschkurs.speech;
+  assert.strictEqual(pickVoice([VOICES[0], ESPEAK[0], ESPEAK[1]], "de-DE", null).name, "German+klatt");
+  assert.strictEqual(pickVoice([ESPEAK[0]], "de-DE", null).name, "German");
+});
+
+test("pickVoice keeps a named eSpeak voice", () => {
+  const { pickVoice } = load().Deutschkurs.speech;
+  assert.strictEqual(pickVoice(ESPEAK.concat(VOICES), "de-DE", "German").name, "German");
+});
+
 function fakeDocument(speech) {
   const classes = new Set();
   return {

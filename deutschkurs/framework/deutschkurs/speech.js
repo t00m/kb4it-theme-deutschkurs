@@ -104,15 +104,28 @@
     return out;
   }
 
-  // Named voice first, then the exact language, then any German voice.
+  // eSpeak and MBROLA, the robotic default voices of Linux. Through speech-dispatcher an eSpeak voice is
+  // called by its language ("German") or with a variant ("German+klatt").
+  var ROBOTIC = /espeak|mbrola|^mb-|\+/i;
+
+  function robotic(voice) {
+    var name = String(voice.name || "");
+    return ROBOTIC.test(name) || ROBOTIC.test(String(voice.voiceURI || "")) || /^(german|deutsch)$/i.test(name);
+  }
+
+  // Named voice first, then the exact language, then any German voice; eSpeak only when nothing else speaks German.
   function pickVoice(voices, lang, name) {
     var list = voices || [];
     var i;
     if (name) {
       for (i = 0; i < list.length; i++) if (list[i].name === name) return list[i];
     }
-    for (i = 0; i < list.length; i++) if (list[i].lang === lang) return list[i];
-    for (i = 0; i < list.length; i++) if (String(list[i].lang).toLowerCase().indexOf("de") === 0) return list[i];
+    var groups = [list.filter(function (v) { return !robotic(v); }), list.filter(robotic)];
+    for (var g = 0; g < groups.length; g++) {
+      var group = groups[g];
+      for (i = 0; i < group.length; i++) if (group[i].lang === lang) return group[i];
+      for (i = 0; i < group.length; i++) if (String(group[i].lang).toLowerCase().indexOf("de") === 0) return group[i];
+    }
     return null;
   }
 
