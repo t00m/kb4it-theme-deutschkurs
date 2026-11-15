@@ -4,6 +4,10 @@ All notable changes to the deutschkurs theme. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Changed
+
+- Practice: a cloze card takes its sentences only from entries at or below the level of the word it practises, so an A1 word is no longer asked in a B2 contract. A sentence from an entry without a level fits any word. When no sentence is at the word's level, the card keeps all of them.
+
 ## [0.8.0] - 2026-11-14
 
 ### Added

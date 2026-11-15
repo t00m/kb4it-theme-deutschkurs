@@ -205,3 +205,29 @@ def test_article_words_give_no_record_and_are_never_not_ready():
     assert "ein.md" not in [e["id"] for e in data(docs)["entries"]]
     course = build_course(docs, DeutschkursConfig())
     assert "ein.md" not in [e.id for e, _ in not_ready(course)]
+
+
+CONTRACT = ("vertrag.md", {"Type": ("Text",), "Level": ("B2",), "Checked": ("assistant",)},
+            "# Vertrag\n\nDer Termin für die Abnahme wird schriftlich vereinbart.\n\n> The date is agreed in writing.\n")
+HEUTE = ("heute.md", {"Type": ("Word",), "Level": ("A1",), "PartOfSpeech": ("adverb",), "Translation": ("today",),
+                      "Checked": ("assistant",)}, "# heute\n")
+LATER = ("spaeter.md", {"Type": ("Text",), "Level": ("B1",), "Checked": ("assistant",)},
+         "# Später\n\nHeute kann ich leider nicht kommen.\n\n> I cannot come today.\n")
+
+
+def test_cloze_rows_not_above_the_entry_level():
+    rows = [r for r in data(DOCS + [CONTRACT])["sentences"] if r["entry"] == "termin.md"]
+    assert {r["doc"] for r in rows} == {"talk.md", "termin.md"}
+
+
+def test_cloze_rows_kept_when_none_at_the_entry_level():
+    payload = data(DOCS + [HEUTE, LATER])
+    assert {r["doc"] for r in payload["sentences"] if r["entry"] == "heute.md"} == {"spaeter.md"}
+    assert record(payload, "heute.md")["ready"] is True
+
+
+def test_cloze_rows_of_a_higher_entry_use_easier_sentences():
+    abnahme = ("abnahme.md", {"Type": ("Word",), "Level": ("B2",), "PartOfSpeech": ("noun",), "Article": ("die",),
+                              "Translation": ("acceptance",), "Checked": ("assistant",)}, "# Abnahme\n")
+    rows = [r for r in data(DOCS + [CONTRACT, abnahme])["sentences"] if r["entry"] == "abnahme.md"]
+    assert {r["doc"] for r in rows} == {"vertrag.md"}

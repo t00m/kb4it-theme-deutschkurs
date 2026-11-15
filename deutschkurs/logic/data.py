@@ -7,7 +7,7 @@ from pathlib import Path
 from .config import DeutschkursConfig
 from .course import Course
 from .glossary import Glossary, find_spans
-from .model import Entry
+from .model import LEVELS, Entry
 from .parse import Pair, Unit, clean
 from .render import day, local_audio
 
@@ -100,6 +100,26 @@ def _rows(course: Course, sentences) -> tuple[list[dict], dict[str, list[dict]]]
     return rows, split
 
 
+def _rank(level: str) -> int | None:
+    """Position of a level in A1..C2, or None when the level is missing or unknown."""
+    return LEVELS.index(level) if level in LEVELS else None
+
+
+def at_level(course: Course, rows: list[dict]) -> list[dict]:
+    """Cloze rows whose sentence is not above the level of the entry it practises.
+
+    A sentence takes the level of the document it comes from; a document without a level fits any entry. An A1
+    word is then practised in A1 sentences, not in a B2 contract. An entry without a level, or with no sentence
+    at its level, keeps all its rows, so no entry loses its cloze card."""
+    def fits(row: dict) -> bool:
+        entry, doc = course.entries.get(row["entry"]), course.entries.get(row["doc"])
+        own, source = _rank(entry.level if entry else ""), _rank(doc.level if doc else "")
+        return own is None or source is None or source <= own
+
+    fitting = {row["entry"] for row in rows if fits(row)}
+    return [row for row in rows if fits(row) or row["entry"] not in fitting]
+
+
 def _pairs(pairs: tuple[Pair, ...]) -> list[dict]:
     return [{"german": p.german, "translation": p.translation} for p in pairs]
 
@@ -176,6 +196,7 @@ def build_data(course: Course, config: DeutschkursConfig, title: str, version: s
     """The payload of deutschkurs-data.js (spec 7.1)."""
     rows, split = _rows(course, _sentences(course))
     indexed = {row["entry"] for row in rows} | set(split)
+    rows = at_level(course, rows)
     forms = forms_by_entry(course.glossary)
     entries = [_record(e, course, forms.get(e.id, []), split.get(e.id, []), e.id in indexed)
                for e in course.entries.values() if practised(e)]
